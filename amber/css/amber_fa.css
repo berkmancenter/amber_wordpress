@@ -1,0 +1,45 @@
+.amber-interstitial .amber-cached, 
+.amber-interstitial .amber-live {    
+  float: right;
+}
+
+.amber-cached {
+  margin-right: 0;
+  margin-left: 25px;
+}                    
+                   
+.amber-interstitial .amber-cached a, 
+.amber-interstitial .amber-live a
+{                                                                        
+  background: url(../images/Arrow-Large-Left.png) left bottom no-repeat;      
+  text-align: right;
+}             
+
+.amber-arrow {
+  margin-left: 0;
+  margin-right: 60px;
+}
+.amber-hover .amber-status-text {
+   background-position: right 10px center;
+   padding-right: 40px;
+   padding-left: 0;
+}
+
+.amber-hover .amber-cache-text {
+  padding-left: 0;
+  padding-right: 40px;
+}
+              
+.amber-hover a.amber-info {
+  margin-right: 0;
+  margin-left: 10px;
+}
+
+.amber-hover .amber-links a {
+  margin-left: 0;
+  margin-right: 40px;
+}
+
+a.amber-info {
+  float: left;
+}
