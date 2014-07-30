@@ -18,38 +18,28 @@ define("AMBER_STATUS_DOWN","down");
 
 class Amber {
 
+	private static function get_option($key, $default)
+	{
+		$options = get_option('amber_options');
+		return isset($options[$key]) ? $options[$key] : $default;
+	}
+
 	/**
 	 * Get an initialized AmberStorage module
 	 * @return AmberStorage
 	 */
-	// private static function amber_get_storage() {
-	//  	$storage = &drupal_static(__FUNCTION__);
-	//  	if (!isset($storage)) {
-	//     	$file_path = join(DIRECTORY_SEPARATOR,
-	//       	array(DRUPAL_ROOT, variable_get('amber_storage_location', 'sites/default/files/amber')));
-	//     	$storage = new AmberStorage($file_path);
-	//   	}
-	//   	return $storage;
-	// }
-
-	/**
-	 * Return an initialized AmberFetcher module
-	 * @return IAmberFetcher
-	 */
-	private static function amber_get_fetcher() {
-    	$fetcher = new AmberFetcher(amber_get_storage(), array(
-		      		'amber_max_file' => get_option('amber_max_file',1000),
-	    	  		'header_text' => "This is a cached page",
-	      			'excluded_content_types' => explode(PHP_EOL,get_option("amber_excluded_formats","")),
-    	));
-	  	return $fetcher;
+	private static function get_storage() {
+    	// $file_path = join(DIRECTORY_SEPARATOR, array(DRUPAL_ROOT, variable_get('amber_storage_location', 'sites/default/files/amber')));
+    	$file_path = "/tmp";
+    	$storage = new AmberStorage($file_path);
+	  	return $storage;
 	}
 
 	/**
 	 * Return an initialized AmberChecker module
 	 * @return IAmberChecker
 	 */
-	private static function amber_get_checker() {
+	private static function get_checker() {
 	    $checker = new AmberChecker();
 	 	return $checker;
 	}
@@ -58,12 +48,26 @@ class Amber {
 	 * Return an initialized AmberStatus module
 	 * @return IAmberStatus
 	 */
-	private static function amber_get_status() {
+	private static function get_status() {
 		global $wpdb;
 
 	    $status = new AmberStatus(new AmberWPDB($wpdb), $wpdb->prefix);
 		return $status;
 	}
+
+	/**
+	 * Return an initialized AmberFetcher module
+	 * @return IAmberFetcher
+	 */
+	private static function get_fetcher() {
+    	$fetcher = new AmberFetcher(Amber::get_storage(), array(
+		      		'amber_max_file' => Amber::get_option('amber_max_file',1000),
+	    	  		'header_text' => "This is a cached page",
+	      			'excluded_content_types' => Amber::get_option("amber_excluded_formats",false) ? explode(PHP_EOL, Amber::get_option("amber_excluded_formats","")) : array(),
+    	));
+	  	return $fetcher;
+	}
+
 
 	private function get_behavior($status, $country = false)
 	{
@@ -71,28 +75,28 @@ class Amber {
 	  $options = get_option('amber_options');
 	  $c = $country ? "country_" : "";
 	  if ($status) {
-	    $action = isset($options["amber_${c}available_action"]) ? $options["amber_${c}available_action"] : AMBER_ACTION_NONE;
+	    $action = Amber::get_option("amber_${c}available_action", AMBER_ACTION_NONE);
 	    switch ($action) {
 	      case AMBER_ACTION_NONE:
 	        $result = NULL;
 	        break;
 	      case AMBER_ACTION_HOVER:
 	        $result .= " hover:"; 
-	        $result .= isset($options["amber_${c}available_action_hover"]) ? $options["amber_${c}available_action_hover"] : 2;
+	        $result .= Amber::get_option("amber_${c}available_action_hover", 2);
 	        break;
 	      case AMBER_ACTION_POPUP:
 	        $result .= " popup";
 	        break;
 	      }
 	  } else {
-	    $action = isset($options["amber_${c}unavailable_action"]) ? $options["amber_${c}unavailable_action"] : AMBER_ACTION_NONE;
+	    $action = Amber::get_option("amber_${c}unavailable_action", AMBER_ACTION_NONE);
 	    switch ($action) {
 	      case AMBER_ACTION_NONE:
 	        $result = NULL;
 	        break;
 	      case AMBER_ACTION_HOVER:
 	        $result .= " hover:";
-	        $result .= isset($options["amber_${c}unavailable_action_hover"]) ? $options["amber_${c}unavailable_action_hover"] : 2;
+	        $result .= Amber::get_option("amber_${c}unavailable_action_hover", 2);
 	        break;
 	      case AMBER_ACTION_POPUP:
 	        $result .= " popup";
@@ -129,7 +133,7 @@ class Amber {
 	  }
 
 	  // See if we have country-specific behavior
-	  if ($country = get_option('amber_country_id','')) {
+	  if ($country = Amber::get_option('amber_country_id','')) {
 	    $country_status = isset($summaries[$country]['status']) ? $summaries[$country]['status'] : $default_status;
 	    if (!is_null($country_status)) {
 	      $country_behavior = Amber::get_behavior($country_status, true);
@@ -148,7 +152,7 @@ class Amber {
 	 * Lookup a URL using the AmberStorage class, while caching for the duration of the page load
 	 */
 	private static function lookup_url($url) {
-	  $status = Amber::amber_get_status();
+	  $status = Amber::get_status();
 	  return Amber::build_link_attributes($status->get_summary($url));
 	}
 
@@ -200,6 +204,50 @@ class Amber {
     	return $actions;
 	}
 
+	private static function cache_link($item, $force = false) {
+
+		$checker = Amber::get_checker();
+		$status =  Amber::get_status();
+		$fetcher = Amber::get_fetcher();
+
+		/* Check whether the site is up */
+		$last_check = $status->get_check($item);
+		if (($update = $checker->check(empty($last_check) ? array('url' => $item) : $last_check, $force)) !== false) {
+
+			/* There's an updated check result to save */
+			$status->save_check($update);
+
+			/* Now cache the item if we should */
+			$existing_cache = $status->get_cache($item);
+	  		$options = get_option('amber_options');
+	  		$strategy = isset($options["amber_update_strategy"]) ? $options["amber_update_strategy"] : 0;
+			if ($update['status'] && (!$strategy || !$existing_cache)) {
+				$cache_metadata = array();
+				try {
+					$cache_metadata = $fetcher->fetch($item);
+				} catch (RuntimeException $re) {
+				  // watchdog('amber', "Did not cache: @url: @message", array('@url' => $item, '@message' => $re->getMessage()), WATCHDOG_NOTICE);
+					$update['message'] = $re->getMessage();
+					$status->save_check($update);        
+					return false;
+				}
+				if ($cache_metadata) {
+					$status->save_cache($cache_metadata);
+				  	/* Clear caches that could contain HTML with versions of the links that don't contain data- attributes */
+				  	/* TODO: Ideally we would clear the cache only once per cron job */
+				  	// cache_clear_all('*', 'cache_filter',TRUE);
+				  	// cache_clear_all('*', 'cache_field',TRUE);
+				  	// amber_disk_space_purge();
+				  	// watchdog('amber', "Cached: @url in @seconds seconds", array('@url' => $item, '@seconds' => time() - $start), WATCHDOG_DEBUG);
+				  	return true;
+				}
+			}
+		} else {
+			return false;
+		}
+
+	}
+
 	private static function cache_links($links, $immediately = false) {
 	    foreach ($links as $url) {
 			if (Amber::cache_link($url, $immediately)) {
@@ -216,10 +264,8 @@ class Amber {
 	 	$re = '/href=["\'](http[^\v()<>{}\[\]"\']+)[\'"]/';
   		$count = preg_match_all($re, $text, $matches);
   		if ($count) {
-  			Amber::cache_links($matches[1],true);
+  			 Amber::cache_links($matches[1],true);
   		}
-  		var_dump($matches);
-  		exit(2);
 	}
 
 }
@@ -227,6 +273,9 @@ class Amber {
 include_once dirname( __FILE__ ) . '/amber-install.php';
 include_once dirname( __FILE__ ) . '/amber-settings.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberStatus.php';
+include_once dirname( __FILE__ ) . '/libraries/AmberStorage.php';
+include_once dirname( __FILE__ ) . '/libraries/AmberFetcher.php';
+include_once dirname( __FILE__ ) . '/libraries/AmberChecker.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberDB.php';
 
 /* The filter to lookup and rewrite links with amber data- attributes */
