@@ -7,8 +7,8 @@ class AmberInstall {
 		  id VARCHAR(32) NOT NULL,
 		  url VARCHAR(2000) DEFAULT '' NOT NULL,
 		  status int,
-		  last_checked datetime,
-		  next_check datetime,
+		  last_checked int,
+		  next_check int,
 		  message VARCHAR(2000),
 		  PRIMARY KEY id (id)
 		)";
@@ -16,14 +16,14 @@ class AmberInstall {
 		  id VARCHAR(32) NOT NULL,
 		  url VARCHAR(2000) DEFAULT '' NOT NULL,
 		  location VARCHAR(2000) DEFAULT '' NOT NULL,
-		  date datetime,
+		  date int,
 		  type VARCHAR(200) DEFAULT '' NOT NULL,
 		  size int,
 		  PRIMARY KEY id (id)
 		)";
 		$tables['amber_activity'] =  "(
 		  id VARCHAR(32) NOT NULL,
-		  date datetime,
+		  date int,
 		  views int DEFAULT 0 NOT NULL,
 		  PRIMARY KEY id (id)
 		)";
