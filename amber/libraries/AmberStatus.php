@@ -159,13 +159,13 @@ class AmberStatus implements iAmberStatus {
     $result = $this->db->select("SELECT COUNT(id) as count FROM ${prefix}amber_activity WHERE id = %s", array($id));
     $params = array(time(), $id);
     if ($result['count']) {
-      $updateQuery = 'UPDATE amber_activity ' .
+      $updateQuery = 'UPDATE ${prefix}amber_activity ' .
                                         'SET views = views + 1, ' .
                                         'date = %d ' .
                                         'WHERE id = %s';
       $this->db->update($updateQuery, $params);
     } else {
-      $updateQuery = 'INSERT into amber_activity ' .
+      $updateQuery = 'INSERT into ${prefix}amber_activity ' .
                                         '(date, views, id) ' .
                                         'VALUES(%d, 1, %s)';
       $this->db->insert($updateQuery, $params);
