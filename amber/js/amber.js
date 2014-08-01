@@ -358,6 +358,7 @@ amber.util_ready(function($) {
       amber.util_addEventListener(e, 'mouseout', amber.end_link_hover);
       amber.util_addEventListener(e, 'click', amber.clear_hover);
     });
+    amber.util_addEventListener(window, 'unload', amber.clear_hover);
 
     if (amber.country_specific_behavior_exists()) {
       amber.get_country();
