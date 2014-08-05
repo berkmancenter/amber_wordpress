@@ -242,7 +242,6 @@ class Amber {
 				try {
 					$cache_metadata = $fetcher->fetch($item);
 				} catch (RuntimeException $re) {
-				  // watchdog('amber', "Did not cache: @url: @message", array('@url' => $item, '@message' => $re->getMessage()), WATCHDOG_NOTICE);
 					$update['message'] = $re->getMessage();
 					$status->save_check($update);        
 					return false;
@@ -342,13 +341,18 @@ class Amber {
 		// die();
 	}
 
-	/* Ensure that parameters passed by add_rewrite_rules() are accessible */
+	/**
+	 * Ensure that parameters passed by add_rewrite_rules() are accessible 
+	 */
 	public static function custom_query_vars($vars) {
 		$vars[] = 'amber_cache';
 		$vars[] = 'amber_asset';
 		return $vars;
 	}
 
+	/**
+	 * Request handling function to display cached content and assets
+	 */
 	public static function display_cached_content ($wp) {
 
 		$cache_id = !empty($wp->query_vars['amber_cache']) ? $wp->query_vars['amber_cache'] : "";
@@ -363,7 +367,7 @@ class Amber {
 			    	header('Content-Type', $data['metadata']['type']);
 			    }
 		    	print $data['data'];
-				die();
+		    	die();
 			} else {
 				/* This is an asset */
 				$data = Amber::retrieve_cache_asset($cache_id, $asset_id);
@@ -371,14 +375,28 @@ class Amber {
 			    	header('Content-Type', $data['metadata']['type']);
 				}
 		    	print($data['data']);
-				die();
+		    	die();
 			}
 		}
 	}
 
-	public static function add_header()
+	/**
+	 * When displaying cached content, set the Content-Type header for the primary
+     * content item. Not needed for assets, because their content-type can be inferred
+     * from the filename extension (css,jpeg,etc).
+	 */
+	public static function filter_cached_content_headers($headers)
 	{
-		// header( 'X-bogus: sfasdfas' );
+		global $wp;
+		$cache_id = !empty($wp->query_vars['amber_cache']) ? $wp->query_vars['amber_cache'] : "";
+		$asset_id = !empty($wp->query_vars['amber_asset']) ? $wp->query_vars['amber_asset'] : "";
+		if (!empty($cache_id) && empty($asset_id)) {
+			$data = Amber::retrieve_cache_item($cache_id);
+		    if (isset($data['metadata']['type'])) {
+				$headers['Content-Type'] = $data['metadata']['type'];
+		    }
+		}
+		return $headers;
 	}
 
 }
@@ -408,8 +426,8 @@ add_action( 'save_post', array('Amber', 'extract_links') );
 /* Add actions and filters for loading cache content */
 add_action( 'init', array('Amber', 'add_rewrite_rules') );
 add_filter( 'query_vars', array('Amber', 'custom_query_vars') );
-add_action( 'parse_request', array('Amber', 'display_cached_content') );
-add_action( 'send_headers', array('Amber', 'add_header') );
+add_action( 'parse_query', array('Amber', 'display_cached_content') );
+add_filter( 'wp_headers', array('Amber', 'filter_cached_content_headers') );
 
 
 /* Add "Cache Now" link to links */
