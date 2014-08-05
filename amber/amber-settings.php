@@ -133,6 +133,8 @@ class AmberSettingsPage
             'amber_options',            // Option name
             array( $this, 'sanitize' )  // Sanitize
         );
+
+        Amber::disk_space_purge();
     }
 
     /**
@@ -254,6 +256,8 @@ class AmberSettingsPage
         );
     }
 }
+
+include_once dirname( __FILE__ ) . '/amber.php';
 
 if( is_admin() )
     $my_settings_page = new AmberSettingsPage();

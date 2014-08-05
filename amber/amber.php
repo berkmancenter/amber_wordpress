@@ -208,7 +208,7 @@ class Amber {
 	/**
 	 * If the total disk space usage is over the configured limit, delete enough items to bring it under
 	 */
-	private static function disk_space_purge() {
+	public static function disk_space_purge() {
 	  $status = Amber::get_status();
 	  $purge = $status->get_items_to_purge(Amber::get_option('amber_max_disk',1000) * 1024 * 1024);
 	  if ($purge) {
