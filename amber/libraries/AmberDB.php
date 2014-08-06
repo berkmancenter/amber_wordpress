@@ -23,6 +23,7 @@ Class AmberPDO implements iAmberDB {
 	private function convert_to_question_marks($sql) {
 		$sql = str_replace('%s', '?', $sql);
 		$sql = str_replace('%d', '?', $sql);
+		$sql = str_replace('%f', '?', $sql);
 	return $sql;  		
 	}
 
@@ -77,40 +78,48 @@ Class AmberPDO implements iAmberDB {
 Class AmberWPDB implements iAmberDB {
 
 	public function __construct(wpdb $db) {
-  	$this->db = $db;
+  		$this->db = $db;
 	}
 
-  public function db_type() {
-    return 'mysql';
-  }
+  	public function db_type() {
+    	return 'mysql';
+  	}
+
+  	private function prepare($sql, $options) {
+  		if (empty($options)) {
+  			return $sql;
+  		} else {
+  			return $this->db->prepare($sql, $options);
+  		}
+  	}
 
 	public function select($sql, $options = array())
 	{
-		$query = $this->db->prepare($sql, $options);
+		$query = $this->prepare($sql, $options);
 		return $this->db->get_row($query, ARRAY_A);
 	}
 
 	public function selectAll($sql, $options = array())
 	{
-    $query = $this->db->prepare($sql, $options);
+    $query = $this->prepare($sql, $options);
     return $this->db->get_results($query, ARRAY_A); 
 	}
 
 	public function insert($sql, $options = array())
 	{
-		$query = $this->db->prepare($sql, $options);
+		$query = $this->prepare($sql, $options);
 		$this->db->query($query,$options);
 	}
 
 	public function update($sql, $options = array())
 	{
-		$query = $this->db->prepare($sql, $options);
+		$query = $this->prepare($sql, $options);
 		$this->db->query($query,$options);
 	}
 
 	public function delete($sql, $options = array())
 	{
-		$query = $this->db->prepare($sql, $options);
+		$query = $this->prepare($sql, $options);
 		$this->db->query($query,$options);
 	}
 }
