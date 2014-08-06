@@ -205,6 +205,24 @@ class Amber {
     	return $actions;
 	}
 
+	public static function cron_add_schedule($schedules)
+	{
+		error_log("cron_add_schedule in Amber::cron_add_schedule()");
+	 	$schedules['minutely'] = array(
+	 		'interval' => 60,
+	 		'display' => __( 'Once a minute' )
+	 	);
+	 	return $schedules;
+	}
+
+	/** 
+	 * Hourly cron job
+	 */
+	public static function hourly_event_hook() {
+		error_log("hourly_event_hook in Amber::hourly_event_hook()");
+		Amber::dequeue_link();
+	}
+
 	/**
 	 * If the total disk space usage is over the configured limit, delete enough items to bring it under
 	 */
@@ -237,6 +255,7 @@ class Amber {
 			$existing_cache = $status->get_cache($item);
 	  		$options = get_option('amber_options');
 	  		$strategy = isset($options["amber_update_strategy"]) ? $options["amber_update_strategy"] : 0;
+
 			if ($update['status'] && (!$strategy || !$existing_cache)) {
 				$cache_metadata = array();
 				try {
@@ -255,16 +274,52 @@ class Amber {
 		} else {
 			return false;
 		}
+	}
 
+	/* Pull an item off the "queue", and save it to the cache.
+	*/
+	public static function dequeue_link() {
+		global $wpdb;
+		$prefix = $wpdb->prefix;
+		$row = $wpdb->get_row(
+			"SELECT c.url FROM ${prefix}amber_queue c WHERE c.locked is NULL ORDER BY created ASC LIMIT 1",
+			ARRAY_A);
+	  	if ($row and $row['url']) {
+	  		$wpdb->query($wpdb->prepare(
+	  			"UPDATE ${prefix}amber_queue SET locked = %d WHERE url = %s",
+	  			array(time(), $row['url'])
+	  			));
+		    Amber::cache_link($row['url']);
+  			$wpdb->query($wpdb->prepare(
+	  			"DELETE from ${prefix}amber_queue where url = %s",
+	  			array($row['url'])
+	  			));
+  		}
+	}
+
+	/**
+	 * Add links that need to be checked to our queue to be checked at some point in the future
+	 * Do not insert or update if the link already exists in the queue
+	 */
+	private static function enqueue_check_links($links)
+	{
+		global $wpdb;
+		$prefix = $wpdb->prefix;
+		foreach ($links as $link) {
+			$query = $wpdb->prepare(
+				"INSERT IGNORE INTO ${prefix}amber_queue (id, url, created) VALUES(%s, %s, %d)",
+				array(md5($link), $link, time()));
+			$wpdb->query($query);
+		}
 	}
 
 	private static function cache_links($links, $immediately = false) {
-	    foreach ($links as $url) {
-			if (Amber::cache_link($url, $immediately)) {
-				// drupal_set_message(t("Sucessfully cached: @url.", array('@url' => $url)), 'status');
-			} else {
-				// drupal_set_message(t("Could not cache: @url.", array('@url' => $url)), 'warning');
+		if ($immediately) {
+		    foreach ($links as $url) {
+				Amber::cache_link($url, $immediately);
 			}
+		} else {
+			Amber::enqueue_check_links($links);
 		}
 	}
 
@@ -274,7 +329,7 @@ class Amber {
 	 	$re = '/href=["\'](http[^\v()<>{}\[\]"\']+)[\'"]/';
   		$count = preg_match_all($re, $text, $matches);
   		if ($count) {
-  			 Amber::cache_links($matches[1],true);
+  			 Amber::cache_links($matches[1]);
   		}
 	}
 
@@ -302,7 +357,6 @@ class Amber {
 	 */
 	private static function retrieve_cache_asset($cache_id, $asset_id) {
 	  $storage =  Amber::get_storage();
-	  // $d = $storage->get_asset($id, join('/',$args) . ($_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : ''));
 	  $d = $storage->get_asset($cache_id, $asset_id );
 	  if ($d) {
 	    $data['data'] = $d;
@@ -440,5 +494,8 @@ add_filter( 'wp_headers', array('Amber', 'filter_cached_content_headers') );
 add_filter( 'post_row_actions', array('Amber', 'add_post_row_actions'), 10, 2 );
 add_filter( 'page_row_actions', array('Amber', 'add_page_row_actions'), 10, 2 );
 
+/* Setup cron */
+add_action( 'amber_cron_event_hook', array('Amber', 'hourly_event_hook') );
+add_filter( 'cron_schedules', array('Amber', 'cron_add_schedule') );
 
 ?>
