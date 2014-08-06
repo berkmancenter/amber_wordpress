@@ -73,7 +73,7 @@ class AmberInstall {
 		/* The hook name needs to be string, it can't be a reference to a 
 		 *  class function */
 		error_log("wp_schedule_event in amber-install.php");
-		wp_schedule_event( time(), 'minutely', 'amber_cron_event_hook' );
+		wp_schedule_event( time(), 'fiveminutes', 'amber_cron_event_hook' );
 	}
 
 	public static function deactivate() {
