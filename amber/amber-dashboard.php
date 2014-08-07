@@ -156,14 +156,7 @@ class AmberDashboardPage
 
     	if (isset($_REQUEST['delete_all'])) {
     		$this->delete_all();
-    	} // else if (isset($_REQUEST['scan'])) {
-    	// 	$this->scan();
-    	// } else if (isset($_REQUEST['cache_now'])) {
-    	// 	$this->cache_now();
-    	// } else if (isset($_REQUEST['delete'])) {
-    	// 	$this->delete($_REQUEST['delete']);
-    	// }
-
+    	}
         ?>
         <div class="wrap">
             <?php screen_icon(); ?>
