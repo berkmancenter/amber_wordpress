@@ -39,7 +39,8 @@ class AmberDashboardPage
     }
 
     private function last_check() {
-    	return 'now';
+    	$result = get_option(AMBER_VAR_LAST_CHECK_RUN, "");
+    	return ($result) ? date("r", $result) : "Never";
     }
 
     private function disk_usage() {
