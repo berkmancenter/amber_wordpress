@@ -244,8 +244,7 @@ class Amber {
 
 			/* Now cache the item if we should */
 			$existing_cache = $status->get_cache($item);
-	  		$options = get_option('amber_options');
-	  		$strategy = isset($options["amber_update_strategy"]) ? $options["amber_update_strategy"] : 0;
+	  		$strategy = Amber::get_option('amber_update_strategy', 0);
 
 			if ($update['status'] && (!$strategy || !$existing_cache)) {
 				$cache_metadata = array();
