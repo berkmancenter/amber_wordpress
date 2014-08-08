@@ -147,7 +147,7 @@ class AmberFetcher implements iAmberFetcher {
     if ($data['headers']['Content-Type'] && !empty($this->excludedContentTypes)) {
       $content_type = $data['headers']['Content-Type'];
       foreach ($this->excludedContentTypes as $exclude) {
-        if (strpos(strtolower($content_type), trim($exclude)) !== FALSE) {
+        if (trim($exclude) && (strpos(strtolower($content_type), trim($exclude)) !== FALSE)) {
           $reason = "Content type not allowed";
           return FALSE;  
         }
