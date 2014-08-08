@@ -16,7 +16,7 @@ class AmberFetcher implements iAmberFetcher {
     $this->assetHelper = new AmberAssetHelper($storage);
     $this->maxFileSize = isset($options['amber_max_file']) ? $options['amber_max_file'] : 1000;
     $this->headerText = isset($options['header_text']) ? $options['header_text'] : "This is a cached page";
-    $this->excludedContentTypes = isset($options['excluded_content_types']) ? $options['excluded_content_types'] : array();
+    $this->excludedContentTypes = isset($options['amber_excluded_formats']) ? $options['amber_excluded_formats'] : array();
   }
 
   /**
