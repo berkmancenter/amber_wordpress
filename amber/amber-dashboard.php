@@ -1,15 +1,153 @@
 <?php
 
+if(!class_exists('WP_List_Table')){
+    require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+}
+
+global $wpdb;
+
+class Amber_List_Table extends WP_List_Table {
+    
+    function __construct(){
+        global $status, $page, $wpdb;
+        $this->db = $wpdb;
+                
+        //Set parent defaults
+        parent::__construct( array(
+            'singular'  => 'capture',     //singular name of the listed records
+            'plural'    => 'captures',    //plural name of the listed records
+            'ajax'      => false          //does this table support ajax?
+        ) );
+        
+    }
+
+    function get_report() {
+        $prefix = $this->db->prefix;
+
+        $statement = 
+            "SELECT c.id, c.url, c.status, c.last_checked, c.message, ca.date, ca.size, ca.location, a.views, a.date as activity_date " .
+            "FROM ${prefix}amber_check c " .
+            "LEFT JOIN ${prefix}amber_cache ca on ca.id = c.id " .
+            "LEFT JOIN ${prefix}amber_activity a on ca.id = a.id ";
+
+        if (!empty($_REQUEST['orderby'])) {
+            if (in_array($_REQUEST['orderby'], array('c.last_checked', 'ca.date', 'c.status', 'ca.size', 'a.date', 'a.views'), true)) {
+                $statement .= " ORDER BY " . $_REQUEST['orderby'];
+                if (!empty($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc','desc'))) {
+                    $statement .=  " " . $_REQUEST['order'];
+                } else {
+                    $statement .= " DESC";
+                }
+            }
+        }
+
+        $rows = $this->db->get_results($statement, ARRAY_A);
+        return $rows;        
+    }
+
+    /** Column display functions **/
+    function column_default($item, $column_name){
+        return $item[$column_name];
+    }
+
+    function column_site($item) {
+        $actions = array();
+        if (!empty($item['location'])) {
+            $url = join('/',array(get_site_url(),htmlspecialchars($item['location'])));
+            $actions['view'] =  "<a href='${url}'>View</a>";     
+        }
+        if (!empty($item['id'])) {
+            $url = join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard")) . "&delete=" . $item['id'];
+            $url = wp_nonce_url($url, 'delete_link_' . $item['id']);
+            $actions['delete'] = "<a href='${url}'>Delete</a>";
+        }
+
+        return parse_url($item['url'],PHP_URL_HOST) . $this->row_actions($actions);
+    }
+
+    function column_status($item) {
+        return $item['status'] ? 'Up' : 'Down';
+    }
+
+    function column_last_checked($item) {
+        return isset($item['last_checked']) ? date('r',$item['last_checked']) : "";
+    }
+
+    function column_date($item) {
+        return isset($item['date']) ? date('r',$item['date']) : "";
+    }
+
+    function column_activity_date($item) {
+        // return print_r($item,true);
+        return isset($item['activity_date']) ? date('r',$item['activity_date']) : "";
+    }
+
+    /** Define the columns and sortable columns for the table **/
+    function get_columns(){
+        $columns = array(
+            'site'           => 'Site',
+            'url'            => 'URL',
+            'status'         => 'Status',
+            'last_checked'   => 'Last Checked',
+            'date'           => 'Date preserved',
+            'size'           => 'Size',
+            'activity_date'  => 'Last viewed',
+            'views'          => 'Total views',
+            'message'        => 'Notes',
+        );
+        return $columns;
+    }
+
+    function get_sortable_columns() {
+        $sortable_columns = array(
+            'status'        => array('c.status',false),     //true means it's already sorted
+            'last_checked'  => array('c.last_checked',false),
+            'date'          => array('ca.date',false),
+            'size'          => array('ca.size',false),
+            'a.date'        => array('a.date',false),
+            'views'         => array('a.views',false),
+        );
+        return $sortable_columns;
+    }
+
+    function prepare_items() {
+        global $wpdb; //This is used only if making any database queries
+
+        $per_page = 20;
+        $columns = $this->get_columns();
+        $hidden = array();
+        $sortable = $this->get_sortable_columns();
+        $this->_column_headers = array($columns, $hidden, $sortable);
+
+        /** Load the data from the database **/
+        $data = $this->get_report();                
+
+        /** Currently handling pagination within the PHP code **/
+        $current_page = $this->get_pagenum();
+        $total_items = count($data);
+        $data = array_slice($data,(($current_page-1)*$per_page),$per_page);
+
+        /** Setup the data for the table **/
+        $this->items = $data;
+        
+        /** Register our pagination options & calculations. **/
+        $this->set_pagination_args( array(
+            'total_items' => $total_items,                  
+            'per_page'    => $per_page,                     
+            'total_pages' => ceil($total_items/$per_page)   
+        ) );
+    }
+}
+
 class AmberDashboardPage
 {
-
-	/* Reference to the global $wpdb object */
-	private $db;
+    /* Reference to the global $wpdb object */
+    private $db;
 
     public function __construct()
     {
-    	global $wpdb;
-    	$this->db = $wpdb;
+        global $wpdb;
+        $this->db = $wpdb;
         add_action( 'admin_menu', array( $this, 'add_plugin_page' ) );
         add_action( 'admin_init', array( $this, 'page_init' ) );
     }
@@ -19,12 +157,12 @@ class AmberDashboardPage
      */
     public function add_plugin_page()
     {
-		add_management_page( 
-			'Amber Dashboard', 
-			'Amber Dashboard', 
-			'manage_options', 
-			'amber-dashboard', 
-            array( $this, 'create_admin_page' )
+        add_management_page( 
+            'Amber Dashboard', 
+            'Amber Dashboard', 
+            'manage_options', 
+            'amber-dashboard', 
+            array( $this, 'render_dashboard_page' )
         );
     }
 
@@ -33,354 +171,289 @@ class AmberDashboardPage
      */
     public function page_init()
     {
-    	global $_REQUEST;
+        global $_REQUEST;
 
-    	if (isset($_REQUEST['delete_all'])) {
-    		$this->delete_all();
-    	} else if (isset($_REQUEST['delete'])) {
-    		$this->delete($_REQUEST['delete']);    		
-    	} else if (isset($_REQUEST['export'])) {
-    		$this->export();    		
-    	}
-    	/* Since at least one action ('delete') is passed as a GET request in the URL,
-    	 * redirect to this same page, but without that action in the URL. (This prevents
-    	 * problems on refresh, such as deleting the item again). Add back any page parameters
-    	 * we want to keep before redirecting. (This would not be necessary if submitted 
-    	 * delete requests through a post, with a combination of javascript and hidden fields)
-    	 */
-    	if (isset($_REQUEST['delete_all']) || isset($_REQUEST['delete'])) {
-	    	$redirect = join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard"));
-	    	$params = array('amber_sort, amber_dir');
-	    	foreach ($params as $param) {
-		     	if (isset($_REQUEST[$param])) {
-		    		$redirect .= "&${param}=" . $_REQUEST[$param];
-		    	}
-	    	}
-	    	wp_redirect($redirect);
-	    	die();
-    	}
+        if (isset($_REQUEST['delete_all'])) {
+            $this->delete_all();
+        } else if (isset($_REQUEST['delete'])) {
+            $this->delete($_REQUEST['delete']);         
+        } else if (isset($_REQUEST['export'])) {
+            $this->export();            
+        }
+        /* Since at least one action ('delete') is passed as a GET request in the URL,
+         * redirect to this same page, but without that action in the URL. (This prevents
+         * problems on refresh, such as deleting the item again). Add back any page parameters
+         * we want to keep before redirecting. (This would not be necessary if submitted 
+         * delete requests through a post, with a combination of javascript and hidden fields)
+         */
+        if (isset($_REQUEST['delete_all']) || isset($_REQUEST['delete'])) {
+            $redirect = join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard"));
+            $params = array('amber_sort, amber_dir');
+            foreach ($params as $param) {
+                if (isset($_REQUEST[$param])) {
+                    $redirect .= "&${param}=" . $_REQUEST[$param];
+                }
+            }
+            wp_redirect($redirect);
+            die();
+        }
     }
 
     private function cache_size() {
-    	$prefix = $this->db->prefix;
-    	return $this->db->get_var( "SELECT COUNT(*) FROM ${prefix}amber_cache" );
+        $prefix = $this->db->prefix;
+        return $this->db->get_var( "SELECT COUNT(*) FROM ${prefix}amber_cache" );
     }
 
     private function queue_size() {
-    	$prefix = $this->db->prefix;
-    	return $this->db->get_var( "SELECT COUNT(*) FROM ${prefix}amber_queue" );
+        $prefix = $this->db->prefix;
+        return $this->db->get_var( "SELECT COUNT(*) FROM ${prefix}amber_queue" );
     }
 
     private function last_check() {
-    	$result = get_option(AMBER_VAR_LAST_CHECK_RUN, "");
-    	return ($result) ? date("r", $result) : "Never";
+        $result = get_option(AMBER_VAR_LAST_CHECK_RUN, "");
+        return ($result) ? date("r", $result) : "Never";
     }
 
     private function disk_usage() {
-		$status = new AmberStatus(new AmberWPDB($this->db), $this->db->prefix);
-		$result = $status->get_cache_size();		
-		return $result ? $result : 0;
+        $status = new AmberStatus(new AmberWPDB($this->db), $this->db->prefix);
+        $result = $status->get_cache_size();        
+        return $result ? $result : 0;
     }
-
-	private function get_sort() {
-		$result = "";
-		if (isset($_GET['amber_sort'])) {
-			switch ($_GET['amber_sort']) {
-				case 'checked':
-					$result = "ORDER BY c.last_checked";
-					break;
-				case 'cached':
-					$result = "ORDER BY ca.date";
-					break;
-				case 'status':
-					$result = "ORDER BY c.status";
-					break;
-				case 'size':
-					$result = "ORDER BY ca.size";
-					break;
-				case 'viewdate':
-					$result = "ORDER BY a.date";
-					break;
-				case 'views':
-					$result = "ORDER BY a.views";
-					break;
-			}
-			if (isset($_GET['amber_dir'])) {
-				switch ($_GET['amber_dir']) {
-					case "asc":
-						$result .= " ASC";
-						break;
-					case "desc":
-						$result .= " DESC";
-						break;
-				}
-			}
-		}
-		return $result;
-	}
-
-    private function sort_link($column) {
-    	join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard"));
-		$href = join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard")) . "&amber_sort=${column}";
-		if (isset($_GET['amber_sort']) && ($_GET['amber_sort'] == $column)) {
-			if (isset($_GET['amber_dir']) && ($_GET['amber_dir'] == "desc")) {
-				$href .= "&amber_dir=asc";
-			} else {
-				$href .= "&amber_dir=desc";
-			}
-		}
-		return $href;
-    }
-
-    private function view_link($row) {
-    	if (empty($row['location'])) {
-    		return "";
-    	}
-    	$url = join('/',array(get_site_url(),htmlspecialchars($row['location'])));
-    	return "<a href='${url}'>View</a>";    	
-    }
-
-    private function delete_link($row) {
-    	if (empty($row['id'])) {
-    		return "";
-    	}
-		$url = join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard")) . "&delete=" . $row['id'];
-		$url = wp_nonce_url($url, 'delete_link_' . $row['id']);
-    	return "<a href='${url}'>Delete</a>";    	
-    }
-
-    private function get_report() {
-    	$prefix = $this->db->prefix;
-
-		$statement = 
-			"SELECT c.id, c.url, c.status, c.last_checked, c.message, ca.date, ca.size, ca.location, a.views, a.date as activity_date " .
-			"FROM ${prefix}amber_check c " .
-			"LEFT JOIN ${prefix}amber_cache ca on ca.id = c.id " .
-			"LEFT JOIN ${prefix}amber_activity a on ca.id = a.id ";
-		$statement .= $this->get_sort();
-
-		$rows = $this->db->get_results($statement, ARRAY_A);
-		return $rows;
-    }
-
-    private function delete_all() {
-    	check_admin_referer('amber_dashboard');
-	  	$storage = Amber::get_storage();
-	  	$storage->clear_cache();
-	  	$status = Amber::get_status();
-	  	$status->delete_all();
-    	$prefix = $this->db->prefix;
-	  	$this->db->query("DELETE from ${prefix}amber_queue");
-    }	
 
     private function delete($id) {
-    	check_admin_referer( 'delete_link_' . $id );
-	  	$storage = Amber::get_storage();
-	  	$storage->clear_cache_item($id);
-	  	$status = Amber::get_status();
-	  	$status->delete($id);
+        check_admin_referer( 'delete_link_' . $id );
+        $storage = Amber::get_storage();
+        $storage->clear_cache_item($id);
+        $status = Amber::get_status();
+        $status->delete($id);
+    }
+    
+    private function delete_all() {
+        check_admin_referer('amber_dashboard');
+        $storage = Amber::get_storage();
+        $storage->clear_cache();
+        $status = Amber::get_status();
+        $status->delete_all();
+        $prefix = $this->db->prefix;
+        $this->db->query("DELETE from ${prefix}amber_queue");
+    }   
+
+    private function export() {
+        $prefix = $this->db->prefix;
+        $statement = 
+            "SELECT c.id, c.url, c.status, c.last_checked, c.message, ca.date, ca.size, ca.location, a.views, a.date as activity_date " .
+            "FROM ${prefix}amber_check c " .
+            "LEFT JOIN ${prefix}amber_cache ca on ca.id = c.id " .
+            "LEFT JOIN ${prefix}amber_activity a on ca.id = a.id ";
+
+        $data = $this->db->get_results($statement, ARRAY_A);
+
+        $header = array(
+          'Site',
+          'URL',
+          'Status',
+          'Last Checked',
+          'Date preserved',
+          'Size',
+          'Last viewed',
+          'Total views',
+          'Notes',
+        );
+
+        $rows = array();
+        foreach ($data as $r) {
+          $host = parse_url($r['url'],PHP_URL_HOST);
+          $rows[] = array(
+            'site' => $host,
+            'url' => $r['url'],
+            'status' => $r['status'] ? 'Up' : 'Down',
+            'last_checked' => isset($r['last_checked']) ? date('c',$r['last_checked']) : "",
+            'date' => isset($r['date']) ? date('c',$r['date']) : "",
+            'size' => $r['size'],
+            'a.date' => isset($r['a_date']) ? date('c',$r['a_date']) : "",
+            'views' => isset($r['views']) ? $r['views'] : 0,
+            'message' => isset($r['message']) ? $r['message'] : ""
+          );
+        }
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment;filename=report.csv');
+
+        $fp = fopen('php://output', 'w');
+        fputcsv($fp, $header);
+        foreach($rows as $line){
+          fputcsv($fp, $line);
+        }
+        fclose($fp);
+        die();
     }
 
-	/* Export contents of the dashboard detail page as CSV */
-	private function export() {
-	  $data = $this->get_report();
 
-	  $header = array(
-	    'Site',
-	    'URL',
-	    'Status',
-	    'Last Checked',
-	    'Date preserved',
-	    'Size',
-	    'Last viewed',
-	    'Total views',
-	    'Notes',
-	  );
-
-	  $rows = array();
-	  foreach ($data as $r) {
-	    $host = parse_url($r['url'],PHP_URL_HOST);
-	    $rows[] = array(
-	      'site' => $host,
-	      'url' => $r['url'],
-	      'status' => $r['status'] ? 'Up' : 'Down',
-	      'last_checked' => isset($r['last_checked']) ? date('c',$r['last_checked']) : "",
-	      'date' => isset($r['date']) ? date('c',$r['date']) : "",
-	      'size' => $r['size'],
-	      'a.date' => isset($r['a_date']) ? date('c',$r['a_date']) : "",
-	      'views' => isset($r['views']) ? $r['views'] : 0,
-	      'message' => isset($r['message']) ? $r['message'] : ""
-	    );
-	  }
-
-	  header('Content-Type: text/csv');
-	  header('Content-Disposition: attachment;filename=report.csv');
-
-	  $fp = fopen('php://output', 'w');
-	  fputcsv($fp, $header);
-	  foreach($rows as $line){
-	    fputcsv($fp, $line);
-	  }
-	  fclose($fp);
-	  die();
-	}
-
-    /**
-     * Dashboard page callback
-     */
-    public function create_admin_page()
-    {
+    function render_dashboard_page(){
+        
+        $this->list_table = new Amber_List_Table();
+        $this->list_table->prepare_items();
+        
         ?>
         <div class="wrap">
-            <?php screen_icon(); ?>
-            <h2>Amber Dashboard</h2>           
-<form action="<?php echo get_site_url(); ?>/wp-admin/tools.php?page=amber-dashboard" method="post">
-<?php wp_nonce_field( 'amber_dashboard' ); ?>
-<table >
-	<tr>
-		<td>
-			<h3>Global Statistics</h3>
-		</td>
-	</tr>
-	<tr>
-		<td>
-			<table>
-				<tbody>
-					<tr><td>Captures preserved</td><td><?php print($this->cache_size()); ?></td></tr>
-					<tr><td>Links to capture</td><td><?php print($this->queue_size()); ?></td></tr>
-					<tr><td>Last check</td><td><?php print($this->last_check()); ?></td></tr>
-					<tr><td>Disk space used</td><td><?php print($this->disk_usage() . " of " . Amber::get_option('amber_max_disk') * 1024 * 1024); ?></td></tr>
-				</tbody>
-			</table>
+            <form id="amber_dashboard" method="get">
+                <?php wp_nonce_field( 'amber_dashboard' ); ?>
 
-			<?php submit_button("Delete all captures", "small", "delete_all"); ?>
-			<?php submit_button("Scan content for links to preserve", "small", "scan"); ?>
-			<?php submit_button("Preserve all new links", "small", "cache_now"); ?>
-			<?php submit_button("Export list of cached pages", "small", "export"); ?>
-			<div id="batch_status"></div>
+                <div id="icon-users" class="icon32"><br/></div>
+                <h2>Amber Dashboard</h2>           
 
-		</td>
+                <div id="amber-stats">  
+                    <h3>Global Statistics</h3>
+                    <table>
+                        <tbody>
+                            <tr><td>Captures preserved</td><td><?php print($this->cache_size()); ?></td></tr>
+                            <tr><td>Links to capture</td><td><?php print($this->queue_size()); ?></td></tr>
+                            <tr><td>Last check</td><td><?php print($this->last_check()); ?></td></tr>
+                            <tr><td>Disk space used</td><td><?php print($this->disk_usage() . " of " . Amber::get_option('amber_max_disk') * 1024 * 1024); ?></td></tr>
+                        </tbody>
+                    </table>
 
-	</tr>
-</table>
+                    <?php submit_button("Delete all captures", "small", "delete_all"); ?>
+                    <?php submit_button("Scan content for links to preserve", "small", "scan"); ?>
+                    <?php submit_button("Preserve all new links", "small", "cache_now"); ?>
+                    <?php submit_button("Export list of cached pages", "small", "export"); ?>
+                    
+                </div>            
+                <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+                <?php $this->list_table->display() ?>
 
-<h3>Amber Data</h3>
-<table>
-<thead>
-<tr>
-<th>Site</th>
-<th>URL</th>
-<th><a href='<?php print $this->sort_link("status"); ?>'>Status</a></th>
-<th><a href='<?php print $this->sort_link("checked"); ?>'>Last Checked</a></th>
-<th><a href='<?php print $this->sort_link("cached"); ?>'>Date Preserved</a></th>
-<th><a href='<?php print $this->sort_link("size"); ?>'>Size</a></th>
-<th><a href='<?php print $this->sort_link("viewdate"); ?>'>Last Viewed</a></th>
-<th><a href='<?php print $this->sort_link("views"); ?>'>Total Views</a></th>
-<th> </th>
-<th> </th>
-</tr>
-</thead>
-<tbody>
-<?php 
-
-	$rows = $this->get_report();
-	if ($rows) {
-		foreach ($rows as $row) {
-			print "<tr>";
-			print("<td>" . htmlspecialchars(parse_url($row['url'], PHP_URL_HOST)) . "</td>");
-			print("<td>" . "<a href='" . htmlspecialchars($row['url']) . "'>" . htmlspecialchars($row['url']) . "</a>" . "</td>");
-			print("<td>" . ($row['status'] ? "Up" : "Down") . "</td>");
-			print("<td>" . (isset($row['last_checked']) ? date("r", $row['last_checked']) : "") . "</td>");
-			print("<td>" . (isset($row['date']) ? date("r", $row['date']) : "") . "</td>");
-			print("<td>" . (isset($row['size']) ? $row['size'] : (isset($row['message']) ? htmlspecialchars($row['message']) : "")) . "</td>");
-			print("<td>" . (isset($row['activity_date']) ? date("r", $row['activity_date']) : "") . "</td>");
-			print("<td>" . $row['views'] . "</td>");
-			print("<td>" . $this->view_link($row) . "</td>");
-			print("<td>" . $this->delete_link($row) . "</td>");
-			print "</tr>";
-		}
-	} 
-
-
-?>
-</tbody>
-</table>
-
-
-</form>
+                <div id="amber-lightbox">
+                    <div id="amber-lightbox-content">
+                        <div id="batch_status"></div>
+                        <input type="submit" name="stop" id="stop" class="button button-small" value="Stop">
+                    </div>
+                </div>
+            </form>
         </div>
 
 <style>
-	p.submit {
-		float: left;
-		padding-right: 20px;
-	}
-</style>
+    div#amber-stats {
+         float: left;
+         background:#ECECEC;
+         border:1px solid #CCC;
+         padding:0 10px;
+         margin-top:5px;
+         border-radius:5px;
+    }
 
+    p.submit {
+        float: left;
+        padding-right: 20px;
+    }
+
+    th.views, td.views
+    {
+        text-align: center;
+    }
+
+    div#amber-lightbox {
+        width: 100%;
+        height: 75%;
+        z-index: 200;
+        position: absolute;
+        background-color: rgba(0,0,0,.7);
+        left: -10px;
+        top: 0;
+        padding-top: 25%;
+        display: none;
+    }
+    div#amber-lightbox-content {
+        float: left;
+        width: 50%;
+        margin-left: 25%;
+        top: 25%;
+        postion: absolute;
+        background:#ECECEC;
+        border:1px solid #CCC;
+        padding:30px;
+        margin-top:5px;
+        border-radius:5px;
+    }
+    div#batch_status {
+        width: 80%;
+        overflow: hidden;
+        float: left;
+    }
+
+    div#amber-lightbox input {
+        float: right;
+        position: relative;
+    }
+
+</style>
 <script type="text/javascript" >
+
 jQuery(document).ready(function($) {
 
-	$("input#cache_now").click(function() { cache_all(); return false;});
-	$("input#scan").click(function() {  scan_all(); return false;});
+    $("input#cache_now").click(function() { cache_all(); return false;});
+    $("input#scan").click(function() {  scan_all(); return false;});
 
-	function cache_one() {
-		var data = { 'action': 'amber_cache', '_wpnonce': $("#_wpnonce").val() };
-		$.post(ajaxurl, data, function(response) {
-			if (response) {
-				// Cached a page, check to see if there's another
-				$("#batch_status").html("Preserving..." + response);
-				setTimeout(cache_one, 100);		
-			} else {
-				$("#batch_status").html("Done preserving links");
-				document.location.reload(true);
-			}
-		});
-	}
+    function show_status(s) {
+        $("div#amber-lightbox").show();
+        $("#batch_status").html(s);
+    }
 
-	function cache_all () {
-		$("#batch_status").html("Preserving links...");
-		// TODO: Some fancy chrome to hide the rest of the page while
-		// this is going on
-		cache_one();
-	}
+    function show_status_done(s) {
+        $("#batch_status").html(s);
+        $("#amber-lightbox input").val("Close");
+    }
 
-	function scan_one() {
-		var data = { 'action': 'amber_scan', '_wpnonce': $("#_wpnonce").val()};
-		$.post(ajaxurl, data, function(response) {
-			if (response && response != 0) {
-				$("#batch_status").html("Scanning content. " + response + " items remaining.");
-				setTimeout(scan_one, 100);		
-			} else {
-				$("#batch_status").html("Done scanning content");
-				document.location.reload(true);
-			}
-		});
-	}
+    function cache_one() {
+        var data = { 'action': 'amber_cache', '_wpnonce': $("#_wpnonce").val() };
+        $.post(ajaxurl, data, function(response) {
+            if (response) {
+                // Cached a page, check to see if there's another
+                show_status("Preserving..." + response);
+                setTimeout(cache_one, 100);     
+            } else {
+                show_status_done("Done preserving links");
+            }
+        });
+    }
 
-	function scan_all () {
-		$("#batch_status").html("Scanning content for links...");
-		// TODO: Some fancy chrome to hide the rest of the page while
-		// this is going on
-		var data = { 'action': 'amber_scan_start', '_wpnonce': $("#_wpnonce").val() };
-		$.post(ajaxurl, data, function(response) {
-			if (response) {
-				$("#batch_status").html(response + "items left to scan");
-				setTimeout(scan_one, 100);
-			} else {
-				$("#batch_status").html("No items to scan");
-			}
-		});		
-	}
+    function cache_all () {
+        show_status("Preserving links...");
+        cache_one();
+    }
+
+    function scan_one() {
+        var data = { 'action': 'amber_scan', '_wpnonce': $("#_wpnonce").val()};
+        $.post(ajaxurl, data, function(response) {
+            if (response && response != 0) {
+                show_status("Scanning content. " + response + " items remaining.");
+                setTimeout(scan_one, 100);      
+            } else {
+                show_status_done("Done scanning content");
+            }
+        });
+    }
+
+    function scan_all () {
+        $("#batch_status").html("Scanning content for links...");
+        var data = { 'action': 'amber_scan_start', '_wpnonce': $("#_wpnonce").val() };
+        $.post(ajaxurl, data, function(response) {
+            if (response) {
+                $("#batch_status").html(response + "items left to scan");
+                setTimeout(scan_one, 100);
+            } else {
+                $("#batch_status").html("No items to scan");
+            }
+        });     
+    }
 });
 </script>
 
         <?php
     }
+
 }
 
 include_once dirname( __FILE__ ) . '/amber.php';
 
 if( is_admin() )
     $my_dashboard_page = new AmberDashboardPage();
-
-?>
