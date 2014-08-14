@@ -66,7 +66,7 @@ class Amber {
     	$fetcher = new AmberFetcher(Amber::get_storage(), array(
 		      		'amber_max_file' => Amber::get_option('amber_max_file',1000),
 	    	  		'header_text' => "This is a cached page",
-	      			'excluded_content_types' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
+	      			'amber_excluded_formats' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
     	));
 	  	return $fetcher;
 	}
