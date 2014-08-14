@@ -39,6 +39,8 @@ class AmberDashboardPage
     		$this->delete_all();
     	} else if (isset($_REQUEST['delete'])) {
     		$this->delete($_REQUEST['delete']);    		
+    	} else if (isset($_REQUEST['export'])) {
+    		$this->export();    		
     	}
     	/* Since at least one action ('delete') is passed as a GET request in the URL,
     	 * redirect to this same page, but without that action in the URL. (This prevents
@@ -179,6 +181,50 @@ class AmberDashboardPage
 	  	$status->delete($id);
     }
 
+	/* Export contents of the dashboard detail page as CSV */
+	private function export() {
+	  $data = $this->get_report();
+
+	  $header = array(
+	    'Site',
+	    'URL',
+	    'Status',
+	    'Last Checked',
+	    'Date preserved',
+	    'Size',
+	    'Last viewed',
+	    'Total views',
+	    'Notes',
+	  );
+
+	  $rows = array();
+	  foreach ($data as $r) {
+	    $host = parse_url($r['url'],PHP_URL_HOST);
+	    $rows[] = array(
+	      'site' => $host,
+	      'url' => $r['url'],
+	      'status' => $r['status'] ? 'Up' : 'Down',
+	      'last_checked' => isset($r['last_checked']) ? date('c',$r['last_checked']) : "",
+	      'date' => isset($r['date']) ? date('c',$r['date']) : "",
+	      'size' => $r['size'],
+	      'a.date' => isset($r['a_date']) ? date('c',$r['a_date']) : "",
+	      'views' => isset($r['views']) ? $r['views'] : 0,
+	      'message' => isset($r['message']) ? $r['message'] : ""
+	    );
+	  }
+
+	  header('Content-Type: text/csv');
+	  header('Content-Disposition: attachment;filename=report.csv');
+
+	  $fp = fopen('php://output', 'w');
+	  fputcsv($fp, $header);
+	  foreach($rows as $line){
+	    fputcsv($fp, $line);
+	  }
+	  fclose($fp);
+	  die();
+	}
+
     /**
      * Dashboard page callback
      */
@@ -210,6 +256,7 @@ class AmberDashboardPage
 			<?php submit_button("Delete all captures", "small", "delete_all"); ?>
 			<?php submit_button("Scan content for links to preserve", "small", "scan"); ?>
 			<?php submit_button("Preserve all new links", "small", "cache_now"); ?>
+			<?php submit_button("Export list of cached pages", "small", "export"); ?>
 			<div id="batch_status"></div>
 
 		</td>
