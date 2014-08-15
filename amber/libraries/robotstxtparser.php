@@ -380,7 +380,9 @@
 			}
 			foreach ($this->rules[$userAgent][$rule] as $robotRule)
 			{
-				if (preg_match('@'.$robotRule.'@', $value)) {
+				/* Using '@' as the delimter, but need to escape if it appears in the rule */
+				$testRule = str_replace("@", "\@", $robotRule); 
+				if (preg_match('@'.$testRule.'@', $value)) {
 					return true;
 				}
 			}
