@@ -57,20 +57,23 @@ class AmberInstall {
 			dbDelta( $sql );
 		}
 
-		/* Set default options */
-		$options =  array(
-            'amber_max_file' => 1000,
-            'amber_max_disk' => 1000,
-            'amber_available_action' => AMBER_ACTION_NONE,
-            'amber_unavailable_action' => AMBER_ACTION_HOVER,
-            'amber_available_action_hover' => 2,
-            'amber_unavailable_action_hover' => 2,
-            'amber_storage_location' => 'amber',
-            'amber_update_strategy' => 0,
-            'amber_country_id' => '',
-            );
+		$options = get_option('amber_options');
+		if (empty($options)) {	
+			/* Set default options */
+			$options =  array(
+	            'amber_max_file' => 1000,
+	            'amber_max_disk' => 1000,
+	            'amber_available_action' => AMBER_ACTION_NONE,
+	            'amber_unavailable_action' => AMBER_ACTION_HOVER,
+	            'amber_available_action_hover' => 2,
+	            'amber_unavailable_action_hover' => 2,
+	            'amber_storage_location' => 'amber',
+	            'amber_update_strategy' => 0,
+	            'amber_country_id' => '',
+	            );
 
-		update_option('amber_options', $options);
+			update_option('amber_options', $options);			
+		}
 
 		/* The hook name needs to be string, it can't be a reference to a 
 		 *  class function */
