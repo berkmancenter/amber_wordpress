@@ -353,7 +353,7 @@ class Amber {
 		$result = array();
         $post = get_post($post_id);
         $text = $post->post_content;
-	 	$re = '/href=["\'](http[^\v()<>{}\[\]"\']+)[\'"]/';
+	 	$re = '/href=["\'](http[^\v()<>{}\[\]"\']+)[\'"]/i';
   		$count = preg_match_all($re, $text, $matches);
 		$links = Amber::filter_excluded_links($matches[1]);
 
