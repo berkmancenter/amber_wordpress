@@ -229,7 +229,7 @@ class AmberDashboardPage
     }
     
     private function delete_all() {
-        check_admin_referer('amber_dashboard');
+        // check_admin_referer('amber_dashboard');
         $storage = Amber::get_storage();
         $storage->clear_cache();
         $status = Amber::get_status();
