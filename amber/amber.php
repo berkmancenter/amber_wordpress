@@ -329,7 +329,7 @@ class Amber {
 		if (!$blacklist) {
 		  return $links;
 		}
-		$result = array();
+		$result = array('cache' => array(), 'excluded' => array());
 		foreach ($links as $link) {
 		  	$host = parse_url($link,PHP_URL_HOST);
 		  	if ($host) {
@@ -341,8 +341,10 @@ class Amber {
 		        		$exclude = TRUE;
 		      		}
 		    	}
-		    	if (!$exclude) {
-		      		$result[] = $link;
+		    	if ($exclude) {
+		    		$result['excluded'][] = $link;
+		    	} else {
+		      		$result['cache'][] = $link;
 		    	}
 		  	}
 		}
@@ -358,7 +360,10 @@ class Amber {
 		$links = Amber::filter_excluded_links($matches[1]);
 
   		if ($count) {
-  			 $result = Amber::cache_links($links,$cache_immediately);
+  			 $result = Amber::cache_links($links['cache'],$cache_immediately);
+  		} 
+  		foreach ($links['excluded'] as $key) {
+  			$result[$key] = "";
   		}
   		return $result;
 	}
