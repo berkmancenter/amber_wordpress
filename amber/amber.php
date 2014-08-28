@@ -336,7 +336,7 @@ class Amber {
 		    	$exclude = FALSE;
 		    	foreach ($blacklist as $blacklistitem) {
 		      		$blacklistitem = trim($blacklistitem);
-		      		$blacklistitem = preg_replace("/https?:\\/\\//", "", $blacklistitem);
+		      		$blacklistitem = preg_replace("/https?:\\/\\//i", "", $blacklistitem);
 		      		if (strcasecmp($host,$blacklistitem) === 0) {
 		        		$exclude = TRUE;
 		      		}
