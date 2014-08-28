@@ -79,6 +79,8 @@
 .amber-interstitial iframe {
   width: 400%;
   height: 400%;
+  max-width: 400%;
+  max-height: 400%;
   overflow: hidden;
   zoom: 0.25;
   -moz-transform: scale(0.25);
