@@ -65,7 +65,7 @@ class Amber {
 
     	$fetcher = new AmberFetcher(Amber::get_storage(), array(
 		      		'amber_max_file' => Amber::get_option('amber_max_file',1000),
-	    	  		'header_text' => "This is a cached page",
+	    	  		'header_text' => "You are viewing an archive of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
 	      			'amber_excluded_formats' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
     	));
 	  	return $fetcher;
@@ -131,10 +131,11 @@ class Amber {
 	  if (!is_null($default_status)) {
 	    $behavior = Amber::get_behavior($default_status);
 	    if ($behavior) {
-	      $result['data-amber-behavior'] = $behavior;
+	      	$result['data-amber-behavior'] = $behavior;
+	    } else {
+    		$result['data-amber-behavior'] = "";
 	    }
 	  }
-
 	  // See if we have country-specific behavior
 	  if ($country = Amber::get_option('amber_country_id','')) {
 	    $country_status = isset($summaries[$country]['status']) ? $summaries[$country]['status'] : $default_status;
