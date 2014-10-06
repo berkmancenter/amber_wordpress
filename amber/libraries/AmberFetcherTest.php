@@ -685,13 +685,10 @@ EOF;
 <body>And the band played on....And the BAND said to the
 <a href="leader.html">leader</a>.</body></html>
 EOF;
-    $expected_result = <<<EOF
-<html><head><script src="banana.js" ></head>
-<body>And the band played on....And the BAND said to the
-<a href="leader.html">leader</a>.<div style="position:fixed;top:0;left:0;width:100%;height:30px;z-index:2147483647;background-color:rgba(0,0,0,0.75) !important;color:white !important;text-align:center !important;font:bold 18px/30px Arial, sans-serif !important;border-radius:0 !important;margin:0 !important;max-width:100% !important;">This is a cached page</div></body></html>
-EOF;
-    $result = $a->insert_banner($s, "This is a cached page");
-    $this->assertEquals($result,$expected_result);
+    $result = $a->insert_banner($s, "This is a cached page", array());
+    $needle = ';">This is a cached page</span></div></body></html>';
+    $this->asserttrue(substr($result, -strlen($needle)) === $needle);
+
   }
 
   /**
@@ -704,13 +701,9 @@ EOF;
 <body>And the band played on....And the BAND said to the
 <a href="leader.html">leader</a>.</Body></html>
 EOF;
-    $expected_result = <<<EOF
-<html><head><script src="banana.js" ></head>
-<body>And the band played on....And the BAND said to the
-<a href="leader.html">leader</a>.<div style="position:fixed;top:0;left:0;width:100%;height:30px;z-index:2147483647;background-color:rgba(0,0,0,0.75) !important;color:white !important;text-align:center !important;font:bold 18px/30px Arial, sans-serif !important;border-radius:0 !important;margin:0 !important;max-width:100% !important;">This is a cached page</div></body></html>
-EOF;
-    $result = $a->insert_banner($s, "This is a cached page");
-    $this->assertEquals($result,$expected_result);
+    $result = $a->insert_banner($s, "This is a cached page", array());
+    $needle = ';">This is a cached page</span></div></body></html>';
+    $this->asserttrue(substr($result, -strlen($needle)) === $needle);
   }
 
   /**
@@ -723,13 +716,10 @@ EOF;
 <body>And the band played on....And the BAND said to the
 <a href="leader.html">leader</a>.</html>
 EOF;
-    $expected_result = <<<EOF
-<html><head><script src="banana.js" ></head>
-<body>And the band played on....And the BAND said to the
-<a href="leader.html">leader</a>.</html><div style="position:fixed;top:0;left:0;width:100%;height:30px;z-index:2147483647;background-color:rgba(0,0,0,0.75) !important;color:white !important;text-align:center !important;font:bold 18px/30px Arial, sans-serif !important;border-radius:0 !important;margin:0 !important;max-width:100% !important;">This is a cached page</div>
-EOF;
-    $result = $a->insert_banner($s, "This is a cached page");
-    $this->assertEquals($result,$expected_result);
+    $result = $a->insert_banner($s, "This is a cached page", array());
+    /* In this case, we put the div at the very end of the document, so there're not closing body or html tags */
+    $needle = ';">This is a cached page</span></div>'; 
+    $this->asserttrue(substr($result, -strlen($needle)) === $needle);
   }
 
 
