@@ -1,6 +1,6 @@
-Amber WordPress module
+Amber WordPress plugin
 =================
-This is Amber, a WordPress module that provides an alternative route to information when content would otherwise be unavailable. Amber is useful for virtually any organization or individual that has an interest in preserving the content to which their website links.
+This is Amber, a WordPress plugin that provides an alternative route to information when content would otherwise be unavailable. Amber is useful for virtually any organization or individual that has an interest in preserving the content to which their website links.
 
 If you’d like to join the private beta, we welcome critiques and feedback as we progress through testing. As part of the beta, the Berkman Center will incorporate your suggestions to see what works, what doesn't, and what can be improved. You will also receive personal help and support from our devs in running Amber on your WordPress install.
 
