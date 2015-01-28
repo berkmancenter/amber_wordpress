@@ -441,6 +441,7 @@ class Amber {
 	 */
 	public static function custom_query_vars($vars) {
 		$vars[] = 'amber_cache';
+		$vars[] = 'amber_cacheframe';
 		$vars[] = 'amber_asset';
 		$vars[] = 'amber_sort';
 		$vars[] = 'amber_dir';
@@ -448,24 +449,51 @@ class Amber {
 		return $vars;
 	}
 
+
 	/**
 	 * Request handling function to display cached content and assets
 	 */
 	public static function display_cached_content ($wp) {
 
+		$cache_frame_id = !empty($wp->query_vars['amber_cacheframe']) ? $wp->query_vars['amber_cacheframe'] : "";
 		$cache_id = !empty($wp->query_vars['amber_cache']) ? $wp->query_vars['amber_cache'] : "";
 		$asset_id = !empty($wp->query_vars['amber_asset']) ? $wp->query_vars['amber_asset'] : "";
 		$asset_id = rtrim($asset_id,"/"); /* Get rid of stray characters on the end */
 
+		/* Displaying the cache frame page with an iframe referencing the cached item */
 		if (!empty($cache_id)) {
+  			$uri = $_SERVER["REQUEST_URI"];
+			$iframe_url = "";
+			if ($uri && (strrpos($uri,"/") == (strlen($uri) - 1))) {
+				$iframe_url = "../";
+			}
+			$iframe_url .= "../" . "cacheframe/${cache_id}/";
+			print <<<EOF
+<html>
+<head>
+<title>Amber</title>
+<style>body, iframe : { margin:0; padding: 0; }</style>  
+</head>
+<body style="margin:0; padding: 0">
+<iframe 
+sandbox="allow-scripts allow-forms allow-popups allow-pointer-lock"
+security="restricted"
+style="border:0 none transparent; background-color:transparent; width:100%; height:100%;" 
+src="${iframe_url}"
+</body>
+</html>
+EOF;
+			die();
+		}
+		if (!empty($cache_frame_id)) {
 			if (empty($asset_id)) {
 				/* This is the root item */
-				$data = Amber::retrieve_cache_item($cache_id);
+				$data = Amber::retrieve_cache_item($cache_frame_id);
 		    	print $data['data'];
 		    	die();
 			} else {
 				/* This is an asset */
-				$data = Amber::retrieve_cache_asset($cache_id, $asset_id);
+				$data = Amber::retrieve_cache_asset($cache_frame_id, $asset_id);
 		    	print($data['data']);
 		    	die();
 			}
@@ -479,7 +507,7 @@ class Amber {
 	public static function filter_cached_content_headers($headers)
 	{
 		global $wp;
-		$cache_id = !empty($wp->query_vars['amber_cache']) ? $wp->query_vars['amber_cache'] : "";
+		$cache_id = !empty($wp->query_vars['amber_cacheframe']) ? $wp->query_vars['amber_cacheframe'] : "";
 		$asset_id = !empty($wp->query_vars['amber_asset']) ? $wp->query_vars['amber_asset'] : "";
 		$asset_id = rtrim($asset_id,"/"); /* Get rid of stray characters on the end */
 
