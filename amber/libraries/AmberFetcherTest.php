@@ -163,6 +163,64 @@ EOD
     $this->assertTrue(AmberNetworkUtils::is_html_mime_type("application/xhtml+xml"));    
   }
 
+  public function testMetaTagExtraction() {
+    $this->assertFalse(AmberNetworkUtils::find_meta_redirect(""));
+    $this->assertFalse(AmberNetworkUtils::find_meta_redirect("bogus string"));
+    $this->assertFalse(AmberNetworkUtils::find_meta_redirect(<<<EOD
+<html>
+<head><title>bad man</title></head>
+<body>
+Use META tags like this: <meta http-equiv="refresh" content="30; URL=http://www.example.org/login">
+</body>
+</html>
+EOD
+));
+    $this->assertEquals("http://www.example.org/login", AmberNetworkUtils::find_meta_redirect(<<<EOD
+<html>
+<head><title>bad man</title>
+<meta http-equiv="refresh" content="30; URL=http://www.example.org/login">
+</head>
+<body>
+Use META tags like this: <meta http-equiv="refresh" content="30; URL=http://www.example.org/login">
+</body>
+</html>
+EOD
+));
+    $this->assertEquals("http://www.example.org/login", AmberNetworkUtils::find_meta_redirect(<<<EOD
+<html>
+<head><title>bad man</title>
+<meta http-equiv="REFRESH" content="0; url=http://www.example.org/login">
+</head>
+<body>
+Use META tags like this: <meta http-equiv="refresh" content="30; URL=http://www.example.org/login">
+</body>
+</html>
+EOD
+));
+    $this->assertFalse(AmberNetworkUtils::find_meta_redirect(<<<EOD
+<html>
+<head><title>bad man</title>
+<meta http-equiv="refresh" content="5">
+</head>
+<body>
+Use META tags like this: <meta http-equiv="refresh" content="30; URL=http://www.example.org/login">
+</body>
+</html>
+EOD
+));
+        $this->assertEquals("http://www.example.org/login", AmberNetworkUtils::find_meta_redirect(<<<EOD
+<html>
+<head><title>bad man</title>
+<meta http-equiv="REFRESH" content='0;url =  http://www.example.org/login'>
+</head>
+<body>
+Use META tags like this: <meta http-equiv="refresh" content="30; URL=http://www.example.org/login">
+</body>
+</html>
+EOD
+));
+
+  }
 }
 
 
@@ -721,6 +779,7 @@ EOF;
     $needle = ';">This is a cached page</span></div>'; 
     $this->asserttrue(substr($result, -strlen($needle)) === $needle);
   }
+
 
 
 }

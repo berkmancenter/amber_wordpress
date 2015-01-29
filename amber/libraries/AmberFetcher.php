@@ -57,7 +57,7 @@ class AmberFetcher implements iAmberFetcher {
       $asset_paths = $this->assetHelper->extract_assets($body);
       /* Use the url of the document we end up downloading as a reference point for
          relative asset references, since we may have been redirected from the one
-         we originally requested. */
+         we originally requested. */ 
       $assets = $this->assetHelper->expand_asset_references($root_item['info']['url'], $asset_paths, 
                                                             $this->assetHelper->extract_base_tag($body));
       $assets = $this->download_assets($assets, $root_item['info']['url']); 
@@ -629,7 +629,7 @@ class AmberNetworkUtils {
            and fetch them. */
         $redirects_required = AmberNetworkUtils::find_urls_requiring_redirects($result);
         foreach ($redirects_required as $url => $data) {
-          $a = AmberNetworkUtils::open_single_url($url);
+          $a = AmberNetworkUtils::open_single_url($url, $additional_options);
           if ($a) {
             $result[$url] = $a;
           }
@@ -697,13 +697,22 @@ class AmberNetworkUtils {
         $response_info = curl_getinfo($ch);
         if ($response_info['http_code'] == 301 || $response_info['http_code'] == 302) {
           $newurl = $response_info['redirect_url'];
-          // if no scheme is present then the new url is a relative path and thus needs some extra care
-          if (!preg_match("/^https?:/i", $newurl)) {
-            $newurl = $original_url . $newurl;
-          }    
-        } else {
+        } else if ($meta = AmberNetworkUtils::find_meta_redirect($response)) {
+          $newurl = $meta;
+        } else { 
           break; // Not a redirect, so we're done
         }
+        // if no scheme is present then the new url is a relative path and thus needs some extra care        
+        if (!preg_match("/^https?:/i", $newurl)) {          
+          $last_slash = strrpos($original_url,"/",9); // Starting at position 9 starts search past http://
+          if ($last_slash == (strlen($original_url) - 1)) {
+            $newurl = $original_url . $newurl;  
+          } else if ($last_slash === FALSE) {
+            $newurl = join("/",array($original_url, $newurl));
+          } else {
+            $newurl = join("/",array(substr($original_url, 0, $last_slash), $newurl));
+          }          
+        }    
       } while (--$max_redirects);      
       curl_close($ch);
 
@@ -714,7 +723,7 @@ class AmberNetworkUtils {
     }
     
     if (!$max_redirects) {
-      return false; // We ran out of redirects without getting a result
+      return FALSE; // We ran out of redirects without getting a result
     } else {
       /* Split into header and body */
       $header_size = $response_info['header_size'];
@@ -724,8 +733,6 @@ class AmberNetworkUtils {
       return array("headers" => $headers, "body" => $body, "info" => $response_info);
     }
   }
-
-  
 
   /**
    * Look at the results from a lookup using curl_multi, and identify urls that we need 
@@ -738,9 +745,35 @@ class AmberNetworkUtils {
     foreach ($urls as $url => $data) {
       if (($data['info']['http_code'] == 301) || ($data['info']['http_code'] == 302)) {
         $result[$url] = $data;
+      } else if ($meta = AmberNetworkUtils::find_meta_redirect($data['body'])) {
+        $result[$url] = $data;
       }
     }  
     return $result;
+  }
+
+  /**
+   * Find the META refresh tags with redirects (if any) in the HEAD of an HTML document
+   * Sample meta refresh tags:
+   *   <meta http-equiv="refresh" content="30; URL=http://www.example.org/login">
+   *   <meta http-equiv="REFRESH" content="0; url=http://www.example.org/login">
+   *   <meta http-equiv="refresh" content="5"> (NOT A REDIRECT)
+   * @param  $body strong with HTML 
+   * @return string with URL if a redirect is found, or FALSE if one is not found
+   */
+  public static function find_meta_redirect($body) {
+    // Extract the head from the document
+    $head_size = stripos($body, "</head>");
+    if ($head_size === FALSE) {
+      $head = $body;
+    } else {
+      $head = substr($body,0,$head_size);
+    }
+    if (preg_match("/http-equiv\s*=\s*['\"]refresh['\"].*url\s*=\s*(.*)['\"]/i", $head, $matches)) {
+      return $matches[1];
+    } else {
+      return FALSE;
+    }
   }
 
 }
