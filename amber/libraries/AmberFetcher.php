@@ -463,6 +463,10 @@ class AmberNetworkUtils {
     return in_array("curl", get_loaded_extensions());
   }
 
+  private static function curl_redirects_allowed() {
+    return !ini_get('open_basedir') && filter_var(ini_get('safe_mode'), FILTER_VALIDATE_BOOLEAN) === false;
+  }
+
   public static function full_relative_path($base, $url) {
     $dict = parse_url($url);
     if (isset($dict['path'])) {
@@ -540,7 +544,7 @@ class AmberNetworkUtils {
   /**
    * Open one or more URL, and return an array of arrays with dictionary of header information and a stream to the contents of the URL
    * @param $urls array of strings of resource to download
-   * @return array of dictionaries of header information and a stream to the contents of the URL
+   * @return array of dictionaries of header information and the contents of the URL
    */
   public static function open_multi_url($urls, $additional_options = array()) {
     if (AmberNetworkUtils::curl_installed()) {
@@ -548,10 +552,11 @@ class AmberNetworkUtils {
       try {
         $options = array(
           CURLOPT_FAILONERROR => TRUE,      /* Don't ignore HTTP errors */
-          CURLOPT_FOLLOWLOCATION => TRUE,   /* Follow redirects */
+                                            /* Follow redirects? */
+          CURLOPT_FOLLOWLOCATION => AmberNetworkUtils::curl_redirects_allowed(),   
           CURLOPT_MAXREDIRS => 10,          /* No more than 10 redirects */
-          CURLOPT_CONNECTTIMEOUT => 5,     /* 10 second connection timeout */
-          CURLOPT_TIMEOUT => 10,            /* 30 second timeout for any CURL function */
+          CURLOPT_CONNECTTIMEOUT => 5,      /* Connection timeout */
+          CURLOPT_TIMEOUT => 10,            /* Timeout for any CURL function */
           CURLOPT_RETURNTRANSFER => 1,      /* Return the output as a string */
           CURLOPT_HEADER => TRUE,           /* Return header information as part of the file */
           CURLOPT_USERAGENT => "Amber 1.0/compatible",
@@ -605,6 +610,21 @@ class AmberNetworkUtils {
           curl_multi_remove_handle($multi, $channel); 
         }
         curl_multi_close($multi);
+
+        /* It's possible that one or more of these responses may require a redirect
+           that hasn't yet been followed. Some cases where this could happen:
+           - The webserver has safe_mode or open_basedir set, so we couldn't set CURLOPT_FOLLOWLOCATION
+           - The redirect is triggered by a META tag in the HTML
+           - The redirect is triggered by Javascript (We do NOT handle this case)
+           For the first two cases, which we can handle, we find URLs that still need redirection,
+           and fetch them. */
+        $redirects_required = AmberNetworkUtils::find_urls_requiring_redirects($result);
+        foreach ($redirects_required as $url => $data) {
+          $a = AmberNetworkUtils::open_single_url($url);
+          if ($a) {
+            $result[$url] = $a;
+          }
+        }
         return $result;
       } catch (RuntimeException $e) {
         error_log($e->getMessage());
@@ -620,7 +640,7 @@ class AmberNetworkUtils {
   }
 
   /**
-   * Open a URL, and return an array with dictionary of header information and a stream to the contents of the URL
+   * Open a URL, and return an array with dictionary of header information and the contents of the URL
    * @param $url string of resource to download
    * @return array dictionary of header information and a stream to the contents of the URL
    */
@@ -631,6 +651,87 @@ class AmberNetworkUtils {
     } else {
       return FALSE;
     }
+  }
+
+  /**
+   * Open a single URL, and return an array with dictionary of header information and the contents 
+   * of the URL. Handle redirects ourselves, rather than using CURLOPT_FOLLOWLOCATION
+   * Adapted from http://slopjong.de/2012/03/31/curl-follow-locations-with-safe_mode-enabled-or-open_basedir-set/
+   * @param $url string of resource to download
+   * @return array dictionary of header information and a stream to the contents of the URL
+   */
+  public static function open_single_url($url, $additional_options = array()) {
+    $options = array(
+      CURLOPT_FAILONERROR => TRUE,      /* Don't ignore HTTP errors */
+      CURLOPT_FOLLOWLOCATION => FALSE,  /* Don't follow redirects */ 
+      CURLOPT_CONNECTTIMEOUT => 5,      /* Connection timeout */
+      CURLOPT_TIMEOUT => 10,            /* Timeout for any CURL function */
+      CURLOPT_RETURNTRANSFER => 1,      /* Return the output as a string */
+      CURLOPT_HEADER => TRUE,           /* Return header information as part of the file */
+      CURLOPT_USERAGENT => "Amber 1.0/compatible",
+      CURLOPT_ENCODING => '',           /* Handle compressed data */
+    );
+
+    $max_redirects = 5;    
+    try {
+
+      $ch = curl_init($url);
+      if (curl_setopt_array($ch, $additional_options + $options) === FALSE) {
+        throw new RuntimeException(join(":", array(__FILE__, __METHOD__, "Error setting CURL options", $url, curl_error($ch))));
+      }
+      $original_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+      $newurl = $original_url;
+      
+      do {
+        curl_setopt($ch, CURLOPT_URL, $newurl);
+        $response = curl_exec($ch);
+        $response_info = curl_getinfo($ch);
+        if ($response_info['http_code'] == 301 || $response_info['http_code'] == 302) {
+          $newurl = $response_info['redirect_url'];
+          // if no scheme is present then the new url is a relative path and thus needs some extra care
+          if (!preg_match("/^https?:/i", $newurl)) {
+            $newurl = $original_url . $newurl;
+          }    
+        } else {
+          break; // Not a redirect, so we're done
+        }
+      } while (--$max_redirects);      
+      curl_close($ch);
+
+    } catch (RuntimeException $e) {
+      error_log($e->getMessage());
+      curl_close($ch);
+      return FALSE;
+    }
+    
+    if (!$max_redirects) {
+      return false; // We ran out of redirects without getting a result
+    } else {
+      /* Split into header and body */
+      $header_size = $response_info['header_size'];
+      $header = substr($response, 0, $header_size-1);
+      $body = substr($response, $header_size);
+      $headers = AmberNetworkUtils::extract_headers($header);
+      return array("headers" => $headers, "body" => $body, "info" => $response_info);
+    }
+  }
+
+  
+
+  /**
+   * Look at the results from a lookup using curl_multi, and identify urls that we need 
+   * to query again, because a redirect is needed but was not followed
+   * @param  $urls associative array of url lookups, keyed by url
+   * @return associative array of the subset of items that need to be queried again
+   */
+  public static function find_urls_requiring_redirects($urls) {
+    $result = array();
+    foreach ($urls as $url => $data) {
+      if (($data['info']['http_code'] == 301) || ($data['info']['http_code'] == 302)) {
+        $result[$url] = $data;
+      }
+    }  
+    return $result;
   }
 
 }
