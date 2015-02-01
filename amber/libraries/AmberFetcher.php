@@ -144,7 +144,7 @@ class AmberFetcher implements iAmberFetcher {
       $reason = "File size too large";
       return FALSE;
     }
-    if ($data['headers']['Content-Type'] && !empty($this->excludedContentTypes)) {
+    if (isset($data['headers']['Content-Type']) && !empty($this->excludedContentTypes)) {
       $content_type = $data['headers']['Content-Type'];
       foreach ($this->excludedContentTypes as $exclude) {
         if (trim($exclude) && (strpos(strtolower($content_type), trim($exclude)) !== FALSE)) {
