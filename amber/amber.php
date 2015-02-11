@@ -641,6 +641,19 @@ jQuery(document).ready(function($) {
 ';
 	}
 
+	public static function admin_notices() {
+		global $wp_rewrite;
+
+		if (!$wp_rewrite->using_mod_rewrite_permalinks()) {
+			print '    
+<div class="error">
+	<p>Permalinks must be enabled (set to something other than the default) for Amber to work properly. 
+	Enable Permalinks <a href="'. get_site_url() . '/wp-admin/options-permalink.php">here</a></p>
+</div>';
+		}	
+}
+ 
+
 }
 
 include_once dirname( __FILE__ ) . '/amber-install.php';
@@ -659,6 +672,9 @@ add_filter ( 'the_content', array('Amber', 'filter'));
 register_activation_hook( __FILE__, array('AmberInstall','activate'));
 register_deactivation_hook( __FILE__, array('AmberInstall','deactivate'));
 register_uninstall_hook( __FILE__, array('AmberInstall','uninstall'));
+
+/* Warn if permalinks are not enabled */
+add_action( 'admin_notices', array('Amber', 'admin_notices') );
 
 /* Add CSS and Javascript to all pages */
 add_action( 'wp_enqueue_scripts', array('Amber', 'register_plugin_assets') );
