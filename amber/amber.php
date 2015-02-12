@@ -647,7 +647,7 @@ jQuery(document).ready(function($) {
 		if (!$wp_rewrite->using_mod_rewrite_permalinks()) {
 			print '    
 <div class="error">
-	<p>Permalinks must be enabled (set to something other than the default) for Amber to work properly. 
+	<p>Permalinks must be enabled (set to something other than "Default") for Amber to work properly. 
 	Enable Permalinks <a href="'. get_site_url() . '/wp-admin/options-permalink.php">here</a></p>
 </div>';
 		}	
