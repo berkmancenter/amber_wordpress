@@ -791,7 +791,7 @@ class AmberRobots {
       return true;
     require_once("robotstxtparser.php");
     $parser = new robotstxtparser($robots);
-    return !$parser->isDisallowed($url,"Amber 1.0/compatible");
+    return (!$parser->isDisallowed($url,"amber") || $parser->isAllowed($url,"amber"));
   }
 
   /**

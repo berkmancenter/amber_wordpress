@@ -11,34 +11,49 @@ require_once("AmberStorage.php");
 
 class AmberRobotsTest extends \PHPUnit_Framework_TestCase {
 
-  public function testRobotsParse()
+  public function testRobotsParse1()
   {
     $this->assertTrue(AmberRobots::url_permitted("","www.google.com"));
     $this->assertTrue(AmberRobots::url_permitted("Donuts","www.google.com"));
+  }
+
+  public function testRobotsParse2() {
     $this->assertFalse(AmberRobots::url_permitted(<<<EOD
 User-agent: *
 Disallow: /
 
 EOD
 ,"/a_url"));
+  }
+
+  public function testRobotsParse3() {
     $this->assertTrue(AmberRobots::url_permitted(<<<EOD
 User-agent: *
 Disallow: /man
 
 EOD
 ,"/a_url"));
+  }
+
+  public function testRobotsParse4() {
     $this->assertFalse(AmberRobots::url_permitted(<<<EOD
 User-agent: *
 Disallow: /man
 
 EOD
 ,"/man/a_url"));
+  }
+
+  public function testRobotsParse5() {
     $this->assertTrue(AmberRobots::url_permitted(<<<EOD
 User-agent: *
 Disallow: /man
 
 EOD
 ,"/foo"));
+  }
+
+  public function testRobotsParse6() {
     $this->assertTrue(AmberRobots::url_permitted(<<<EOD
 User-agent: *
 Disallow: 
@@ -76,6 +91,25 @@ User-agent: *
 Disallow: /blogsupport
 Disallow: /brooklaw
 Disallow: /cyberlaw2005/wiki
+EOD
+, "/zittrain/"));
+}
+
+  public function testAmberOnlyExcluded() {
+    $this->assertFalse(AmberRobots::url_permitted(<<<EOD
+User-agent: Amber
+Disallow: /zittrain/
+EOD
+, "/zittrain/"));
+}
+
+  public function testAmberOnlyIncluded() {
+    $this->assertTrue(AmberRobots::url_permitted(<<<EOD
+User-agent: Amber
+Allow: /zittrain/
+
+User-agent: *
+Disallow: /zittrain/
 EOD
 , "/zittrain/"));
 }

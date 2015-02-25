@@ -343,8 +343,22 @@
 		 */
 		public function isAllowed($url, $userAgent = "*")
 		{
-			return $this->checkRule(self::DIRECTIVE_ALLOW, $url, $userAgent)
-				&& !$this->checkRule(self::DIRECTIVE_DISALLOW, $url, $userAgent);
+			$allowed = $this->checkRule(self::DIRECTIVE_ALLOW, $url, $userAgent);
+			$disallowed = $this->checkRule(self::DIRECTIVE_DISALLOW, $url, $userAgent);
+
+			// If a specific $userAgent is provided, it's possible that the 
+			// the $url is allowed by a $userAgent-specific rule, yet disallowed
+			// by a global rule (or vice-versa). In that case, the $userAgent-specific
+			// rule should take precedence
+			if ($userAgent != '*') {
+				if ($disallowed && $this->checkRule(self::DIRECTIVE_ALLOW, $url, $userAgent, false)) {
+					$disallowed = false;
+				}
+				if ($allowed && $this->checkRule(self::DIRECTIVE_DISALLOW, $url, $userAgent, false)) {
+					$allowed = false;
+				}
+			}
+			return $allowed && !$disallowed;
 		}
 
 		/**
@@ -366,17 +380,18 @@
 		 * @param string $rule      - which rule to check
 		 * @param string $url       - url to check
 		 * @param string $userAgent - which robot to check for
+		 * @param string $useAllCategory - Fallback to check the '*' rule if $userAgent provided
 		 *
 		 * @return bool
 		 */
-		public function checkRule($rule, $value = '/', $userAgent = '*')
+		public function checkRule($rule, $value = '/', $userAgent = '*', $useAllCategory = true)
 		{
 			$result = false;
 			// if there is no rule or a set of rules for user-agent
 			if (!isset($this->rules[$userAgent]) || !isset($this->rules[$userAgent][$rule]))
 			{
 				// check 'For all' category - '*'
-				return ($userAgent != '*') ? $this->checkRule($rule, $value) : false;
+				return (($userAgent != '*') && $useAllCategory) ? $this->checkRule($rule, $value) : false;
 			}
 			foreach ($this->rules[$userAgent][$rule] as $robotRule)
 			{
