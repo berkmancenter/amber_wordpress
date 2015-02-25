@@ -28,6 +28,10 @@ class AmberChecker implements iAmberChecker {
    * @return array|bool
    */
   public function check($last_check, $force = false) {
+    if (is_array($last_check['url']) || is_array($last_check['id'])) {
+      error_log(join(":", array(__FILE__, __METHOD__, "Bad parameters passed to AmberChecker::check", print_r($last_check,true))));
+      return false;
+    }
     $url = $last_check['url'];
     $id = isset($last_check['id']) ? $last_check['id'] : md5($url); //TODO: Unify ID generation
 
