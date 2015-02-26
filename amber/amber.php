@@ -353,13 +353,46 @@ class Amber {
 		return $result;
 	}
 
+	/**
+	 * Filter links that are candidates for caching to exclude local links, or links to URLs on the blacklist
+	 * @param $links array of links to check
+	 * @param $blacklist array of regular expressions to exclude
+	 */
+	private static function filter_regexp_excluded_links($links)
+	{
+		$blacklist = preg_split("/[,\s]+/",Amber::get_option("amber_excluded_sites",""));
+		if (!$blacklist) {
+		  return $links;
+		}
+		$result = array('cache' => array(), 'excluded' => array());
+		foreach ($links as $link) {
+			$exclude = FALSE;
+			foreach ($blacklist as $blacklistitem) {
+				$blacklistitem = trim($blacklistitem);
+				$blacklistitem = preg_replace("/https?:\\/\\//i", "", $blacklistitem);
+				$blacklistitem = str_replace("@", "\@", $blacklistitem); 
+				$blacklistitem = '@' . $blacklistitem . '@';
+				$cleanedlink = preg_replace("/https?:\\/\\//i", "", $link);
+				if (preg_match($blacklistitem, $cleanedlink)) {
+					$exclude = TRUE;
+				}
+			}
+			if ($exclude) {
+			  $result['excluded'][] = $link;
+			} else {
+			    $result['cache'][] = $link;
+			}
+		}
+		return $result;
+	}
+
 	public static function extract_links($post_id, $cache_immediately = false) {
 		$result = array();
         $post = get_post($post_id);
         $text = $post->post_content;
 	 	$re = '/href=["\'](http[^\v()<>{}\[\]"\']+)[\'"]/i';
   		$count = preg_match_all($re, $text, $matches);
-		$links = Amber::filter_excluded_links($matches[1]);
+		$links = Amber::filter_regexp_excluded_links($matches[1]);
 
   		if ($count) {
   			 $result = Amber::cache_links($links['cache'],$cache_immediately);
