@@ -523,24 +523,34 @@ EOF;
 	public static function filter_cached_content_headers($headers)
 	{
 		global $wp;
-		$cache_id = !empty($wp->query_vars['amber_cacheframe']) ? $wp->query_vars['amber_cacheframe'] : "";
+		$cache_frame_id = !empty($wp->query_vars['amber_cacheframe']) ? $wp->query_vars['amber_cacheframe'] : "";
+		$cache_id = !empty($wp->query_vars['amber_cache']) ? $wp->query_vars['amber_cache'] : "";
 		$asset_id = !empty($wp->query_vars['amber_asset']) ? $wp->query_vars['amber_asset'] : "";
 		$asset_id = rtrim($asset_id,"/"); /* Get rid of stray characters on the end */
 
-		if (!empty($cache_id)) {
+		if (!empty($cache_frame_id)) {
 			if (empty($asset_id)) {
 				/* This is the root item */
-				$data = Amber::retrieve_cache_item($cache_id, false);
+				$data = Amber::retrieve_cache_item($cache_frame_id, false);
 			    if (isset($data['metadata']['type'])) {
 					$headers['Content-Type'] = $data['metadata']['type'];
 			    }
 			} else {
 				/* This is an asset */
-				$data = Amber::retrieve_cache_asset($cache_id, $asset_id);
+				$data = Amber::retrieve_cache_asset($cache_frame_id, $asset_id);
 			    if (isset($data['metadata']['type'])) {
 					$headers['Content-Type'] = $data['metadata']['type'];
 				}
 			}
+		}
+		// Add Memento header to cache iframe and cache item
+		if ((!empty($cache_id) || !empty($cache_frame_id)) && empty($asset_id)) {
+			if (!isset($data)) {
+				$data = Amber::retrieve_cache_item($cache_id, false);
+			}
+		    if (isset($data['metadata']['cache']['amber']['date'])) {
+		    	$headers['Memento-Datetime'] = $data['metadata']['cache']['amber']['date'];
+		    }
 		}
 		return $headers;
 	}
