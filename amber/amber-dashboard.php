@@ -31,7 +31,7 @@ class Amber_List_Table extends WP_List_Table {
             "LEFT JOIN ${prefix}amber_activity a on ca.id = a.id ";
 
         if (!empty($_REQUEST['orderby'])) {
-            if (in_array($_REQUEST['orderby'], array('c.last_checked', 'ca.date', 'c.status', 'ca.size', 'a.date', 'a.views'), true)) {
+            if (in_array($_REQUEST['orderby'], array('c.url', 'c.last_checked', 'ca.date', 'c.status', 'ca.size', 'a.date', 'a.views'), true)) {
                 $statement .= " ORDER BY " . $_REQUEST['orderby'];
                 if (!empty($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc','desc'))) {
                     $statement .=  " " . $_REQUEST['order'];
@@ -110,7 +110,8 @@ class Amber_List_Table extends WP_List_Table {
 
     function get_sortable_columns() {
         $sortable_columns = array(
-            'status'        => array('c.status',false),     //true means it's already sorted
+            'url'           => array('c.url',false),     //true means it's already sorted
+            'status'        => array('c.status',false),
             'last_checked'  => array('c.last_checked',false),
             'date'          => array('ca.date',false),
             'size'          => array('ca.size',false),
