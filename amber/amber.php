@@ -122,7 +122,8 @@ class Amber {
 	  // Assume that we only have one cache of the data. This would need to change if we start tracking multiple caches
 	  if (isset($summaries['default']['location'],$summaries['default']['date'],$summaries['default']['size']) &&
 	      ($summaries['default']['size'] > 0)) {
-	    $result['data-cache'] = join(" ",array(join("/", array(get_site_url(),$summaries['default']['location'])), date('c',$summaries['default']['date'])));
+	    $result['data-versionurl'] = join("/", array(get_site_url(),$summaries['default']['location']));
+	    $result['data-versiondate'] = date('c',$summaries['default']['date']);
 	  } else {
 	    return $result;
 	  }
