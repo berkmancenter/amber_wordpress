@@ -467,6 +467,15 @@ class Amber {
 		return $vars;
 	}
 
+	/**
+	 * Convert a string representation of a date into RFC1123 format
+	 */
+	public static function format_memento_date($date_string) {
+  		$storage =  Amber::get_storage();
+		$dt = DateTime::createFromFormat($storage->ISO8601_FORMAT, $date_string);
+		$result = $dt->format(DateTime::RFC1123);
+		return $result;
+	}
 
 	/**
 	 * Request handling function to display cached content and assets
@@ -551,7 +560,8 @@ EOF;
 				$data = Amber::retrieve_cache_item($cache_id, false);
 			}
 		    if (isset($data['metadata']['cache']['amber']['date'])) {
-		    	$headers['Memento-Datetime'] = $data['metadata']['cache']['amber']['date'];
+		    	$memento_date = Amber::format_memento_date($data['metadata']['cache']['amber']['date']);
+		    	$headers['Memento-Datetime'] = $memento_date;
 		    }
 		}
 		return $headers;
