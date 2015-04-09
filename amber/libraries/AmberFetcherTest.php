@@ -147,7 +147,13 @@ EOD
 , "/zittrain/"));
   }
 
-
+  public function testAmberExcluded_11622() {
+    $this->assertFalse(AmberRobots::url_permitted(<<<EOD
+user-agent: Amber
+disallow: /
+EOD
+, "/Settings"));
+}
 
 }
 

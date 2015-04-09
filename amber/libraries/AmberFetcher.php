@@ -787,7 +787,7 @@ class AmberRobots {
    */
   public static function url_permitted($robots, $url) {
     /* Sanity check to ensure that this actually a robots.txt file */
-    if (!(preg_match("/User.*/", $robots) && preg_match("/Disallow:.*/", $robots)))
+    if ((stripos($robots, "user-agent") === FALSE) || (stripos($robots, "disallow") === FALSE))
       return true;
     require_once("robotstxtparser.php");
     $parser = new robotstxtparser($robots);
