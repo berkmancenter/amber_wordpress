@@ -501,12 +501,12 @@ class Amber {
 			}
 			$iframe_url .= "../" . "cacheframe/${cache_id}/";
 			print <<<EOF
-<html>
+<!DOCTYPE html>
+<html style="height: 100%">
 <head>
 <title>Amber</title>
-<style>body, iframe : { margin:0; padding: 0; }</style>  
 </head>
-<body style="margin:0; padding: 0">
+<body style="margin:0; padding: 0; height: 100%">
 <iframe 
 sandbox="allow-scripts allow-forms allow-popups allow-pointer-lock"
 security="restricted"
