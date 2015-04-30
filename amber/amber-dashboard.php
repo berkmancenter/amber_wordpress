@@ -10,7 +10,6 @@ class Amber_List_Table extends WP_List_Table {
     
     function __construct(){
         global $status, $page, $wpdb;
-        $this->db = $wpdb;
                 
         //Set parent defaults
         parent::__construct( array(
@@ -22,7 +21,8 @@ class Amber_List_Table extends WP_List_Table {
     }
 
     function get_report() {
-        $prefix = $this->db->prefix;
+        global $wpdb;
+        $prefix = $wpdb->prefix;
 
         $statement = 
             "SELECT c.id, c.url, c.status, c.last_checked, c.message, ca.date, ca.size, ca.location, a.views, a.date as activity_date, substring_index(c.url,'://',-1) as url_sort " .
@@ -41,7 +41,7 @@ class Amber_List_Table extends WP_List_Table {
             }
         }
 
-        $rows = $this->db->get_results($statement, ARRAY_A);
+        $rows = $wpdb->get_results($statement, ARRAY_A);
         return $rows;        
     }
 
@@ -122,8 +122,6 @@ class Amber_List_Table extends WP_List_Table {
     }
 
     function prepare_items() {
-        global $wpdb; //This is used only if making any database queries
-
         $per_page = 20;
         $columns = $this->get_columns();
         $hidden = array();
@@ -158,7 +156,6 @@ class AmberDashboardPage
     public function __construct()
     {
         global $wpdb;
-        $this->db = $wpdb;
         add_action( 'admin_menu', array( $this, 'add_plugin_page' ) );
         add_action( 'admin_init', array( $this, 'page_init' ) );
     }
@@ -211,13 +208,15 @@ class AmberDashboardPage
     }
 
     private function cache_size() {
-        $prefix = $this->db->prefix;
-        return $this->db->get_var( "SELECT COUNT(*) FROM ${prefix}amber_cache" );
+        global $wpdb;
+        $prefix = $wpdb->prefix;
+        return $wpdb->get_var( "SELECT COUNT(*) FROM ${prefix}amber_cache" );
     }
 
     private function queue_size() {
-        $prefix = $this->db->prefix;
-        return $this->db->get_var( "SELECT COUNT(*) FROM ${prefix}amber_queue" );
+        global $wpdb;
+        $prefix = $wpdb->prefix;
+        return $wpdb->get_var( "SELECT COUNT(*) FROM ${prefix}amber_queue" );
     }
 
     private function last_check() {
@@ -226,7 +225,8 @@ class AmberDashboardPage
     }
 
     private function disk_usage() {
-        $status = new AmberStatus(new AmberWPDB($this->db), $this->db->prefix);
+        global $wpdb;
+        $status = new AmberStatus(new AmberWPDB($wpdb), $wpdb->prefix);
         $result = round($status->get_cache_size() / (1024 * 1024), 2);        
         return $result ? $result : 0;
     }
@@ -240,24 +240,26 @@ class AmberDashboardPage
     }
     
     private function delete_all() {
+        global $wpdb;
         check_admin_referer('amber_dashboard');
         $storage = Amber::get_storage();
         $storage->clear_cache();
         $status = Amber::get_status();
         $status->delete_all();  
-        $prefix = $this->db->prefix;
-        $this->db->query("DELETE from ${prefix}amber_queue");
+        $prefix = $wpdb->prefix;
+        $wpdb->query("DELETE from ${prefix}amber_queue");
     }   
 
     private function export() {
-        $prefix = $this->db->prefix;
+        global $wpdb;
+        $prefix = $wpdb->prefix;
         $statement = 
             "SELECT c.id, c.url, c.status, c.last_checked, c.message, ca.date, ca.size, ca.location, a.views, a.date as activity_date " .
             "FROM ${prefix}amber_check c " .
             "LEFT JOIN ${prefix}amber_cache ca on ca.id = c.id " .
             "LEFT JOIN ${prefix}amber_activity a on ca.id = a.id ";
 
-        $data = $this->db->get_results($statement, ARRAY_A);
+        $data = $wpdb->get_results($statement, ARRAY_A);
 
         $header = array(
           'Site',
