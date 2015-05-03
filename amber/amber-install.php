@@ -81,10 +81,10 @@ class AmberInstall {
 			update_option('amber_options', $options);			
 		}
 
-		/* The hook name needs to be string, it can't be a reference to a 
-		 *  class function */
-		error_log("wp_schedule_event in amber-install.php");
-		wp_schedule_event( time(), 'fiveminutes', 'amber_cron_event_hook' );
+		/* The hook name needs to be a string, it can't be a reference to a class function */
+		if ( ! wp_next_scheduled( 'amber_cron_event_hook' ) ) {
+			wp_schedule_event( time(), 'fiveminutes', 'amber_cron_event_hook' );			
+		}
 		
 		add_rewrite_rule('^.*amber/cache/([a-f0-9]+)/?$', '/index.php?amber_cache=$1', "top");
 		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/?$', '/index.php?amber_cacheframe=$1', "top");

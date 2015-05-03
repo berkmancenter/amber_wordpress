@@ -201,7 +201,7 @@ class Amber {
 
 	public static function cron_add_schedule($schedules)
 	{
-	 	$schedules['fiveminute'] = array(
+	 	$schedules['fiveminutes'] = array(
 	 		'interval' => 300,
 	 		'display' => __( 'Every five minutes' )
 	 	);
@@ -209,7 +209,7 @@ class Amber {
 	}
 
 	/** 
-	 * Hourly cron job
+	 * Periodic cron job
 	 */
 	public static function cron_event_hook() {
 		Amber::dequeue_link();
@@ -760,16 +760,17 @@ add_filter( 'wp_headers', array('Amber', 'filter_cached_content_headers') );
 /* Add "Cache Now" link to edit pages */
 add_action( 'add_meta_boxes', array('Amber', 'add_meta_boxes') );
 
-
 /* Setup cron */
 add_action( 'amber_cron_event_hook', array('Amber', 'cron_event_hook') );
 add_filter( 'cron_schedules', array('Amber', 'cron_add_schedule') );
+if ( ! wp_next_scheduled( 'amber_cron_event_hook' ) ) {
+	wp_schedule_event( time(), 'fiveminutes', 'amber_cron_event_hook' );			
+}
 
 /* Setup ajax methods for batch caching and scanning */
 add_action( 'wp_ajax_amber_cache', array('Amber', 'ajax_cache') );
 add_action( 'wp_ajax_amber_cache_now', array('Amber', 'ajax_cache_now') );
 add_action( 'wp_ajax_amber_scan_start', array('Amber', 'ajax_scan_start') );
 add_action( 'wp_ajax_amber_scan', array('Amber', 'ajax_scan') );
-
 
 ?>
