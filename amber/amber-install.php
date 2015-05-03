@@ -10,7 +10,7 @@ class AmberInstall {
 		  last_checked int,
 		  next_check int,
 		  message VARCHAR(2000),
-		  PRIMARY KEY id (id)
+		  PRIMARY KEY  (id)
 		)";
 		$tables['amber_cache'] =  "(
 		  id VARCHAR(32) NOT NULL,
@@ -19,20 +19,20 @@ class AmberInstall {
 		  date int,
 		  type VARCHAR(200) DEFAULT '' NOT NULL,
 		  size int,
-		  PRIMARY KEY id (id)
+		  PRIMARY KEY  (id)
 		)";
 		$tables['amber_activity'] =  "(
 		  id VARCHAR(32) NOT NULL,
 		  date int,
 		  views int DEFAULT 0 NOT NULL,
-		  PRIMARY KEY id (id)
+		  PRIMARY KEY  (id)
 		)";
 		$tables['amber_queue'] =  "(
 		  id VARCHAR(32) NOT NULL,
 		  url VARCHAR(2000) NOT NULL,
 		  created int,
 		  locked int,
-		  PRIMARY KEY id (id)
+		  PRIMARY KEY  (id)
 		)";
 		return $tables;
 	}
