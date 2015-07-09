@@ -207,10 +207,8 @@ class AmberTestLinkFiltering extends WP_UnitTestCase {
 			'post_content' => 'The quick brown <a href="http://yahoo.com/">fox</a> jumped over the lazy <a href="http://dog.com/yahoo.com">dog</a>',
 			));
 
-	    $default_error_logging_level = error_reporting();
-	    error_reporting(E_ALL ^ E_WARNING);
+		/* This will emit warning messages, but they can be ignored */
  		$result = Amber::extract_links($post_id, true);
-	    error_reporting($default_error_logging_level);
 
 		$this->assertEquals(2, count($result));
 		$this->assertEquals(1, $result["http://yahoo.com/"]);
