@@ -1,18 +1,13 @@
 <?php
 
-
 class AmberTestLinkRewriting extends WP_UnitTestCase {
 
 	private $status_stub;
 
 	function setUp() {
-		delete_option('amber_options');				
  		$this->status_stub = $this->getMockBuilder('AmberStatus')->disableOriginalConstructor()->getMock();
  		Amber::set_status($this->status_stub);		
-	}
-
-	function tearDown() {
-		delete_option('amber_options');		
+		parent::setUp();
 	}
 
 	function test_filter_no_links() {

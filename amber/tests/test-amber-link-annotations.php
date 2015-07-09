@@ -1,15 +1,6 @@
 <?php
 
-
 class AmberTestLinks extends WP_UnitTestCase {
-
-	function setUp() {
-		delete_option('amber_options');		
-	}
-
-	function tearDown() {
-		delete_option('amber_options');		
-	}
 
 	function test_get_behavior_up_popup() {
 		update_option('amber_options', array('amber_available_action' => AMBER_ACTION_POPUP)); 

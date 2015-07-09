@@ -21,6 +21,7 @@ class Amber {
 
 	private static $amber_status;
 	private static $amber_checker;
+	private static $amber_fetcher;
 
 	public static function get_option($key, $default = "")
 	{
@@ -78,13 +79,21 @@ class Amber {
 	 */
 	public static function get_fetcher() {
 
-    	$fetcher = new AmberFetcher(Amber::get_storage(), array(
+		if (!Amber::$amber_fetcher) {
+			Amber::$amber_fetcher =
+	    		new AmberFetcher(Amber::get_storage(), array(
 		      		'amber_max_file' => Amber::get_option('amber_max_file',1000),
 	    	  		'header_text' => "You are viewing an archive of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
 	      			'amber_excluded_formats' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
-    	));
-	  	return $fetcher;
+    			));
+    	}
+	  	return Amber::$amber_fetcher;
 	}
+
+	public static function set_fetcher($fetcher) {
+		Amber::$amber_fetcher = $fetcher;
+	}
+
 
 
 	public static function get_behavior($status, $country = false)
@@ -255,14 +264,12 @@ class Amber {
 		/* Check whether the site is up */
 		$last_check = $status->get_check($item);
 		if (($update = $checker->check(empty($last_check) ? array('url' => $item) : $last_check, $force)) !== false) {
-
 			/* There's an updated check result to save */
 			$status->save_check($update);
 
 			/* Now cache the item if we should */
 			$existing_cache = $status->get_cache($item);
 	  		$strategy = Amber::get_option('amber_update_strategy', 0);
-
 			if ($update['status'] && (!$strategy || !$existing_cache)) {
 				$cache_metadata = array();
 				try {
@@ -392,7 +399,6 @@ class Amber {
 	 	$re = '/href=["\'](http[^\v()<>{}\[\]"\']+)[\'"]/i';
   		$count = preg_match_all($re, $text, $matches);
 		$links = Amber::filter_regexp_excluded_links($matches[1]);
-
   		if ($count) {
   			 $result = Amber::cache_links($links['cache'],$cache_immediately);
   		} 
