@@ -19,6 +19,9 @@ define("AMBER_VAR_LAST_CHECK_RUN","amber_last_check_run");
 
 class Amber {
 
+	private static $amber_status;
+	private static $amber_checker;
+
 	public static function get_option($key, $default = "")
 	{
 		$options = get_option('amber_options');
@@ -42,8 +45,14 @@ class Amber {
 	 * @return IAmberChecker
 	 */
 	public static function get_checker() {
-	    $checker = new AmberChecker();
-	 	return $checker;
+		if (!Amber::$amber_checker) {
+			Amber::$amber_checker = new AmberChecker();
+		}
+	 	return Amber::$amber_checker;
+	}
+
+	public static function set_checker($checker) {
+		Amber::$amber_checker = $checker;
 	}
 
 	/**
@@ -53,8 +62,14 @@ class Amber {
 	public static function get_status() {
 		global $wpdb;
 
-	    $status = new AmberStatus(new AmberWPDB($wpdb), $wpdb->prefix);
-		return $status;
+		if (!Amber::$amber_status) {
+	    	Amber::$amber_status = new AmberStatus(new AmberWPDB($wpdb), $wpdb->prefix);		
+		}
+		return Amber::$amber_status;
+	}
+
+	public static function set_status($status) {
+		Amber::$amber_status = $status;
 	}
 
 	/**
@@ -72,8 +87,9 @@ class Amber {
 	}
 
 
-	private static function get_behavior($status, $country = false)
+	public static function get_behavior($status, $country = false)
 	{
+
 	  $result = $status ? "up" : "down";
 	  $c = $country ? "country_" : "";
 	  if ($status) {
@@ -315,39 +331,6 @@ class Amber {
 			}
 		} else {
 			Amber::enqueue_check_links($links);
-		}
-		return $result;
-	}
-
-	/**
-	 * Filter links that are candidates for caching to exclude local links, or links to URLs on the blacklist
-	 * @param $links array of links to check
-	 * @param $blacklist array of hostnames to exclude
-	 */
-	private static function filter_excluded_links($links)
-	{
-		$blacklist = preg_split("/[,\s]+/",Amber::get_option("amber_excluded_sites",""));
-		if (!$blacklist) {
-		  return $links;
-		}
-		$result = array('cache' => array(), 'excluded' => array());
-		foreach ($links as $link) {
-		  	$host = parse_url($link,PHP_URL_HOST);
-		  	if ($host) {
-		    	$exclude = FALSE;
-		    	foreach ($blacklist as $blacklistitem) {
-		      		$blacklistitem = trim($blacklistitem);
-		      		$blacklistitem = preg_replace("/https?:\\/\\//i", "", $blacklistitem);
-		      		if (strcasecmp($host,$blacklistitem) === 0) {
-		        		$exclude = TRUE;
-		      		}
-		    	}
-		    	if ($exclude) {
-		    		$result['excluded'][] = $link;
-		    	} else {
-		      		$result['cache'][] = $link;
-		    	}
-		  	}
 		}
 		return $result;
 	}
