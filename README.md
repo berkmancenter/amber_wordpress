@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/berkmancenter/amber_wordpress.png?branch=master)](https://travis-ci.org/berkmancenter/amber_wordpress)
+
 Amber WordPress plugin
 =================
 This is Amber, a WordPress plugin that provides an alternative route to information when content would otherwise be unavailable. Amber is useful for virtually any organization or individual that has an interest in preserving the content to which their website links.
