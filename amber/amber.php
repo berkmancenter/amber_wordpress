@@ -75,7 +75,6 @@ class Amber {
 	private static function get_behavior($status, $country = false)
 	{
 	  $result = $status ? "up" : "down";
-	  $options = get_option('amber_options');
 	  $c = $country ? "country_" : "";
 	  if ($status) {
 	    $action = Amber::get_option("amber_${c}available_action", AMBER_ACTION_NONE);
