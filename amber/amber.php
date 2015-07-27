@@ -514,7 +514,7 @@ class Amber {
 sandbox="allow-scripts allow-forms allow-popups allow-pointer-lock"
 security="restricted"
 style="border:0 none transparent; background-color:transparent; width:100%; height:100%;" 
-src="${iframe_url}"/>
+src="${iframe_url}"
 </body>
 </html>
 EOF;
