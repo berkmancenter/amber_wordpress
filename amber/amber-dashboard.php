@@ -121,6 +121,12 @@ class Amber_List_Table extends WP_List_Table {
         return $sortable_columns;
     }
 
+    function single_row($item) {
+        echo "<tr data-url='" . htmlspecialchars($item['url']) . "'>";
+        $this->single_row_columns( $item );
+        echo '</tr>';
+    }
+
     function prepare_items() {
         $per_page = 20;
         $columns = $this->get_columns();
