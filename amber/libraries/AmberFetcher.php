@@ -153,6 +153,10 @@ class AmberFetcher implements iAmberFetcher {
         }
       }      
     }
+    if (AmberNetworkUtils::find_meta_no_archive($data['body'])) {
+      $reason = "noarchive/noindex meta tag found";
+      return FALSE;
+    }
     return TRUE;
   }
 
@@ -753,6 +757,21 @@ class AmberNetworkUtils {
   }
 
   /**
+   * Extract the HTML <head> from the document
+   * @param  string $body HTML document to extract head from
+   * @return string       contents of the <head> element, or the full document if <head> not found
+   */
+  private static function get_head($body) {
+    $head_size = stripos($body, "</head>");
+    if ($head_size === FALSE) {
+      $head = $body;
+    } else {
+      $head = substr($body,0,$head_size);
+    }
+    return $head;
+  }
+
+  /**
    * Find the META refresh tags with redirects (if any) in the HEAD of an HTML document
    * Sample meta refresh tags:
    *   <meta http-equiv="refresh" content="30; URL=http://www.example.org/login">
@@ -762,15 +781,28 @@ class AmberNetworkUtils {
    * @return string with URL if a redirect is found, or FALSE if one is not found
    */
   public static function find_meta_redirect($body) {
-    // Extract the head from the document
-    $head_size = stripos($body, "</head>");
-    if ($head_size === FALSE) {
-      $head = $body;
-    } else {
-      $head = substr($body,0,$head_size);
-    }
+    $head = AmberNetworkUtils::get_head($body);
     if (preg_match("/http-equiv\s*=\s*['\"]refresh['\"].*url\s*=\s*(.*)['\"]/i", $head, $matches)) {
       return $matches[1];
+    } else {
+      return FALSE;
+    }
+  }
+
+  /**
+   * Respect the "noarchive" meta tag as described here: http://noarchive.net/meta/
+   * Sample tags that will prevent archiving:
+   *   <meta name="robots" content="noarchive">
+   *   <meta name="amber" content="noarchive">
+   *   <meta name="robots" content="noarchive, noindex">
+   *   <meta name="amber" content="noindex">
+   * @param  string $body HTML document to example
+   * @return boolean       true if there is an application no-archive tag, false otherwise
+   */
+  public static function find_meta_no_archive($body) {
+    $head = AmberNetworkUtils::get_head($body);
+    if (preg_match("/<meta\s+name\s*=\s*['\"](robots|amber)['\"].*content\s*=\s*['\"].*(noarchive|noindex).*['\"]/i", $head, $matches)) {
+      return TRUE;
     } else {
       return FALSE;
     }
@@ -785,7 +817,7 @@ class AmberRobots {
    * @param $url
    * @return bool
    */
-  public static function url_permitted($robots, $url) {
+  public static function url_permitted($robots, $url) { 
     /* Sanity check to ensure that this actually a robots.txt file */
     if ((stripos($robots, "user-agent") === FALSE) || (stripos($robots, "disallow") === FALSE))
       return true;
