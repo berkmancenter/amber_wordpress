@@ -31,6 +31,7 @@ class PermaAmberFetcherTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException        RuntimeException
+	 * @group ExternalInterfaces
      */
 	public function testBadAPIKeyTriggersPHPError()
 	{
@@ -38,6 +39,9 @@ class PermaAmberFetcherTest extends \PHPUnit_Framework_TestCase {
 		$result = $fetcher->fetch("http://www.google.com");
 	}
 
+    /**
+	 * @group ExternalInterfaces
+     */
 	public function testGoodAPIKeyReturnsExpectedResponse()
 	{
 		$apikey = getenv("PERMA_API_KEY");

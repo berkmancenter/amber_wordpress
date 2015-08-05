@@ -9,6 +9,9 @@ class InternetArchiveFetcherTest extends \PHPUnit_Framework_TestCase {
 	  date_default_timezone_set('UTC');
 	}
 
+	/**
+	 * @group ExternalInterfaces
+	 */
 	public function testBasicFetch()
 	{
 		$fetcher = new InternetArchiveFetcher(new InternetArchiveStorage(array()), array());	  
