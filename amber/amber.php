@@ -27,6 +27,7 @@ class Amber {
 	private static $amber_status;
 	private static $amber_checker;
 	private static $amber_fetcher;
+	private static $amber_storage;
 
 	public static function get_option($key, $default = "")
 	{
@@ -35,15 +36,57 @@ class Amber {
 	}
 
 	/**
-	 * Get an initialized AmberStorage module
-	 * @return AmberStorage
+	 * Get an initialized iAmberStorage implementation, and cache it in a static variable
+	 * Used to retrieve the currently selected iAmberStorage implementation that's being
+	 * used to save new captures
+	 * @return iAmberStorage
 	 */
 	public static function get_storage() {
-    	$base_dir = wp_upload_dir();
-    	$subdir = Amber::get_option('amber_storage_location', 'amber');
-    	$file_path = join(DIRECTORY_SEPARATOR, array($base_dir['basedir'], $subdir));
-    	$storage = new AmberStorage($file_path);
-	  	return $storage;
+		if (!Amber::$amber_storage) {
+		    $storage_id = Amber::get_option('amber_backend', 0);
+		    Amber::$amber_storage = Amber::get_storage_by_id($storage_id);
+		}
+	  	return Amber::$amber_storage;
+	}
+
+	public static function set_storage($storage) {
+		Amber::$amber_storage = $storage;
+	}
+
+	/**
+	 * Get an AmberStorage module of the same type that was used to store a particular capture
+	 * @param  string $id of an item
+	 * @return iAmberStorage
+	 */
+	public static function get_storage_for_item($id) {
+	  	$item = Amber::get_status()->get_cache_by_id($id);
+	  	return ($item) ? Amber::get_storage_by_id($item['provider']) : null;
+	}
+
+	/**
+	 * Select and initialize an implementation of iAmberStorage based on the engine ID
+	 * @param  int $storage_id ID of the storage engine to use
+	 * @return iAmberStorage
+	 */
+	public static function get_storage_by_id($storage_id) {
+	  	switch ($storage_id) {
+	    	case AMBER_BACKEND_PERMA:
+				$storage = new PermaStorage(array(
+					'perma_api_key' => Amber::get_option( 'amber_perma_api_key', '' ),
+					'perma_api_url' => Amber::get_option( 'amber_perma_api_server_url', 'https://api.perma.cc' ),
+				));
+				break;
+	    case AMBER_BACKEND_INTERNET_ARCHIVE:
+	    	$storage = new InternetArchiveStorage(array());
+	    	break;
+	    case AMBER_BACKEND_LOCAL:
+	    	$base_dir = wp_upload_dir();
+	    	$subdir = Amber::get_option('amber_storage_location', 'amber');
+	    	$file_path = join(DIRECTORY_SEPARATOR, array($base_dir['basedir'], $subdir));
+			$storage = new AmberStorage($file_path);
+			break;
+		}
+	 	return $storage;
 	}
 
 	/**
@@ -85,12 +128,26 @@ class Amber {
 	public static function get_fetcher() {
 
 		if (!Amber::$amber_fetcher) {
-			Amber::$amber_fetcher =
-	    		new AmberFetcher(Amber::get_storage(), array(
-		      		'amber_max_file' => Amber::get_option('amber_max_file',1000),
-	    	  		'header_text' => "You are viewing an archive of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
-	      			'amber_excluded_formats' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
-    			));
+    		switch (Amber::get_option('amber_backend', 0)) {
+		    	case AMBER_BACKEND_LOCAL:
+		    		Amber::$amber_fetcher = new AmberFetcher(Amber::get_storage(), array(
+			      		'amber_max_file' => Amber::get_option('amber_max_file',1000),
+		    	  		'header_text' => "You are viewing an archive of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
+		      			'amber_excluded_formats' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
+	    			));
+			        break;
+		      	case AMBER_BACKEND_PERMA:
+			        Amber::$amber_fetcher = new PermaFetcher(Amber::get_storage(), array(
+			          	'perma_api_key' => Amber::get_option('amber_perma_api_key',''),
+			          	'perma_archive_url' => Amber::get_option('amber_perma_server_url', 'http://perma.cc'),
+			          	'perma_api_url' => Amber::get_option('amber_perma_api_server_url', 'https://api.perma.cc',''),
+			        ));
+			        error_log(Amber::get_option('amber_perma_server_api_url', 'https://api.perma.cc',''));
+			        break;
+		      	case AMBER_BACKEND_INTERNET_ARCHIVE:
+		        	Amber::$amber_fetcher = new InternetArchiveFetcher(Amber::get_storage(), array());
+		        	break;
+    		}
     	}
 	  	return Amber::$amber_fetcher;
 	}
@@ -98,8 +155,6 @@ class Amber {
 	public static function set_fetcher($fetcher) {
 		Amber::$amber_fetcher = $fetcher;
 	}
-
-
 
 	public static function get_behavior($status, $country = false)
 	{
@@ -149,9 +204,12 @@ class Amber {
 	private static function build_link_attributes($summaries) {
 	  $result = array();
 	  // Assume that we only have one cache of the data. This would need to change if we start tracking multiple caches
-	  if (isset($summaries['default']['location'],$summaries['default']['date'],$summaries['default']['size']) &&
-	      ($summaries['default']['size'] > 0)) {
-	    $result['data-versionurl'] = join("/", array(get_site_url(),$summaries['default']['location']));
+	  if (isset($summaries['default']['location'],$summaries['default']['date'])) {
+		if (strpos($summaries['default']['location'], "http") === 0) {
+			$result['data-versionurl'] = $summaries['default']['location'];
+		} else {
+		    $result['data-versionurl'] = join("/", array(get_site_url(),$summaries['default']['location']));
+		}
 	    $result['data-versiondate'] = date('c',$summaries['default']['date']);
 	  } else {
 	    return $result;
@@ -254,7 +312,7 @@ class Amber {
 	  if ($purge) {
 	    $storage = Amber::get_storage();
 	    foreach ($purge as $item) {
-	      $storage->clear_cache_item($item['id']);
+	      $storage->delete($item['id']);
 	      $status->delete($item['id']);
 	    }
 	  }
@@ -281,6 +339,10 @@ class Amber {
 					$cache_metadata = $fetcher->fetch($item);
 				} catch (RuntimeException $re) {
 					$update['message'] = $re->getMessage();
+					$status->save_check($update);        
+					return false;
+				} catch (InvalidArgumentException $ie) {
+					$update['message'] = $ie->getMessage();
 					$status->save_check($update);        
 					return false;
 				}
@@ -419,7 +481,10 @@ class Amber {
 	 * @return null|string
 	 */
 	private static function retrieve_cache_item($id) {
-	  $storage = Amber::get_storage();
+	  $storage = Amber::get_storage_for_item($id);
+	  if (is_null($storage)) {
+	  	return NULL;
+	  }
 	  $data = $storage->get($id);
 	  $metadata = $storage->get_metadata($id);
 	  return ($data && $metadata) ? array('data' => $data, 'metadata' => $metadata) : NULL;
@@ -431,7 +496,10 @@ class Amber {
 	 * @return null|string
 	 */
 	private static function retrieve_cache_asset($cache_id, $asset_id) {
-	  $storage =  Amber::get_storage();
+	  $storage = Amber::get_storage_for_item($cache_id);
+	  if (is_null($storage)) {
+	  	return NULL;
+	  }
 	  $d = $storage->get_asset($cache_id, $asset_id );
 	  if ($d) {
 	    $data['data'] = $d;
@@ -474,8 +542,10 @@ class Amber {
 	 * Convert a string representation of a date into RFC1123 format
 	 */
 	public static function format_memento_date($date_string) {
-  		$storage =  Amber::get_storage();
-		$dt = DateTime::createFromFormat($storage->ISO8601_FORMAT, $date_string);
+		/* The default ISO8601 date string formatter doesn't include the colons in the time-zone component, which
+		 is incompatible with javascript's date.parse() function in at least some implementations (Safari, definitely) */
+		$ISO8601_FORMAT = 'Y-m-d\TH:i:sP';
+		$dt = DateTime::createFromFormat($ISO8601_FORMAT, $date_string);
 		$result = $dt->format(DateTime::RFC1123);
 		return $result;
 	}
@@ -737,6 +807,8 @@ include_once dirname( __FILE__ ) . '/amber-install.php';
 include_once dirname( __FILE__ ) . '/amber-settings.php';
 include_once dirname( __FILE__ ) . '/amber-dashboard.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberStatus.php';
+include_once dirname( __FILE__ ) . '/libraries/AmberInterfaces.php';
+include_once dirname( __FILE__ ) . '/libraries/AmberNetworkUtils.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/amber/AmberStorage.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/amber/AmberFetcher.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/internetarchive/InternetArchiveStorage.php';
