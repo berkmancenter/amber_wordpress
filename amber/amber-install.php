@@ -68,6 +68,7 @@ class AmberInstall {
 	}
 
 	public static function activate_site() {
+		global $amber_db_version;
 
 		AmberInstall::install_tables( AmberInstall::get_tables() );
 
