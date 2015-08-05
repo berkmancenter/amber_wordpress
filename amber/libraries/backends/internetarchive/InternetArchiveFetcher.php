@@ -27,13 +27,12 @@ class InternetArchiveFetcher implements iAmberFetcher {
     $ia_result = AmberNetworkUtils::open_single_url($api_endpoint, array(), FALSE);
     /* Make sure that we got a valid response from the Archive */
 
-    if (($ia_result === FALSE) || ($ia_result['body'] === FALSE)) {      
-      if ($ia_result['info']['http_code'] == 403) {
-        throw new RuntimeException(join(":",array("Permission denied when submitting to Internet Archive (may be blocked by robots.txt)")));
-      } else {
-        throw new RuntimeException(join(":",array("Error submitting to Internet Archive")));
-      }
+    if ($ia_result === FALSE) {      
+      throw new RuntimeException(join(":",array("Error submitting to Internet Archive")));
     }
+    if (isset($ia_result['info']['http_code']) && ($ia_result['info']['http_code'] == 403)) {
+      throw new RuntimeException(join(":",array("Permission denied when submitting to Internet Archive (may be blocked by robots.txt)")));
+    } 
     if (!isset($ia_result['headers']['Content-Location'])) {
       throw new RuntimeException("Internet Archive response did not include archive location");  
     }
