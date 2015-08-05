@@ -66,6 +66,14 @@ class AmberSettingsPage
         );  
 
         add_settings_field(
+            'amber_backend', 
+            'Backend to use for storing captures', 
+            array( $this, 'amber_backend_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'          
+        );      
+
+        add_settings_field(
             'amber_max_file', 
             'Maximum file size (kB)', 
             array( $this, 'amber_max_file_callback' ), 
@@ -109,6 +117,30 @@ class AmberSettingsPage
             'amber_excluded_formats', 
             'Excluded file formats', 
             array( $this, 'amber_excluded_formats_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
+        add_settings_field(
+            'amber_perma_api_key', 
+            'Perma API key', 
+            array( $this, 'amber_perma_api_key_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
+        add_settings_field(
+            'amber_perma_server_url', 
+            'Perma URL', 
+            array( $this, 'amber_perma_server_url_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
+        add_settings_field(
+            'amber_perma_api_server_url', 
+            'Perma API URL', 
+            array( $this, 'amber_perma_api_server_url_callback' ), 
             'amber-settings-admin', 
             'amber_cache_section'
         );      
@@ -211,6 +243,7 @@ class AmberSettingsPage
     {
         $new_input = array();
         $valid_integer_options = array(
+            'amber_backend',
             'amber_max_file',
             'amber_max_disk',
             'amber_available_action',
@@ -231,7 +264,10 @@ class AmberSettingsPage
         $valid_string_options = array(
             'amber_storage_location',
             'amber_excluded_formats',
-            'amber_country_id'
+            'amber_country_id',
+            'amber_perma_api_key',
+            'amber_perma_server_url',
+            'amber_perma_api_server_url',
             );
         foreach ($valid_string_options as $opt) {
             if( isset( $input[$opt] ) )
@@ -296,9 +332,17 @@ jQuery(document).ready(function($) {
             $("#amber_country_unavailable_action").change();           
         }
     });
-    $("#amber_country_id").change();   
-    $("#amber_available_action").change();   
-    $("#amber_unavailable_action").change();   
+    $("#amber_backend").change(function(e) { 
+        $(".local").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_LOCAL . ');
+        $(".perma").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_PERMA . ');
+        $(".ia").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_INTERNET_ARCHIVE . ');
+        $(".s3").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_AMAZON_S3 . ');
+    });
+    $("#amber_country_id").change();
+    $("#amber_available_action").change();
+    $("#amber_unavailable_action").change();
+    $("#amber_backend").change();
+
 });</script>';            
 
     }
@@ -306,10 +350,24 @@ jQuery(document).ready(function($) {
     /** 
      * Get the settings option array and print one of its values
      */
+    public function amber_backend_callback()
+    {
+        $option = isset($this->options['amber_backend']) ? $this->options['amber_backend'] : 0;
+        ?>
+            <select id="amber_backend" name="amber_options[amber_backend]">
+                <option value="<?php echo AMBER_BACKEND_LOCAL; ?>" <?php if ( $option == AMBER_BACKEND_LOCAL ) { echo 'selected="selected"'; } ?>>Local</option>
+                <option value="<?php echo AMBER_BACKEND_PERMA; ?>" <?php if ( $option == AMBER_BACKEND_PERMA ) { echo 'selected="selected"'; } ?>>Perma</option>
+                <option value="<?php echo AMBER_BACKEND_INTERNET_ARCHIVE; ?>" <?php if ( $option == AMBER_BACKEND_INTERNET_ARCHIVE ) { echo 'selected="selected"'; } ?>>Internet Archive</option>
+                <option value="<?php echo AMBER_BACKEND_AMAZON_S3; ?>" <?php if ( $option == AMBER_BACKEND_AMAZON_S3 ) { echo 'selected="selected"'; } ?>>Amazon S3</option>
+            </select> 
+            <p class="description">Text TBD</p>
+        <?php
+    }
+
     public function amber_max_file_callback()
     {
         printf(
-            '<input type="text" id="amber_max_file" name="amber_options[amber_max_file]" value="%s" /> ' .
+            '<input type="text" id="amber_max_file" name="amber_options[amber_max_file]" class="local" value="%s" /> ' .
             '<p class="description">Amber will store captures up to a specified size. Links to pages that exceed this size will not be preserved.</p>',
             isset( $this->options['amber_max_file'] ) ? esc_attr( $this->options['amber_max_file']) : ''
         );
@@ -318,7 +376,7 @@ jQuery(document).ready(function($) {
     public function amber_max_disk_callback()
     {
         printf(
-            '<input type="text" id="amber_max_disk" name="amber_options[amber_max_disk]" value="%s" />' .
+            '<input type="text" id="amber_max_disk" name="amber_options[amber_max_disk]" class="local" value="%s" />' .
             '<p class="description">The maximum amount of disk space to be used for all cached items. If this disk space usage is exceeded, old items will be removed from the cache.</p>',
             isset( $this->options['amber_max_disk'] ) ? esc_attr( $this->options['amber_max_disk']) : ''
         );
@@ -327,7 +385,7 @@ jQuery(document).ready(function($) {
     public function amber_storage_location_callback()
     {
         printf(
-            '<input type="text" id="amber_storage_location" name="amber_options[amber_storage_location]" value="%s" />' . 
+            '<input type="text" id="amber_storage_location" name="amber_options[amber_storage_location]" class="local" value="%s" />' . 
             '<p class="description">Path to the location where captures are stored on disk, relative to the uploads directory.</p>',
             isset( $this->options['amber_storage_location'] ) ? esc_attr( $this->options['amber_storage_location']) : ''
         );
@@ -337,7 +395,7 @@ jQuery(document).ready(function($) {
     {
         $option = $this->options['amber_update_strategy'];
         ?>
-            <select id="amber_update_strategy" name="amber_options[amber_update_strategy]">
+            <select id="amber_update_strategy" name="amber_options[amber_update_strategy]" class="local">
                 <option value="0" <?php if ( $option == 0 ) { echo 'selected="selected"'; } ?>>Update captures periodically</option>
                 <option value="1" <?php if ( $option == 1 ) { echo 'selected="selected"'; } ?>>Do not update captures</option>
             </select> 
@@ -348,7 +406,7 @@ jQuery(document).ready(function($) {
     public function amber_excluded_sites_callback()
     {
         printf(
-            '<textarea rows="5" cols="40" id="amber_excluded_sites" name="amber_options[amber_excluded_sites]">%s</textarea>' .
+            '<textarea rows="5" cols="40" id="amber_excluded_sites" name="amber_options[amber_excluded_sites]" class="local">%s</textarea>' .
             '<p class="description">A list of URL patterns, separated by commas. Amber will not preserve any link that matches one of these patterns. Regular expressions may be used.</p>',
             isset( $this->options['amber_excluded_sites'] ) ? esc_textarea( $this->options['amber_excluded_sites']) : ''
         );
@@ -357,9 +415,36 @@ jQuery(document).ready(function($) {
     public function amber_excluded_formats_callback()
     {
         printf(
-            '<textarea rows="5" cols="40" id="amber_excluded_formats" name="amber_options[amber_excluded_formats]">%s</textarea>' .
+            '<textarea rows="5" cols="40" id="amber_excluded_formats" name="amber_options[amber_excluded_formats]" class="local">%s</textarea>' .
             '<p class="description">A list of of MIME types, separated by commas. Amber will not preserve any link containing an excluded MIME type.</p>',
             isset( $this->options['amber_excluded_formats'] ) ? esc_textarea( $this->options['amber_excluded_formats']) : ''
+        );
+    }
+
+    public function amber_perma_api_key_callback()
+    {
+        printf(
+            '<input type="text" id="amber_perma_api_key" name="amber_options[amber_perma_api_key]" class="perma" value="%s" />' . 
+            '<p class="description">Text TBD.</p>',
+            isset( $this->options['amber_perma_api_key'] ) ? esc_attr( $this->options['amber_perma_api_key']) : ''
+        );
+    }
+
+    public function amber_perma_server_url_callback()
+    {
+        printf(
+            '<input type="text" id="amber_perma_server_url" name="amber_options[amber_perma_server_url]" class="perma" value="%s" />' . 
+            '<p class="description">Text TBD.</p>',
+            isset( $this->options['amber_perma_server_url'] ) ? esc_attr( $this->options['amber_perma_server_url']) : ''
+        );
+    }
+
+    public function amber_perma_api_server_url_callback()
+    {
+        printf(
+            '<input type="text" id="amber_perma_api_server_url" name="amber_options[amber_perma_api_server_url]" class="perma" value="%s" />' . 
+            '<p class="description">Text TBD.</p>',
+            isset( $this->options['amber_perma_api_server_url'] ) ? esc_attr( $this->options['amber_perma_api_server_url']) : ''
         );
     }
 

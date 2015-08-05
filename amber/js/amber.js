@@ -8,23 +8,23 @@ var amber = {
     en : {
       interstitial_html_up :
       '<div class="amber-interstitial amber-up"><a href="#" class="amber-close"></a><div class="amber-body"><div class="amber-status-text">This page should be available</div><div class="amber-cache-text">{{NAME}} has a cache from {{DATE}}</div>' +
-      '<a class="amber-focus" href="{{CACHE}}">View the cache</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
+      '<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the cache</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
       interstitial_html_down :
       '<div class="amber-interstitial amber-down"><a href="#" class="amber-close"></a><div class="amber-body"><div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a cache from {{DATE}}</div>' +
-      '<a class="amber-focus" href="{{CACHE}}">View the cache</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
-      hover_html_up   : '<div class="amber-hover amber-up"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">This page should be available</div><div class="amber-cache-text">{{NAME}} has a cache from {{DATE}}</div></div><div class="amber-links"><a href="{{CACHE}}">View the cache</a><a href="{{LINK}}" class="amber-focus">Continue to the page</a></div><div class="amber-arrow"></div></div>',
-      hover_html_down : '<div class="amber-hover amber-down"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a cache from {{DATE}}</div></div><div class="amber-links"><a href="{{CACHE}}" class="amber-focus">View the cache</a><a href="{{LINK}}">Continue to the page</a></div><div class="amber-arrow"></div></div>',
+      '<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the cache</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
+      hover_html_up   : '<div class="amber-hover amber-up"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">This page should be available</div><div class="amber-cache-text">{{NAME}} has a cache from {{DATE}}</div></div><div class="amber-links"><a class="amber-cache-link" href="{{CACHE}}">View the cache</a><a href="{{LINK}}" class="amber-focus">Continue to the page</a></div><div class="amber-arrow"></div></div>',
+      hover_html_down : '<div class="amber-hover amber-down"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a cache from {{DATE}}</div></div><div class="amber-links"><a class="amber-cache-link" href="{{CACHE}}" class="amber-focus">View the cache</a><a href="{{LINK}}">Continue to the page</a></div><div class="amber-arrow"></div></div>',
       this_site: "This site"
     },
     fa : {
       interstitial_html_up :
       '<div class="amber-interstitial"><a href="#" class="amber-close"></a><div class="amber-body"><div class="amber-status-text">این سایت باید در دسترس باشد</div><div class="amber-cache-text"> {{NAME}} یک نسخه ذخیره از {{DATE}} دارد</div>' +
-      '<a class="amber-focus" href="{{CACHE}}">دیدن نسخه ذخیره</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">دیدن لینک زنده</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
+      '<a class="amber-focus amber-cache-link" href="{{CACHE}}">دیدن نسخه ذخیره</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">دیدن لینک زنده</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
       interstitial_html_down :
       '<div class="amber-interstitial"><a href="#" class="amber-close"></a><div class="amber-body"><div class="amber-status-text">این وب سایت ممکن است در دسترس نباشد</div><div class="amber-cache-text"> {{NAME}} یک نسخه ذخیره از {{DATE}} دارد</div>' +
-      '<a class="amber-focus" href="{{CACHE}}">دیدن نسخه ذخیره</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">دیدن لینک زنده</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
-      hover_html_up   : '<div class="amber-hover amber-up"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">این سایت باید در دسترس باشد</div><div class="amber-cache-text"> {{NAME}} یک نسخه ذخیره از {{DATE}} دارد</div></div><div class="amber-links"><a href="{{CACHE}}">دیدن نسخه ذخیره</a><a href="{{LINK}}" class="amber-focus">دیدن لینک زنده</a></div><div class="amber-arrow"></div></div>',
-      hover_html_down : '<div class="amber-hover amber-down"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">این وب سایت ممکن است در دسترس نباشد</div><div class="amber-cache-text"> {{NAME}} یک نسخه ذخیره از {{DATE}} دارد</div></div><div class="amber-links"><a href="{{CACHE}}" class="amber-focus">دیدن نسخه ذخیره</a><a href="{{LINK}}">دیدن لینک زنده</a></div><div class="amber-arrow"></div></div>',
+      '<a class="amber-focus amber-cache-link" href="{{CACHE}}">دیدن نسخه ذخیره</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">دیدن لینک زنده</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
+      hover_html_up   : '<div class="amber-hover amber-up"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">این سایت باید در دسترس باشد</div><div class="amber-cache-text"> {{NAME}} یک نسخه ذخیره از {{DATE}} دارد</div></div><div class="amber-links"><a class="amber-cache-link" href="{{CACHE}}">دیدن نسخه ذخیره</a><a href="{{LINK}}" class="amber-focus">دیدن لینک زنده</a></div><div class="amber-arrow"></div></div>',
+      hover_html_down : '<div class="amber-hover amber-down"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">این وب سایت ممکن است در دسترس نباشد</div><div class="amber-cache-text"> {{NAME}} یک نسخه ذخیره از {{DATE}} دارد</div></div><div class="amber-links"><a class="amber-cache-link" href="{{CACHE}}" class="amber-focus">دیدن نسخه ذخیره</a><a href="{{LINK}}">دیدن لینک زنده</a></div><div class="amber-arrow"></div></div>',
       this_site: "این وب سایت"
       }
     },
@@ -192,6 +192,7 @@ var amber = {
         });
       }
       e.preventDefault();
+      amber.attach_cache_view_event();
     }
   },
 
@@ -257,6 +258,8 @@ var amber = {
         hover.style.top = pos.top + "px";
         amber.util_addEventListener(hover, 'mouseover', amber.start_popup_hover);
         amber.util_addEventListener(hover, 'mouseout', amber.end_popup_hover_function(hover));
+  
+        amber.attach_cache_view_event();
       }, delay * 1000);
       this.setAttribute("amber-timer",timer);
     }
@@ -276,6 +279,25 @@ var amber = {
         }
       }, Math.min(100,delay * 1000));
     }
+  },
+
+  attach_cache_view_event : function() {
+    /* Clicking on the cache link will log an event */
+    amber.util_forEachElement(".amber-cache-link", function(el, i) {
+      var href = encodeURIComponent(el.getAttribute("href"));
+      amber.util_addEventListener(el, 'click', function(e) {
+        var request = new XMLHttpRequest();
+        request.onload = function() {
+          if (request.readyState === 4) {
+            window.location = decodeURIComponent(href);
+          }
+        };
+        // Send synchronous notification, to ensure it's sent completely before the page unloads
+        // This would be a good place to use navigator.sendBeacon(), once it has more support
+        request.open('GET', '/amber/logcacheview?cache=' + href + '&t=' + new Date().getTime(), false);
+        request.send();
+      });
+    });    
   },
 
   clear_hover : function (e) {

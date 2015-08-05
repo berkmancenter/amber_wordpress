@@ -1,4 +1,8 @@
 <?php
+
+global $amber_db_version;
+$amber_db_version = '1.3';
+
 class AmberInstall {
 
 	private static function get_tables() {
@@ -19,6 +23,8 @@ class AmberInstall {
 		  date int,
 		  type VARCHAR(200) DEFAULT '' NOT NULL,
 		  size int,
+		  provider int,
+		  provider_id VARCHAR(128) DEFAULT '' NOT NULL,
 		  PRIMARY KEY  (id)
 		)";
 		$tables['amber_activity'] =  "(
@@ -37,11 +43,7 @@ class AmberInstall {
 		return $tables;
 	}
 
-	public static function activate($networkwide) {
-		AmberInstall::iterate_over_sites("activate_site");
-	}
-
-	public static function activate_site() {
+	private static function install_tables($tables) {
 		global $wpdb;
 
 		$charset_collate = '';
@@ -53,14 +55,23 @@ class AmberInstall {
 		  $charset_collate .= " COLLATE {$wpdb->collate}";
 		}
 
-		$tables = AmberInstall::get_tables();
-
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		foreach ($tables as $name => $table) {
 			$table_name = $wpdb->prefix . $name;
 			$sql = "CREATE TABLE $table_name $table $charset_collate";
 			dbDelta( $sql );
-		}
+		}		
+	}
+
+	public static function activate($networkwide) {
+		AmberInstall::iterate_over_sites("activate_site");
+	}
+
+	public static function activate_site() {
+
+		AmberInstall::install_tables( AmberInstall::get_tables() );
+
+		add_option( 'amber_db_version', $amber_db_version );
 
 		$options = get_option('amber_options');
 		if (empty($options)) {	
@@ -90,6 +101,37 @@ class AmberInstall {
 		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/?$', '/index.php?amber_cacheframe=$1', "top");
 		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/assets/(.*)/?$', '/index.php?amber_cacheframe=$1&amber_asset=$2', "top");
 		flush_rewrite_rules();
+	}
+
+	public static function upgrade() {
+		AmberInstall::iterate_over_sites("upgrade_site");
+	}
+
+	public static function upgrade_site() {
+		global $amber_db_version;
+		$installed_db_version = get_option( "amber_db_version" );
+		if ( $installed_db_version != $amber_db_version ) {
+			/* Upgrade from 1.0-1.2 => 1.3 */
+			$tables = array('amber_cache' =>  "(
+							  id VARCHAR(32) NOT NULL,
+							  url VARCHAR(2000) DEFAULT '' NOT NULL,
+							  location VARCHAR(2000) DEFAULT '' NOT NULL,
+							  date int,
+							  type VARCHAR(200) DEFAULT '' NOT NULL,
+							  size int,
+							  provider int,
+							  provider_id VARCHAR(128) DEFAULT '' NOT NULL,
+							  PRIMARY KEY  (id)
+							)");
+			AmberInstall::install_tables( $tables );
+
+			$options = get_option( 'amber_options' );
+			$options['amber_backend'] = 0;
+			$options['amber_perma_server_url'] = "http://perma.cc";
+			$options['amber_perma_api_server_url'] = "https://api.perma.cc";
+			update_option( 'amber_options', $options );
+			update_option( 'amber_db_version', $amber_db_version );
+		}
 	}
 
 	public static function deactivate() {
