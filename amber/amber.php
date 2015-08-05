@@ -71,10 +71,7 @@ class Amber {
 	public static function get_storage_by_id($storage_id) {
 	  	switch ($storage_id) {
 	    	case AMBER_BACKEND_PERMA:
-				$storage = new PermaStorage(array(
-					'perma_api_key' => Amber::get_option( 'amber_perma_api_key', '' ),
-					'perma_api_url' => Amber::get_option( 'amber_perma_api_server_url', 'https://api.perma.cc' ),
-				));
+				$storage = new PermaStorage(array());
 				break;
 	    case AMBER_BACKEND_INTERNET_ARCHIVE:
 	    	$storage = new InternetArchiveStorage(array());
