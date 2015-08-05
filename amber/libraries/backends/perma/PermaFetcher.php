@@ -3,8 +3,6 @@
 require_once dirname( __FILE__ ) . '/../../AmberInterfaces.php';
 require_once dirname( __FILE__ ) . '/../../AmberNetworkUtils.php';
 
-// define("PERMA_API_URL", "http://api.perma.cc")
-
 class PermaFetcher implements iAmberFetcher {
 
   function __construct(iAmberStorage $storage, array $options) {
