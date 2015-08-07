@@ -145,6 +145,38 @@ class AmberSettingsPage
             'amber_cache_section'
         );      
 
+        add_settings_field(
+            'amber_aws_access_key', 
+            'AWS Access Key', 
+            array( $this, 'amber_aws_access_key_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
+        add_settings_field(
+            'amber_aws_secret_key', 
+            'AWS Secret Access Key', 
+            array( $this, 'amber_aws_secret_key_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
+        add_settings_field(
+            'amber_aws_bucket', 
+            'AWS Bucket', 
+            array( $this, 'amber_aws_bucket_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
+        add_settings_field(
+            'amber_aws_region', 
+            'AWS Region', 
+            array( $this, 'amber_aws_region_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
         add_settings_section(
             'amber_delivery_section',
             'Amber Delivery', 
@@ -268,6 +300,10 @@ class AmberSettingsPage
             'amber_perma_api_key',
             'amber_perma_server_url',
             'amber_perma_api_server_url',
+            'amber_aws_access_key',
+            'amber_aws_secret_key',
+            'amber_aws_bucket',
+            'amber_aws_region',
             );
         foreach ($valid_string_options as $opt) {
             if( isset( $input[$opt] ) )
@@ -336,7 +372,7 @@ jQuery(document).ready(function($) {
         $(".local").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_LOCAL . ');
         $(".perma").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_PERMA . ');
         $(".ia").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_INTERNET_ARCHIVE . ');
-        $(".s3").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_AMAZON_S3 . ');
+        $(".aws").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_AMAZON_S3 . ');
     });
     $("#amber_country_id").change();
     $("#amber_available_action").change();
@@ -445,6 +481,42 @@ jQuery(document).ready(function($) {
             '<input type="text" id="amber_perma_api_server_url" name="amber_options[amber_perma_api_server_url]" class="perma" value="%s" />' . 
             '<p class="description">Text TBD.</p>',
             isset( $this->options['amber_perma_api_server_url'] ) ? esc_attr( $this->options['amber_perma_api_server_url']) : ''
+        );
+    }
+
+    public function amber_aws_access_key_callback()
+    {
+        printf(
+            '<input type="text" id="amber_aws_access_key" name="amber_options[amber_aws_access_key]" class="aws" value="%s" />' . 
+            '<p class="description">Text TBD.</p>',
+            isset( $this->options['amber_aws_access_key'] ) ? esc_attr( $this->options['amber_aws_access_key']) : ''
+        );
+    }
+
+    public function amber_aws_secret_key_callback()
+    {
+        printf(
+            '<input type="text" id="amber_aws_secret_key" name="amber_options[amber_aws_secret_key]" class="aws" value="%s" />' . 
+            '<p class="description">Text TBD.</p>',
+            isset( $this->options['amber_aws_secret_key'] ) ? esc_attr( $this->options['amber_aws_secret_key']) : ''
+        );
+    }
+
+    public function amber_aws_bucket_callback()
+    {
+        printf(
+            '<input type="text" id="amber_aws_bucket" name="amber_options[amber_aws_bucket]" class="aws" value="%s" />' . 
+            '<p class="description">Text TBD.</p>',
+            isset( $this->options['amber_aws_bucket'] ) ? esc_attr( $this->options['amber_aws_bucket']) : ''
+        );
+    }
+
+    public function amber_aws_region_callback()
+    {
+        printf(
+            '<input type="text" id="amber_aws_region" name="amber_options[amber_aws_region]" class="aws" value="%s" />' . 
+            '<p class="description">Text TBD.</p>',
+            isset( $this->options['amber_aws_region'] ) ? esc_attr( $this->options['amber_aws_region']) : ''
         );
     }
 

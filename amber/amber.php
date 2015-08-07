@@ -70,17 +70,26 @@ class Amber {
 	 */
 	public static function get_storage_by_id($storage_id) {
 	  	switch ($storage_id) {
-	    	case AMBER_BACKEND_PERMA:
-				$storage = new PermaStorage(array());
-				break;
-	    case AMBER_BACKEND_INTERNET_ARCHIVE:
-	    	$storage = new InternetArchiveStorage(array());
-	    	break;
 	    case AMBER_BACKEND_LOCAL:
 	    	$base_dir = wp_upload_dir();
 	    	$subdir = Amber::get_option('amber_storage_location', 'amber');
 	    	$file_path = join(DIRECTORY_SEPARATOR, array($base_dir['basedir'], $subdir));
 			$storage = new AmberStorage($file_path);
+			break;
+    	case AMBER_BACKEND_PERMA:
+			$storage = new PermaStorage(array());
+			break;
+	    case AMBER_BACKEND_INTERNET_ARCHIVE:
+	    	$storage = new InternetArchiveStorage(array());
+	    	break;
+        case AMBER_BACKEND_AMAZON_S3:
+			require_once("vendor/aws/aws-autoloader.php");
+			$storage = new AmazonS3Storage(array(
+				'access_key' => Amber::get_option('amber_aws_access_key',''),
+				'secret_key' => Amber::get_option('amber_aws_secret_key',''),
+				'bucket' => Amber::get_option('amber_aws_bucket',''),
+				'region' => Amber::get_option('amber_aws_region','us-east-1'),
+			));
 			break;
 		}
 	 	return $storage;
@@ -144,6 +153,13 @@ class Amber {
 		      	case AMBER_BACKEND_INTERNET_ARCHIVE:
 		        	Amber::$amber_fetcher = new InternetArchiveFetcher(Amber::get_storage(), array());
 		        	break;
+		    	case AMBER_BACKEND_AMAZON_S3:
+		    		Amber::$amber_fetcher = new AmberFetcher(Amber::get_storage(), array(
+			      		'amber_max_file' => 5000000, /* Max size for S3 file */
+		    	  		'header_text' => "You are viewing an archive of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
+		      			'amber_excluded_formats' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
+	    			));
+			        break;
     		}
     	}
 	  	return Amber::$amber_fetcher;
@@ -832,6 +848,7 @@ include_once dirname( __FILE__ ) . '/libraries/backends/internetarchive/Internet
 include_once dirname( __FILE__ ) . '/libraries/backends/internetarchive/InternetArchiveFetcher.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/perma/PermaStorage.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/perma/PermaFetcher.php';
+include_once dirname( __FILE__ ) . '/libraries/backends/aws/AmazonS3Storage.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberChecker.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberDB.php';
 
