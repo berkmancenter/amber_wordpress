@@ -17,8 +17,10 @@ interface iAmberFetcher {
 }
 
 interface iAmberStorage {
+  function provider_id();
   function get($id);
   function get_asset($id, $path);
+  function build_asset_path($asset);
   function get_metadata($key);
   function get_id($url);
   function save($url, $root, array $headers = array(), array $assets = array());
