@@ -15,4 +15,4 @@ before_script:
 
 script: 
   - phpunit -c amber/phpunit.xml
-  - phpunit --exclude-group ExternalInterfaces libraries
+  - phpunit --exclude-group ExternalInterfaces amber/libraries
