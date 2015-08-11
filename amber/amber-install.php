@@ -151,7 +151,7 @@ class AmberInstall {
 
 	public static function iterate_over_sites($function_name) {
 		global $wpdb;
-	    if (function_exists('is_multisite') && is_multisite() && $networkwide) {
+	    if (function_exists('is_multisite') && is_multisite()) {
 	        // check if it is a network activation - if so, run the activation function for each blog id
             $old_blog = $wpdb->blogid;
             // Get all blog ids
