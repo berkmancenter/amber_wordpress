@@ -658,7 +658,7 @@ EOF;
 		check_ajax_referer( 'amber_dashboard' );
 		$batch_size = 10; 
 		$number_remaining = 0;
-		$transients = array('amber_scan_pages', 'amber_scan_posts');
+		$transients = array('amber_scan_posts');
 		foreach ($transients as $t) {
 			$ids = get_transient($t);
 			if ($ids !== FALSE && is_array($ids)) {
