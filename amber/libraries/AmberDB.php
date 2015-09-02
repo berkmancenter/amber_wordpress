@@ -6,11 +6,11 @@
 interface iAmberDB {
  
   public function db_type();
-  public function select($sql, $options);
-  public function selectAll($sql, $options);
-  public function insert($sql, $options);
-  public function update($sql, $options);
-  public function delete($sql, $options);
+  public function select($sql, $options = array());
+  public function selectAll($sql, $options = array());
+  public function insert($sql, $options = array());
+  public function update($sql, $options = array());
+  public function delete($sql, $options = array());
 
 }
 
