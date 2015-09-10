@@ -28,6 +28,7 @@ class Amber {
 	private static $amber_checker;
 	private static $amber_fetcher;
 	private static $amber_storage;
+	private static $amber_availability_lookup;
 
 	public static function get_option($key, $default = "")
 	{
@@ -169,6 +170,22 @@ class Amber {
 		Amber::$amber_fetcher = $fetcher;
 	}
 
+	/**
+	 * Return an initialized AmberAvailabilityLookup module
+	 * @return IAmberAvailabilityLookup
+	 */
+	public static function get_availability_lookup() {
+		if (!Amber::$amber_availability_lookup) {
+	    	Amber::$amber_availability_lookup = new AmberNetClerkAvailabilityLookup(array());		
+		}
+		return Amber::$amber_availability_lookup;
+	}
+
+	public static function set_availability_lookup($availability_lookup) {
+		Amber::$amber_availability_lookup = $availability_lookup;
+	}
+
+
 	public static function get_behavior($status, $country = false)
 	{
 
@@ -297,6 +314,8 @@ class Amber {
 		wp_enqueue_style('amber');
 		wp_register_script('amber', plugins_url('amber/js/amber.js'));
 		wp_enqueue_script('amber');
+		wp_localize_script('amber', 'amber_config', array(
+			'lookup_availability' => true));
 	}
 
 	public static function cron_add_schedule($schedules)
@@ -537,6 +556,7 @@ class Amber {
 		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/?$', '/index.php?amber_cacheframe=$1', "top");
 		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/assets/(.*)/?$', '/index.php?amber_cacheframe=$1&amber_asset=$2', "top");
 		add_rewrite_rule('^.*amber/logcacheview?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_logcacheview&$1', "top");
+		add_rewrite_rule('^.*amber/status?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_status&$1', "top");
 	}
 
 	/**
@@ -549,6 +569,8 @@ class Amber {
 		$vars[] = 'amber_sort';
 		$vars[] = 'amber_dir';
 		$vars[] = 'amber_page';
+		$vars[] = 'url';
+		$vars[] = 'country';
 		return $vars;
 	}
 
@@ -832,7 +854,25 @@ jQuery(document).ready(function($) {
 		die();
 	}
 
+ 	public static function ajax_get_url_status() {
+ 		if (isset($_REQUEST['url']) && isset($_REQUEST['country'])) {
+			header("Content-Type: application/json");
+			header("Cache-Control: no-cache, must-revalidate");
+			header("Pragma: no-cache");
+			header("Expires: 0");
 
+    		$lookup = Amber::get_availability_lookup();
+		    $lookup_result = $lookup->getStatus( $_REQUEST['url'], $_REQUEST['country'] );
+    		foreach ( $lookup_result['data'] as $key => $value ) {
+      			$lookup_result['data'][$key]['behavior'] =  Amber::get_behavior($lookup_result['data'][$key]['available']);
+			}
+    		print(json_encode($lookup_result, JSON_UNESCAPED_SLASHES));
+   			status_header( 200 );
+    	} else {
+    		status_header( 400 );
+    	}
+		die();
+	}
 
 }
 
@@ -850,6 +890,7 @@ include_once dirname( __FILE__ ) . '/libraries/backends/perma/PermaStorage.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/perma/PermaFetcher.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/aws/AmazonS3Storage.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberChecker.php';
+include_once dirname( __FILE__ ) . '/libraries/AmberAvailabilityLookup.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberDB.php';
 
 /* The filter to lookup and rewrite links with amber data- attributes */
@@ -894,5 +935,6 @@ add_action( 'wp_ajax_amber_cache_now', array('Amber', 'ajax_cache_now') );
 add_action( 'wp_ajax_amber_scan_start', array('Amber', 'ajax_scan_start') );
 add_action( 'wp_ajax_amber_scan', array('Amber', 'ajax_scan') );
 add_action( 'wp_ajax_nopriv_amber_logcacheview', array('Amber', 'ajax_log_cache_view') );
+add_action( 'wp_ajax_nopriv_amber_status', array('Amber', 'ajax_get_url_status') );
 
 ?>
