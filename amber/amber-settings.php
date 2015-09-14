@@ -319,7 +319,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_max_disk" name="amber_options[amber_max_disk]" value="%s" />' .
-            '<p class="description">The maximum amount of disk space to be used for all cached items. If this disk space usage is exceeded, old items will be removed from the cache.</p>',
+            '<p class="description">The maximum amount of disk space to be used for all preserved content. If this disk space usage is exceeded, old captures will be removed.</p>',
             isset( $this->options['amber_max_disk'] ) ? esc_attr( $this->options['amber_max_disk']) : ''
         );
     }
@@ -385,7 +385,7 @@ jQuery(document).ready(function($) {
                 <option value="<?php echo AMBER_ACTION_NONE; ?>" <?php if ( $option == AMBER_ACTION_NONE ) { echo 'selected="selected"'; } ?>>None</option>
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
                 <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Popup</option>
-                <option value="<?php echo AMBER_ACTION_CACHE; ?>" <?php if ( $option == AMBER_ACTION_CACHE ) { echo 'selected="selected"'; } ?>>Link to Cache</option>
+                <option value="<?php echo AMBER_ACTION_CACHE; ?>" <?php if ( $option == AMBER_ACTION_CACHE ) { echo 'selected="selected"'; } ?>>Link directly to Capture</option>
             </select> 
             <p class="description">How a visitor to your site will experience links to pages that are currently unavailable.</p>
         <?php
@@ -447,7 +447,7 @@ jQuery(document).ready(function($) {
                 <option value="<?php echo AMBER_ACTION_NONE; ?>" <?php if ( $option == AMBER_ACTION_NONE ) { echo 'selected="selected"'; } ?>>None</option>
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
                 <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Popup</option>
-                <option value="<?php echo AMBER_ACTION_CACHE; ?>" <?php if ( $option == AMBER_ACTION_CACHE ) { echo 'selected="selected"'; } ?>>Link to Cache</option>
+                <option value="<?php echo AMBER_ACTION_CACHE; ?>" <?php if ( $option == AMBER_ACTION_CACHE ) { echo 'selected="selected"'; } ?>>Link directly to Capture</option>
             </select> 
             <p class="description">How a visitor to your site will experience links to pages that are currently unavailable.</p>
         <?php
