@@ -458,8 +458,8 @@ jQuery(document).ready(function($) {
     public function amber_max_disk_callback()
     {
         printf(
-            '<input type="text" id="amber_max_disk" name="amber_options[amber_max_disk]" class="local" value="%s" />' .
-            '<p class="description">The maximum amount of disk space to be used for all cached items. If this disk space usage is exceeded, old items will be removed from the cache.</p>',
+            '<input type="text" id="amber_max_disk" name="amber_options[amber_max_disk]" value="%s" />' .
+            '<p class="description">The maximum amount of disk space to be used for all preserved content. If this disk space usage is exceeded, old captures will be removed.</p>',
             isset( $this->options['amber_max_disk'] ) ? esc_attr( $this->options['amber_max_disk']) : ''
         );
     }
