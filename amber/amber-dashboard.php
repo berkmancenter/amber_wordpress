@@ -329,7 +329,7 @@ class AmberDashboardPage
                     <?php submit_button("Delete all captures", "small", "delete_all"); ?>
                     <?php submit_button("Scan content for links to preserve", "small", "scan"); ?>
                     <?php submit_button("Preserve all new links", "small", "cache_now"); ?>
-                    <?php submit_button("Export list of cached pages", "small", "export"); ?>
+                    <?php submit_button("Export list of preserved content", "small", "export"); ?>
                     
                 </div>            
             </form>
