@@ -636,14 +636,14 @@ EOF;
 	 */
 	public static function ajax_scan_start() {
 		check_ajax_referer( 'amber_dashboard' );
+		$amber_types = explode(',',Amber::get_option('amber_post_types','post,page'));
 		$post_ids = get_posts(array(
 		    'numberposts'   => -1, // get all posts.
 		    'fields'        => 'ids', // Only get post IDs
+		    'post_type'     => $amber_types,
 		));
-		$page_ids = get_all_page_ids();
-		set_transient('amber_scan_pages', $page_ids, 24*60*60);
 		set_transient('amber_scan_posts', $post_ids, 24*60*60);
-		print count($post_ids) + count($page_ids);
+		print count($post_ids);
 		die();
 	}
 
@@ -658,7 +658,7 @@ EOF;
 		check_ajax_referer( 'amber_dashboard' );
 		$batch_size = 10; 
 		$number_remaining = 0;
-		$transients = array('amber_scan_pages', 'amber_scan_posts');
+		$transients = array('amber_scan_posts');
 		foreach ($transients as $t) {
 			$ids = get_transient($t);
 			if ($ids !== FALSE && is_array($ids)) {
@@ -677,7 +677,7 @@ EOF;
 
 	public static function add_meta_boxes()
 	{
-		$screens = array( 'post', 'page' );
+		$screens = explode(',',Amber::get_option('amber_post_types','post,page'));
 		foreach ( $screens as $screen ) {
 			add_meta_box(
 				'amber_sectionid',
