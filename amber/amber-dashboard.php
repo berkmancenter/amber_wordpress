@@ -99,6 +99,27 @@ class Amber_List_Table extends WP_List_Table {
         return isset($item['activity_date']) ? date('r',$item['activity_date']) : "";
     }
 
+    function column_method($item) {
+        $p = isset($item['provider']) ? $item['provider'] : "";
+        if (!isset($item['size'])) {
+            return "";
+        }
+        switch ($p) {
+            case AMBER_BACKEND_PERMA:
+              return "Perma";
+              break;
+            case AMBER_BACKEND_INTERNET_ARCHIVE:
+              return "Internet Archive";
+              break;
+            case AMBER_BACKEND_AMAZON_S3:
+              return "Amazon S3";
+              break;
+            case AMBER_BACKEND_LOCAL:
+              return "Local storage";
+              break;
+        } 
+    }
+
     /** Define the columns and sortable columns for the table **/
     function get_columns(){
         $columns = array(
@@ -110,6 +131,7 @@ class Amber_List_Table extends WP_List_Table {
             'size'           => 'Size (kB)',
             'activity_date'  => 'Last viewed',
             'views'          => 'Total views',
+            'method'         => 'Archive Method',
             'message'        => 'Notes',
         );
         return $columns;
