@@ -86,6 +86,7 @@ class AmberInstall {
 	            'amber_unavailable_action_hover' => 2,
 	            'amber_storage_location' => 'amber',
 	            'amber_update_strategy' => 0,
+	            'amber_timegate' => 'http://timetravel.mementoweb.org/timegate/',
 	            'amber_country_id' => '',
 	            'amber_excluded_sites' => parse_url(home_url(), PHP_URL_HOST),
 				'amber_backend' => AMBER_BACKEND_LOCAL,

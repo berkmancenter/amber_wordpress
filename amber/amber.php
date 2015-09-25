@@ -194,7 +194,8 @@ class Amber {
 	 */
 	public static function get_memento_service() {
 		if (!Amber::$amber_memento_service) {
-	    	Amber::$amber_memento_service = new AmberMementoService(array());		
+	    	Amber::$amber_memento_service = new AmberMementoService(array(
+	    		'server_url' => Amber::get_option('amber_timegate','http://timetravel.mementoweb.org/timegate/')));
 		}
 		return Amber::$amber_memento_service;
 	}
