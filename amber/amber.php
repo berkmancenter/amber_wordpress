@@ -31,6 +31,7 @@ class Amber {
 	private static $amber_fetcher;
 	private static $amber_storage;
 	private static $amber_availability_lookup;
+	private static $amber_memento_service;
 
 	public static function get_option($key, $default = "")
 	{
@@ -187,6 +188,20 @@ class Amber {
 		Amber::$amber_availability_lookup = $availability_lookup;
 	}
 
+	/**
+	 * Return an initialized AmberMementoService
+	 * @return IAmberMementoService
+	 */
+	public static function get_memento_service() {
+		if (!Amber::$amber_memento_service) {
+	    	Amber::$amber_memento_service = new AmberMementoService(array());		
+		}
+		return Amber::$amber_memento_service;
+	}
+
+	public static function set_memento_service($memento_service) {
+		Amber::$amber_memento_service = $memento_service;
+	}
 
 	public static function get_behavior($status, $country = false)
 	{
@@ -559,6 +574,7 @@ class Amber {
 		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/assets/(.*)/?$', '/index.php?amber_cacheframe=$1&amber_asset=$2', "top");
 		add_rewrite_rule('^.*amber/logcacheview?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_logcacheview&$1', "top");
 		add_rewrite_rule('^.*amber/status?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_status&$1', "top");
+		add_rewrite_rule('^.*amber/memento?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_memento&$1', "top");
 	}
 
 	/**
@@ -573,6 +589,7 @@ class Amber {
 		$vars[] = 'amber_page';
 		$vars[] = 'url';
 		$vars[] = 'country';
+		$vars[] = 'date';
 		return $vars;
 	}
 
@@ -856,6 +873,7 @@ jQuery(document).ready(function($) {
 		die();
 	}
 
+	/* Handle Ajax request and query NetClerk to get availability information for a URL */
  	public static function ajax_get_url_status() {
  		if (isset($_REQUEST['url']) && isset($_REQUEST['country'])) {
 			header("Content-Type: application/json");
@@ -876,6 +894,25 @@ jQuery(document).ready(function($) {
 		die();
 	}
 
+	/* Handle Ajax request and query a Timegate server to find Mementos for a URL */
+ 	public static function ajax_get_memento() {
+ 		if (isset($_REQUEST['url'], $_REQUEST['date'])) {
+
+			header("Content-Type: application/json");
+			header("Cache-Control: no-cache, must-revalidate");
+			header("Pragma: no-cache");
+			header("Expires: 0");
+			$date = str_replace(" ", "+", $_REQUEST['date']);
+    		$memento_service = Amber::get_memento_service();
+		    $lookup_result = $memento_service->getMemento( $_REQUEST['url'], $date );
+    		print(json_encode($lookup_result, JSON_UNESCAPED_SLASHES));
+   			status_header( 200 );
+    	} else {
+    		status_header( 400 );
+    	}
+		die();
+	}
+
 }
 
 include_once dirname( __FILE__ ) . '/amber-install.php';
@@ -884,6 +921,7 @@ include_once dirname( __FILE__ ) . '/amber-dashboard.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberStatus.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberInterfaces.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberNetworkUtils.php';
+include_once dirname( __FILE__ ) . '/libraries/AmberMementoService.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/amber/AmberStorage.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/amber/AmberFetcher.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/internetarchive/InternetArchiveStorage.php';
@@ -939,5 +977,7 @@ add_action( 'wp_ajax_amber_scan', array('Amber', 'ajax_scan') );
 add_action( 'wp_ajax_nopriv_amber_logcacheview', array('Amber', 'ajax_log_cache_view') );
 add_action( 'wp_ajax_nopriv_amber_status', array('Amber', 'ajax_get_url_status') );
 add_action( 'wp_ajax_amber_status', array('Amber', 'ajax_get_url_status') );
+add_action( 'wp_ajax_nopriv_amber_memento', array('Amber', 'ajax_get_memento') );
+add_action( 'wp_ajax_amber_memento', array('Amber', 'ajax_get_memento') );
 
 ?>

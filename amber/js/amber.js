@@ -8,12 +8,12 @@ var amber = {
     en : {
       interstitial_html_up :
       '<div class="amber-interstitial amber-up"><a href="#" class="amber-close"></a><div class="amber-body"><div class="amber-status-text">This page should be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div>' +
-      '<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the capture</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
+      '<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the capture</a><a class="amber-memento-link" href="#">We also have a memento</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
       interstitial_html_down :
       '<div class="amber-interstitial amber-down"><a href="#" class="amber-close"></a><div class="amber-body"><div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div>' +
-      '<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the capture</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
-      hover_html_up   : '<div class="amber-hover amber-up"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">This page should be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div></div><div class="amber-links"><a class="amber-cache-link" href="{{CACHE}}">View the capture</a><a href="{{LINK}}" class="amber-focus">Continue to the page</a></div><div class="amber-arrow"></div></div>',
-      hover_html_down : '<div class="amber-hover amber-down"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div></div><div class="amber-links"><a class="amber-cache-link amber-focus" href="{{CACHE}}">View the capture</a><a href="{{LINK}}">Continue to the page</a></div><div class="amber-arrow"></div></div>',
+      '<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the capture</a><a class="amber-memento-link" href="#">We also have a memento</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
+      hover_html_up   : '<div class="amber-hover amber-up"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">This page should be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div></div><div class="amber-links"><a class="amber-cache-link" href="{{CACHE}}">View the capture</a><a href="{{LINK}}" class="amber-focus">Continue to the page</a></div><div class="amber-arrow"></div><a class="amber-memento-link" href="#">We also have a memento</a></div>',
+      hover_html_down : '<div class="amber-hover amber-down"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div></div><div class="amber-links"><a class="amber-cache-link amber-focus" href="{{CACHE}}">View the capture</a><a class="amber-memento-link" href="#">We also have a memento</a><a href="{{LINK}}">Continue to the page</a></div><div class="amber-arrow"></div><a class="amber-memento-link" href="#">We also have a memento</a></div>',
       this_site: "This site"
     },
     fa : {
@@ -149,6 +149,7 @@ var amber = {
     var cache = amber.parse_cache(this.getAttribute("data-versionurl"), this.getAttribute("data-versiondate"));
 
     if (amber.execute_action(behavior,"popup") && cache.default) {
+
       /* Add the window to the DOM */
       var element = document.createElement('div');
       element.className = "amber-overlay";
@@ -193,6 +194,16 @@ var amber = {
       }
       e.preventDefault();
       amber.attach_cache_view_event();
+
+      /* Start looking for mementos */
+      amber.get_memento(this.getAttribute('href'), this.getAttribute('data-versiondate'),
+        function(response) {
+          if (response['url']) {
+            var cachelink = document.querySelectorAll(".amber-interstitial .amber-memento-link")[0];
+            cachelink.setAttribute('href', response['url']);
+            cachelink.className = cachelink.className + " found";
+          }
+        });
     }
   },
 
@@ -260,6 +271,16 @@ var amber = {
         amber.util_addEventListener(hover, 'mouseout', amber.end_popup_hover_function(hover));
   
         amber.attach_cache_view_event();
+
+        amber.get_memento(t.getAttribute('href'), t.getAttribute('data-versiondate'),
+        function(response) {
+          if (response['url']) {
+            var cachelink = document.querySelectorAll(".amber-hover .amber-memento-link")[0];
+            cachelink.setAttribute('href', response['url']);
+            cachelink.className = cachelink.className + " found";
+          }
+        });
+
       }, delay * 1000);
       this.setAttribute("amber-timer",timer);
     }
@@ -331,10 +352,6 @@ var amber = {
     });
   },
 
-  timegate : function() {
-    console.log("Looking for timegates");
-  },
-
   /* Update data-* attributes based on updated availability information */
   update_availability : function(availability) {
     var data = availability.data;
@@ -371,17 +388,16 @@ var amber = {
     } 
   },
 
-  /* Get memento URL for a given URL */
-  get_memento : function(href) {
-    console.log(href);
-    var timegate = "http://timetravel.mementoweb.org/timegate/";
+  /* Get memento URL for a given URL and date, and execute a function on the result */
+  get_memento : function(href, date, callback) {
     var request = new XMLHttpRequest();
     request.onload = function() {
       if (request.readyState === 4) {
-        console.log("I got a response");
+        console.log(request.responseText);
+        callback(JSON.parse(request.responseText));
       }
     };
-    request.open('HEAD', timegate + href);
+    request.open('GET', '/amber/memento?date=' + date + '&url=' + href);
     request.send();
   },
 
@@ -459,11 +475,6 @@ amber.util_ready(function($) {
     if (typeof amber_locale != 'undefined') {
       amber.set_locale(amber_locale);
     }
-
-    /* Query timegate for mementos */
-    // amber.util_forEachElement("a[data-versionurl]", function(e, i) {
-    //   amber.get_memento(e.href);
-    // });
 
     /* Get availability information from NetClerk */
     if (amber.lookup_availability != 'undefined' && amber.lookup_availability) {
