@@ -10,6 +10,20 @@ class AmberMementoService implements iAmberMementoService {
 	    $this->serverUrl = isset($options['server_url']) ? $options['server_url'] : 'http://timetravel.mementoweb.org/timegate/';
 	}
 
+	private function getArchiveDate($url) {
+		$path = parse_url($url, PHP_URL_PATH);
+		if ((preg_match("/\d{14}/", $path, $matches) === 1) && (count($matches) === 1)) {
+			// $date_string = date_parse_from_format("YmdGis", $matches[0]);
+			/* The default ISO8601 date string formatter doesn't include the colons in the time-zone component, which
+			   is incompatible with javascript's date.parse() function in at least some implementations (Safari, definitely).
+			   So, roll our own here. */
+  			$dt = DateTime::createFromFormat('YmdGis', $matches[0]);
+  			return $dt->format('Y-m-d\TH:i:s+00:00');
+		} else {
+			return "";
+		}
+	}
+
 	/**
 	 * Query the Timegate server for a memento for this URL and date
 	 * @param  string $url    URL to query
@@ -30,11 +44,15 @@ class AmberMementoService implements iAmberMementoService {
 		$result = AmberNetworkUtils::open_single_url($query_url, $options, FALSE);
 
 		if (($result !== FALSE) && isset($result['headers']['Location'])) {
+			$url = $result['headers']['Location'];			
 			return array(
-				'url' => $result['headers']['Location'],
+				'url' => $url,
+				'date' => $this->getArchiveDate($url),
 				);
 		} else {
 			return array();
 		}
 	}
+
+
 }
