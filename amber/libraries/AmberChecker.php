@@ -21,6 +21,18 @@ class AmberChecker implements iAmberChecker {
     }
   }
 
+  /** 
+   * Look at the results from fetching a URL, tell whether the site is
+   * up or not.
+   */
+  private function is_up($fetch_result) {
+    if (isset($fetch_result['info']['http_code'])) {
+      return ($fetch_result['info']['http_code'] == 200);
+    } else {
+      return false;
+    }
+  }
+
   /**
    * Check whether a URL is available, and update the status of the URL in the database
    * @param $last_check array of the data from the last check for the URL
@@ -45,7 +57,8 @@ class AmberChecker implements iAmberChecker {
       error_log(join(":", array(__FILE__, __METHOD__, "Blocked by robots.txt", $url)));
       $message = "Blocked by robots.txt";
     } else {
-      $status = $this->up($url);
+      $fetch_result = AmberNetworkUtils::open_url($url,  array(CURLOPT_FAILONERROR => FALSE));
+      $status = $this->is_up($fetch_result);
       $next = $this->next_check_date(isset($last_check['status']) ? $last_check['status'] : NULL,
                                      isset($last_check['last_checked']) ? $last_check['last_checked'] : NULL,
                                      isset($last_check['next_check']) ? $last_check['next_check'] : NULL,
@@ -60,6 +73,7 @@ class AmberChecker implements iAmberChecker {
             'next_check' => $next,
             'status' => isset($status) ? ($status ? 1 : 0) : NULL,
             'message' => isset($message) ? $message : NULL,
+            'details' => $fetch_result,
           );
 
     return $result;

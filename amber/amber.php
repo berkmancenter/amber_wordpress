@@ -30,7 +30,7 @@ class Amber {
 	private static $amber_checker;
 	private static $amber_fetcher;
 	private static $amber_storage;
-	private static $amber_availability_lookup;
+	private static $amber_availability;
 	private static $amber_memento_service;
 
 	public static function get_option($key, $default = "")
@@ -177,11 +177,11 @@ class Amber {
 	 * Return an initialized AmberAvailabilityLookup module
 	 * @return IAmberAvailabilityLookup
 	 */
-	public static function get_availability_lookup() {
-		if (!Amber::$amber_availability_lookup) {
-	    	Amber::$amber_availability_lookup = new AmberNetClerkAvailabilityLookup(array());		
+	public static function get_availability() {
+		if (!Amber::$amber_availability) {
+	    	Amber::$amber_availability = new AmberNetClerkAvailability(array());		
 		}
-		return Amber::$amber_availability_lookup;
+		return Amber::$amber_availability;
 	}
 
 	public static function set_availability_lookup($availability_lookup) {
@@ -373,12 +373,16 @@ class Amber {
 		$checker = Amber::get_checker();
 		$status =  Amber::get_status();
 		$fetcher = Amber::get_fetcher();
+		$availability = Amber::get_availability();
 
 		/* Check whether the site is up */
 		$last_check = $status->get_check($item);
 		if (($update = $checker->check(empty($last_check) ? array('url' => $item) : $last_check, $force)) !== false) {
 			/* There's an updated check result to save */
 			$status->save_check($update);
+			if ($availability && isset($update['details'])) {
+				$availability->report_status($item, $update['details']);
+			}
 
 			/* Now cache the item if we should */
 			$existing_cache = $status->get_cache($item);
@@ -882,7 +886,7 @@ jQuery(document).ready(function($) {
 			header("Pragma: no-cache");
 			header("Expires: 0");
 
-    		$lookup = Amber::get_availability_lookup();
+    		$lookup = Amber::get_availability();
 		    $lookup_result = $lookup->getStatus( $_REQUEST['url'], $_REQUEST['country'] );
     		foreach ( $lookup_result['data'] as $key => $value ) {
       			$lookup_result['data'][$key]['behavior'] =  Amber::get_behavior($lookup_result['data'][$key]['available']);
@@ -931,7 +935,7 @@ include_once dirname( __FILE__ ) . '/libraries/backends/perma/PermaStorage.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/perma/PermaFetcher.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/aws/AmazonS3Storage.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberChecker.php';
-include_once dirname( __FILE__ ) . '/libraries/AmberAvailabilityLookup.php';
+include_once dirname( __FILE__ ) . '/libraries/AmberAvailability.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberDB.php';
 
 /* The filter to lookup and rewrite links with amber data- attributes */

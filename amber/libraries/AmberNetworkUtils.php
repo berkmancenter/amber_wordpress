@@ -113,6 +113,7 @@ class AmberNetworkUtils {
           CURLOPT_HEADER => TRUE,           /* Return header information as part of the file */
           CURLOPT_USERAGENT => AmberNetworkUtils::get_user_agent_string(),
           CURLOPT_ENCODING => '',           /* Handle compressed data */
+          CURLINFO_HEADER_OUT => 1,           /* Preserve outgoing header information */
           // CURLOPT_VERBOSE => true,
           // CURLOPT_PROXY => 'localhost:8889',
           // CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
