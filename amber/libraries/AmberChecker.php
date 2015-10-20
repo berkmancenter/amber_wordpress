@@ -73,7 +73,7 @@ class AmberChecker implements iAmberChecker {
             'next_check' => $next,
             'status' => isset($status) ? ($status ? 1 : 0) : NULL,
             'message' => isset($message) ? $message : NULL,
-            'details' => $fetch_result,
+            'details' => isset($fetch_result) ? $fetch_result : NULL,
           );
 
     return $result;

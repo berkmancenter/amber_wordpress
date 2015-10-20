@@ -44,8 +44,8 @@ class AmberNetClerkAvailability implements iAmberAvailability {
 		$options = array(
 			CURLOPT_POST => true,
 			CURLOPT_POSTFIELDS => $fields_string,
-			CURLOPT_PROXY => 'localhost:8889',
-			CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
+			// CURLOPT_PROXY => 'localhost:8889',
+			// CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
 		);
 		AmberNetworkUtils::open_single_url($this->serverUrl . "/requests", $options);		
 	}
