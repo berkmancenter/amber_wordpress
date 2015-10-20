@@ -29,6 +29,7 @@ class Amber {
 	private static $amber_status;
 	private static $amber_checker;
 	private static $amber_fetcher;
+	private static $amber_fetchers;
 	private static $amber_storage;
 	private static $amber_availability;
 	private static $amber_memento_service;
@@ -48,7 +49,7 @@ class Amber {
 	public static function get_storage() {
 		if (!Amber::$amber_storage) {
 		    $storage_id = Amber::get_option('amber_backend', 0);
-		    Amber::$amber_storage = Amber::get_storage_by_id($storage_id);
+		    Amber::$amber_storage = Amber::get_storage_instance($storage_id);
 		}
 	  	return Amber::$amber_storage;
 	}
@@ -63,38 +64,38 @@ class Amber {
 	 * @return iAmberStorage
 	 */
 	public static function get_storage_for_item($id) {
-	  	$item = Amber::get_status()->get_cache_by_id($id);
-	  	return ($item) ? Amber::get_storage_by_id($item['provider']) : null;
+	  	$item = Amber::get_status()->get_cache_by_id($id, Amber::get_option('amber_backend', 0));
+	  	return ($item) ? Amber::get_storage_instance($item['provider']) : null;
 	}
 
 	/**
-	 * Select and initialize an implementation of iAmberStorage based on the engine ID
-	 * @param  int $storage_id ID of the storage engine to use
+	 * Select and initialize an implementation of iAmberStorage based on the backend ID
+	 * @param  int $backend ID of the storage backend to use
 	 * @return iAmberStorage
 	 */
-	public static function get_storage_by_id($storage_id) {
-	  	switch ($storage_id) {
-	    case AMBER_BACKEND_LOCAL:
-	    	$base_dir = wp_upload_dir();
-	    	$subdir = Amber::get_option('amber_storage_location', 'amber');
-	    	$file_path = join(DIRECTORY_SEPARATOR, array($base_dir['basedir'], $subdir));
-			$storage = new AmberStorage($file_path);
-			break;
-    	case AMBER_BACKEND_PERMA:
-			$storage = new PermaStorage(array());
-			break;
-	    case AMBER_BACKEND_INTERNET_ARCHIVE:
-	    	$storage = new InternetArchiveStorage(array());
-	    	break;
-        case AMBER_BACKEND_AMAZON_S3:
-			require_once("vendor/aws/aws-autoloader.php");
-			$storage = new AmazonS3Storage(array(
-				'access_key' => Amber::get_option('amber_aws_access_key',''),
-				'secret_key' => Amber::get_option('amber_aws_secret_key',''),
-				'bucket' => Amber::get_option('amber_aws_bucket',''),
-				'region' => Amber::get_option('amber_aws_region','us-east-1'),
-			));
-			break;
+	public static function get_storage_instance($backend) {
+	  	switch ($backend) {
+		    case AMBER_BACKEND_LOCAL:
+		    	$base_dir = wp_upload_dir();
+		    	$subdir = Amber::get_option('amber_storage_location', 'amber');
+		    	$file_path = join(DIRECTORY_SEPARATOR, array($base_dir['basedir'], $subdir));
+				$storage = new AmberStorage($file_path);
+				break;
+	    	case AMBER_BACKEND_PERMA:
+				$storage = new PermaStorage(array());
+				break;
+		    case AMBER_BACKEND_INTERNET_ARCHIVE:
+		    	$storage = new InternetArchiveStorage(array());
+		    	break;
+	        case AMBER_BACKEND_AMAZON_S3:
+				require_once("vendor/aws/aws-autoloader.php");
+				$storage = new AmazonS3Storage(array(
+					'access_key' => Amber::get_option('amber_aws_access_key',''),
+					'secret_key' => Amber::get_option('amber_aws_secret_key',''),
+					'bucket' => Amber::get_option('amber_aws_bucket',''),
+					'region' => Amber::get_option('amber_aws_region','us-east-1'),
+				));
+				break;
 		}
 	 	return $storage;
 	}
@@ -136,35 +137,8 @@ class Amber {
 	 * @return IAmberFetcher
 	 */
 	public static function get_fetcher() {
-
 		if (!Amber::$amber_fetcher) {
-    		switch (Amber::get_option('amber_backend', 0)) {
-		    	case AMBER_BACKEND_LOCAL:
-		    		Amber::$amber_fetcher = new AmberFetcher(Amber::get_storage(), array(
-			      		'amber_max_file' => Amber::get_option('amber_max_file',1000),
-		    	  		'header_text' => "You are viewing an archive of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
-		      			'amber_excluded_formats' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
-	    			));
-			        break;
-		      	case AMBER_BACKEND_PERMA:
-			        Amber::$amber_fetcher = new PermaFetcher(Amber::get_storage(), array(
-			          	'perma_api_key' => Amber::get_option('amber_perma_api_key',''),
-			          	'perma_archive_url' => Amber::get_option('amber_perma_server_url', 'http://perma.cc'),
-			          	'perma_api_url' => Amber::get_option('amber_perma_api_server_url', 'https://api.perma.cc',''),
-			        ));
-			        error_log(Amber::get_option('amber_perma_server_api_url', 'https://api.perma.cc',''));
-			        break;
-		      	case AMBER_BACKEND_INTERNET_ARCHIVE:
-		        	Amber::$amber_fetcher = new InternetArchiveFetcher(Amber::get_storage(), array());
-		        	break;
-		    	case AMBER_BACKEND_AMAZON_S3:
-		    		Amber::$amber_fetcher = new AmberFetcher(Amber::get_storage(), array(
-			      		'amber_max_file' => 5000000, /* Max size for S3 file */
-		    	  		'header_text' => "You are viewing an archive of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
-		      			'amber_excluded_formats' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
-	    			));
-			        break;
-    		}
+			Amber::$amber_fetcher = Amber::get_fetcher_instance(Amber::get_option('amber_backend', 0));
     	}
 	  	return Amber::$amber_fetcher;
 	}
@@ -172,6 +146,61 @@ class Amber {
 	public static function set_fetcher($fetcher) {
 		Amber::$amber_fetcher = $fetcher;
 	}
+
+	/**
+	 * Get a list of alternate fetchers that could be used
+	 * @return array of IAmberFetcher
+	 */
+	public static function get_alternate_fetchers() {
+		if (!Amber::$amber_fetchers) {
+		    Amber::$amber_fetchers = array();
+		    $backends = Amber::get_option('amber_alternate_backends', array());
+		    foreach ($backends as $value) {
+		    	Amber::$amber_fetchers[] = Amber::get_fetcher_instance($value);
+		    }
+    	}
+	  	return Amber::$amber_fetchers;
+	}
+
+	/**
+	 * Select and initialize an implementation of iAmberFetcher based on the backend ID
+	 * @param  int $backend ID of the storage engine to use
+	 * @return iAmberFetcher
+	 */
+	public static function get_fetcher_instance($backend) {
+
+		switch ($backend) {
+	    	case AMBER_BACKEND_LOCAL:
+	    		$fetcher = new AmberFetcher(Amber::get_storage_instance($backend), array(
+		      		'amber_max_file' => Amber::get_option('amber_max_file',1000),
+	    	  		'header_text' => "You are viewing an archive of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
+	      			'amber_excluded_formats' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
+    			));
+		        break;
+	      	case AMBER_BACKEND_PERMA:
+		        $fetcher = new PermaFetcher(Amber::get_storage_instance($backend), array(
+		          	'perma_api_key' => Amber::get_option('amber_perma_api_key',''),
+		          	'perma_archive_url' => Amber::get_option('amber_perma_server_url', 'http://perma.cc'),
+		          	'perma_api_url' => Amber::get_option('amber_perma_api_server_url', 'https://api.perma.cc',''),
+		        ));
+		        error_log(Amber::get_option('amber_perma_server_api_url', 'https://api.perma.cc',''));
+		        break;
+	      	case AMBER_BACKEND_INTERNET_ARCHIVE:
+	        	$fetcher = new InternetArchiveFetcher(Amber::get_storage_instance($backend), array());
+	        	break;
+	    	case AMBER_BACKEND_AMAZON_S3:
+	    		$fetcher = new AmberFetcher(Amber::get_storage_instance($backend), array(
+		      		'amber_max_file' => 5000000, /* Max size for S3 file */
+	    	  		'header_text' => "You are viewing an archive of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
+	      			'amber_excluded_formats' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
+    			));
+		        break;
+		    default:
+		    	$fetcher = null;
+		}
+	
+  		return $fetcher;
+	}	
 
 	/**
 	 * Return an initialized AmberAvailabilityLookup module
@@ -385,23 +414,18 @@ class Amber {
 			}
 
 			/* Now cache the item if we should */
-			$existing_cache = $status->get_cache($item);
 	  		$strategy = Amber::get_option('amber_update_strategy', 0);
-			if ($update['status'] && (!$strategy || !$existing_cache)) {
-				$cache_metadata = array();
-				try {
-					$cache_metadata = $fetcher->fetch($item);
-				} catch (RuntimeException $re) {
-					$update['message'] = $re->getMessage();
-					$status->save_check($update);        
-					return false;
-				} catch (InvalidArgumentException $ie) {
-					$update['message'] = $ie->getMessage();
-					$status->save_check($update);        
-					return false;
+			if ($update['status'] && (!$strategy || !$status->has_cache($item))) {
+
+				/* Save the item to the primary storage location */
+				$result = Amber::fetch_item($item, $fetcher, $status);
+				
+				/* Save the item to any alternate storage locations */
+				foreach (Amber::get_alternate_fetchers() as $alternate_fetcher) {
+					Amber::fetch_item($item, $alternate_fetcher, $status);          
 				}
-				if ($cache_metadata) {
-					$status->save_cache($cache_metadata);
+
+				if ($result) {
 				  	Amber::disk_space_purge();
 				  	return true;
 				}
@@ -410,6 +434,31 @@ class Amber {
 			return false;
 		}
 	}
+
+	/**
+	 * Fetch an item and save the metadata
+	 * @param  string $item    url to fetch
+	 * @param  iAmberFetcher $fetcher instance of a fetcher to use to get the item
+	 * @param  iAmberStatus  $status  instance of a status to use to save the item
+	 * @return boolean  TRUE if succesfully cached
+	 */
+	private static function fetch_item($item, $fetcher, $status) {
+		$cache_metadata = array();
+		try {
+			$cache_metadata = $fetcher->fetch($item);
+		} catch (RuntimeException $re) {
+			$update['message'] = $re->getMessage();
+			$status->save_check($update);        
+			return false;
+		}
+		if ($cache_metadata) {
+			$status->save_cache($cache_metadata);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 
 	/* Pull an item off the "queue", and save it to the cache.
 	*/

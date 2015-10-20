@@ -61,7 +61,9 @@ class Amber_List_Table extends WP_List_Table {
             $actions['view'] =  "<a href='${url}'>View</a>";     
         }
         if (!empty($item['id'])) {
-            $url = join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard")) . "&delete=" . $item['id'];
+            $url = join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard")) 
+            . "&delete=" . $item['id']
+            . "&provider=" . $item['provider'];
             $params = array('orderby', 'order');
             foreach ($params as $param) {
                 if (isset($_REQUEST[$param])) {
@@ -219,7 +221,7 @@ class AmberDashboardPage
         if (isset($_REQUEST['delete_all'])) {
             $this->delete_all();
         } else if (isset($_REQUEST['delete'])) {
-            $this->delete($_REQUEST['delete']);         
+            $this->delete($_REQUEST['delete'], $_REQUEST['provider']);         
         } else if (isset($_REQUEST['export'])) {
             $this->export();            
         }
@@ -266,14 +268,14 @@ class AmberDashboardPage
         return $result ? $result : 0;
     }
 
-    private function delete($id) {
+    private function delete($id, $provider) {
         check_admin_referer( 'delete_link_' . $id );
-        $storage = Amber::get_storage_for_item($id);
+        $storage = Amber::get_storage_instance($provider);
         if (!is_null($storage)) {
-            $storage->delete($id);            
+            $storage->delete(array('id' => $id));            
         }
         $status = Amber::get_status();
-        $status->delete($id);
+        $status->delete($id, $provider);
     }
     
     private function delete_all() {
