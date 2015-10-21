@@ -59,14 +59,14 @@ class AmberTestLinkRewriting extends WP_UnitTestCase {
 	function test_filter_cached_two_links_one_up_one_down() {
 
         $map = array(
-          array('http://fox.com', 0, array(
+          array('http://fox.com', array(0), array(
 			        'default' => array(
 			          'date' => '1395590225',
 			          'location' => 'Amber/cache/0a137b375cc3881a70e186ce2172c8d1',
 			          'status' => 1,
 			          'size' => 3453,
 			        ))),
-          array('http://dog.com', 0, array(
+          array('http://dog.com', array(0), array(
 			        'default' => array(
 			          'date' => '1395590225',
 			          'location' => 'Amber/cache/DOG37b375cc3881a70e186ce2172c8d1',
