@@ -59,14 +59,14 @@ class AmberTestLinkRewriting extends WP_UnitTestCase {
 	function test_filter_cached_two_links_one_up_one_down() {
 
         $map = array(
-          array('http://fox.com', array(
+          array('http://fox.com', 0, array(
 			        'default' => array(
 			          'date' => '1395590225',
 			          'location' => 'Amber/cache/0a137b375cc3881a70e186ce2172c8d1',
 			          'status' => 1,
 			          'size' => 3453,
 			        ))),
-          array('http://dog.com', array(
+          array('http://dog.com', 0, array(
 			        'default' => array(
 			          'date' => '1395590225',
 			          'location' => 'Amber/cache/DOG37b375cc3881a70e186ce2172c8d1',
@@ -81,17 +81,7 @@ class AmberTestLinkRewriting extends WP_UnitTestCase {
 			)
 		); 
 
-		// $this->status_stub->method('get_summary')->will($this->returnValueMap($map));
-		$this->status_stub->method('get_summary')->willReturn(
-		       array(
-		        'default' => array(
-		          'date' => '1395590225',
-		          'location' => 'Amber/cache/0a137b375cc3881a70e186ce2172c8d1',
-		          'status' => 1,
-		          'size' => 3453,
-		        )
-			));
-
+		$this->status_stub->method('get_summary')->will($this->returnValueMap($map));
  		$result = Amber::filter('The quick brown <a href="http://fox.com">fox</a> jumped over the lazy <a href="http://dog.com">dog</a>');
 		$this->assertEquals('The quick brown <a href="http://fox.com" data-versionurl="http://example.org/Amber/cache/0a137b375cc3881a70e186ce2172c8d1" data-versiondate="2014-03-23T15:57:05+00:00" data-amber-behavior="up hover:2">fox</a> jumped over the lazy <a href="http://dog.com" data-versionurl="http://example.org/Amber/cache/DOG37b375cc3881a70e186ce2172c8d1" data-versiondate="2014-03-23T15:57:05+00:00" data-amber-behavior="down popup">dog</a>', $result);
 	}
