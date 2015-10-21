@@ -222,7 +222,19 @@ var amber = {
         function(response) {
           if (response['url']) {
             var cachelink = document.querySelectorAll(".amber-interstitial .amber-memento-link")[0];
+            var linktext;
             cachelink.setAttribute('href', response['url']);
+            if (response['date']) {
+              linktext = amber.replace_args(
+                amber.get_text("timegate_with_date"), 
+                {'{{MEMENTO_DATE}}' : amber.format_date_from_string(response['date'])});
+            } else {
+              linktext = amber.get_text("timegate_without_date");
+            }
+            cachelink.innerHTML = amber.replace_args(cachelink.innerHTML, {
+                '{{MEMENTO_MESSAGE}}' : linktext,
+              });
+
             cachelink.className = cachelink.className + " found";
           }
         });
