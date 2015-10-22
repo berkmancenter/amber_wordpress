@@ -938,7 +938,11 @@ jQuery(document).ready(function($) {
 			header("Expires: 0");
 
     		$lookup = Amber::get_availability();
-		    $lookup_result = $lookup->getStatus( $_REQUEST['url'], $_REQUEST['country'] );
+		    $lookup_result = $lookup->get_status( $_REQUEST['url'], $_REQUEST['country'] );
+		    if ($lookup_result === FALSE || !isset($lookup_result['data'])) {
+		    	status_header( 500 );
+		    	die();
+		    }
     		foreach ( $lookup_result['data'] as $key => $value ) {
       			$lookup_result['data'][$key]['behavior'] =  Amber::get_behavior($lookup_result['data'][$key]['available']);
 			}
