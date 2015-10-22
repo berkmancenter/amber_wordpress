@@ -518,6 +518,7 @@ amber.util_ready(function($) {
 
     /* Wordpress-specific configuration */
     if (typeof amber_config != 'undefined') {
+      amber.name = amber_config.site_name;
       amber.lookup_availability = amber_config.lookup_availability;
     }
 
