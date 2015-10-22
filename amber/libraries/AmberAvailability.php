@@ -73,7 +73,7 @@ class AmberNetClerkAvailability implements iAmberAvailability {
           // CURLOPT_PROXY => 'localhost:8889',
           // CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
 		);
-		$result = AmberNetworkUtils::open_single_url($this->serverUrl, $options);
+		$result = AmberNetworkUtils::open_single_url($this->serverUrl . "/statuses", $options);
 
 		if (($result !== FALSE) && isset($result['body'])) {
 			return $result['body'];
