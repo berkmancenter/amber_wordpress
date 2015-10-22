@@ -313,6 +313,9 @@ var amber = {
           if (response['url']) {
             /* Set URL */
             var cachelink = document.querySelectorAll(".amber-hover .amber-memento-link")[0];
+            if (cachelink == undefined) {
+              return; /* The hover may have gone away */
+            }
             var linktext;
             cachelink.setAttribute('href', response['url']);
             if (response['date']) {
