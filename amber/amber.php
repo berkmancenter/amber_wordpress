@@ -18,6 +18,8 @@ define("AMBER_STATUS_DOWN","down");
 define("AMBER_VAR_LAST_CHECK_RUN","amber_last_check_run");
 define("AMBER_EXTERNAL_AVAILABILITY_NONE",0);
 define("AMBER_EXTERNAL_AVAILABILITY_NETCLERK",1);
+define("AMBER_REPORT_AVAILABILITY_NONE",0);
+define("AMBER_REPORT_AVAILABILITY_NETCLERK",1);
 define("AMBER_BACKEND_LOCAL",0);
 define("AMBER_BACKEND_PERMA",1);
 define("AMBER_BACKEND_INTERNET_ARCHIVE",2);
@@ -411,7 +413,7 @@ class Amber {
 		if (($update = $checker->check(empty($last_check) ? array('url' => $item) : $last_check, $force)) !== false) {
 			/* There's an updated check result to save */
 			$status->save_check($update);
-			if ($availability && isset($update['details'])) {
+			if ($availability && isset($update['details']) && (Amber::get_option('amber_report_availability', AMBER_REPORT_AVAILABILITY_NONE) == AMBER_REPORT_AVAILABILITY_NETCLERK)) {
 				$availability->report_status($item, $update['details']);
 			}
 
