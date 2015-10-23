@@ -8,37 +8,37 @@ var amber = {
     en : {
       interstitial_html_up :
 '<div class="amber-interstitial amber-up"><a href="#" class="amber-close"></a><div class="amber-body">\
-<div class="amber-status-text">\This page should be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div>\
-<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the capture</a><a class="amber-memento-link" href="#">\
+<div class="amber-status-text">\This page should be available</div><div class="amber-cache-text">{{NAME}} has a snapshot from {{DATE}}</div>\
+<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the snapshot</a><a class="amber-memento-link" href="#">\
 {{MEMENTO_MESSAGE}}</a><div class="amber-iframe-container"><a href="{{LINK}}"></a>\
 <iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div>\
 <a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
       interstitial_html_down :
 '<div class="amber-interstitial amber-down"><a href="#" class="amber-close"></a><div class="amber-body">\
-<div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div>\
-<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the capture</a><a class="amber-memento-link" href="#">\
+<div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a snapshot from {{DATE}}</div>\
+<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the snapshot</a><a class="amber-memento-link" href="#">\
 {{MEMENTO_MESSAGE}}</a><div class="amber-iframe-container"><a href="{{LINK}}"></a>\
 <iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div>\
 <a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
       hover_html_up   : 
 '<div class="amber-hover amber-up"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a>\
 <div class="amber-text"><div class="amber-status-text">This page should be available</div>\
-<div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div></div>\
+<div class="amber-cache-text">{{NAME}} has a snapshot from {{DATE}}</div></div>\
 <a class="amber-memento-link" href="#">{{MEMENTO_MESSAGE}}</a>\
-<div class="amber-links"><a class="amber-cache-link" href="{{CACHE}}">View the capture</a>\
+<div class="amber-links"><a class="amber-cache-link" href="{{CACHE}}">View the snapshot</a>\
 <a href="{{LINK}}" class="amber-focus">Continue to the page</a></div><div class="amber-arrow"></div>\
 </div>',
       hover_html_down : 
 '<div class="amber-hover amber-down"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a>\
 <div class="amber-text"><div class="amber-status-text">This page may not be available</div>\
-<div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div></div>\
+<div class="amber-cache-text">{{NAME}} has a snapshot from {{DATE}}</div></div>\
 <a class="amber-memento-link" href="#">{{MEMENTO_MESSAGE}}</a>\
-<div class="amber-links"><a class="amber-cache-link amber-focus" href="{{CACHE}}">View the capture</a>\
+<div class="amber-links"><a class="amber-cache-link amber-focus" href="{{CACHE}}">View the snapshot</a>\
 <a href="{{LINK}}">Continue to the page</a></div>\
 <div class="amber-arrow"></div></div>',
       this_site: "This site",
-      timegate_with_date: 'Another archive has an alternate capture from {{MEMENTO_DATE}}',
-      timegate_without_date: 'Another archive has an alternate capture'
+      timegate_with_date: 'Another archive has an alternate snapshot from {{MEMENTO_DATE}}',
+      timegate_without_date: 'Another archive has an alternate snapshot'
     },
     fa : {
       interstitial_html_up :
