@@ -67,7 +67,7 @@ class AmberSettingsPage
 
         add_settings_field(
             'amber_backend', 
-            'Backend to use for storing captures', 
+            'Backend to use for storing snapshots', 
             array( $this, 'amber_backend_callback' ), 
             'amber-settings-admin', 
             'amber_cache_section'          
@@ -75,7 +75,7 @@ class AmberSettingsPage
 
         add_settings_field(
             'amber_alternate_backends', 
-            'Alternate backend(s) to use for storing captures', 
+            'Alternate backend(s) to use for storing snapshots', 
             array( $this, 'amber_alternate_backends_callback' ), 
             'amber-settings-admin', 
             'amber_cache_section'          
@@ -163,7 +163,7 @@ class AmberSettingsPage
 
         add_settings_field(
             'amber_update_strategy', 
-            'Update strategy for captures', 
+            'Update strategy for snapshots', 
             array( $this, 'amber_update_strategy_callback' ), 
             'amber-settings-admin', 
             'amber_cache_section'
@@ -289,7 +289,7 @@ class AmberSettingsPage
 
         add_settings_field(
             'amber_timegate', 
-            'Check a TimeGate server for additional copies of captured content', 
+            'Check a TimeGate server for additional copies of snapshotted content', 
             array( $this, 'amber_timegate_callback' ), 
             'amber-settings-admin', 
             'amber_services_section'
@@ -424,7 +424,7 @@ class AmberSettingsPage
      */
     public function print_cache_section_info()
     {
-        print 'Control how Amber stores captures';
+        print 'Control how Amber stores snapshots';
     }
 
     /* As well as printing the section text for the delivery info, add some javscript
@@ -493,7 +493,7 @@ jQuery(document).ready(function($) {
                     <option value="<?php echo AMBER_BACKEND_AMAZON_S3; ?>" <?php if ( $option == AMBER_BACKEND_AMAZON_S3 ) { echo 'selected="selected"'; } ?>>Amazon Web Services S3</option>
                 <?php } ?>
             </select> 
-            <p class="description">Amber can store captures locally, in your website's storage space. If you prefer, you can store captures in an alternative backend. At this time, Amber is compatible with the following services: <a href="http://perma.cc/" target="_blank">Perma.cc</a>, the Internet Archive, and Amazon Web Services S3.</p>
+            <p class="description">Amber can store snapshots locally, in your website's storage space. If you prefer, you can store snapshots in an alternative backend. At this time, Amber is compatible with the following services: <a href="http://perma.cc/" target="_blank">Perma.cc</a>, the Internet Archive, and Amazon Web Services S3.</p>
         <?php
     }
 
@@ -513,7 +513,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_max_file" name="amber_options[amber_max_file]" class="local" value="%s" /> ' .
-            '<p class="description">Amber will store captures up to a specified size. Links to pages that exceed this size will not be preserved.</p>',
+            '<p class="description">Amber will store snapshots up to a specified size. Links to pages that exceed this size will not be preserved.</p>',
             isset( $this->options['amber_max_file'] ) ? esc_attr( $this->options['amber_max_file']) : ''
         );
     }
@@ -522,7 +522,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_max_disk" name="amber_options[amber_max_disk]" class="local" value="%s" />' .
-            '<p class="description">The maximum amount of disk space to be used for all preserved content. If this disk space usage is exceeded, old captures will be removed.</p>',
+            '<p class="description">The maximum amount of disk space to be used for all preserved content. If this disk space usage is exceeded, old snapshots will be removed.</p>',
             isset( $this->options['amber_max_disk'] ) ? esc_attr( $this->options['amber_max_disk']) : ''
         );
     }
@@ -531,7 +531,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_storage_location" name="amber_options[amber_storage_location]" class="local" value="%s" />' . 
-            '<p class="description">Path to the location where captures are stored on disk, relative to the uploads directory.</p>',
+            '<p class="description">Path to the location where snapshots are stored on disk, relative to the uploads directory.</p>',
             isset( $this->options['amber_storage_location'] ) ? esc_attr( $this->options['amber_storage_location']) : ''
         );
     }
@@ -541,8 +541,8 @@ jQuery(document).ready(function($) {
         $option = $this->options['amber_update_strategy'];
         ?>
             <select id="amber_update_strategy" name="amber_options[amber_update_strategy]" class="local">
-                <option value="0" <?php if ( $option == 0 ) { echo 'selected="selected"'; } ?>>Update captures periodically</option>
-                <option value="1" <?php if ( $option == 1 ) { echo 'selected="selected"'; } ?>>Do not update captures</option>
+                <option value="0" <?php if ( $option == 0 ) { echo 'selected="selected"'; } ?>>Update snapshots periodically</option>
+                <option value="1" <?php if ( $option == 1 ) { echo 'selected="selected"'; } ?>>Do not update snapshots</option>
             </select> 
             <p class="description">Select "Do not update" if you want to preserve links at the time the content is published. Otherwise, link storage will be periodically updated.</p>
         <?php
@@ -615,7 +615,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_aws_bucket" name="amber_options[amber_aws_bucket]" class="aws" value="%s" />' . 
-            '<p class="description">Name of the Bucket where captures will be stored</p>',
+            '<p class="description">Name of the Bucket where snapshots will be stored</p>',
             isset( $this->options['amber_aws_bucket'] ) ? esc_attr( $this->options['amber_aws_bucket']) : ''
         );
     }
@@ -624,7 +624,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_aws_region" name="amber_options[amber_aws_region]" class="aws" value="%s" />' . 
-            '<p class="description">Your captures will be stored in this <a href="http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region" target="_blank">S3 region</a>. Unless you are an advanced user, do not modify this setting.</p>',
+            '<p class="description">Your snapshots will be stored in this <a href="http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region" target="_blank">S3 region</a>. Unless you are an advanced user, do not modify this setting.</p>',
             isset( $this->options['amber_aws_region'] ) ? esc_attr( $this->options['amber_aws_region']) : ''
         );
     }
@@ -651,7 +651,7 @@ jQuery(document).ready(function($) {
                 <option value="<?php echo AMBER_ACTION_NONE; ?>" <?php if ( $option == AMBER_ACTION_NONE ) { echo 'selected="selected"'; } ?>>None</option>
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
                 <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Popup</option>
-                <option value="<?php echo AMBER_ACTION_CACHE; ?>" <?php if ( $option == AMBER_ACTION_CACHE ) { echo 'selected="selected"'; } ?>>Link directly to Capture</option>
+                <option value="<?php echo AMBER_ACTION_CACHE; ?>" <?php if ( $option == AMBER_ACTION_CACHE ) { echo 'selected="selected"'; } ?>>Link directly to Snapshot</option>
             </select> 
             <p class="description">How a visitor to your site will experience links to pages that are currently unavailable.</p>
         <?php
@@ -746,7 +746,7 @@ jQuery(document).ready(function($) {
                 <option value="<?php echo AMBER_ACTION_NONE; ?>" <?php if ( $option == AMBER_ACTION_NONE ) { echo 'selected="selected"'; } ?>>None</option>
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
                 <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Popup</option>
-                <option value="<?php echo AMBER_ACTION_CACHE; ?>" <?php if ( $option == AMBER_ACTION_CACHE ) { echo 'selected="selected"'; } ?>>Link directly to Capture</option>
+                <option value="<?php echo AMBER_ACTION_CACHE; ?>" <?php if ( $option == AMBER_ACTION_CACHE ) { echo 'selected="selected"'; } ?>>Link directly to Snapshot</option>
             </select> 
             <p class="description">How a visitor to your site will experience links to pages that are currently unavailable.</p>
         <?php
