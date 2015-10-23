@@ -91,7 +91,7 @@ class AmberSettingsPage
 
         add_settings_field(
             'amber_update_strategy', 
-            'Update strategy for captures', 
+            'Update strategy for snapshots', 
             array( $this, 'amber_update_strategy_callback' ), 
             'amber-settings-admin', 
             'amber_cache_section'
@@ -271,7 +271,7 @@ class AmberSettingsPage
      */
     public function print_cache_section_info()
     {
-        print 'Control how Amber stores captures';
+        print 'Control how Amber stores snapshots';
     }
 
     /* As well as printing the section text for the delivery info, add some javscript
@@ -310,7 +310,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_max_file" name="amber_options[amber_max_file]" value="%s" /> ' .
-            '<p class="description">Amber will store captures up to a specified size. Links to pages that exceed this size will not be preserved.</p>',
+            '<p class="description">Amber will store snapshots up to a specified size. Links to pages that exceed this size will not be preserved.</p>',
             isset( $this->options['amber_max_file'] ) ? esc_attr( $this->options['amber_max_file']) : ''
         );
     }
@@ -328,7 +328,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_storage_location" name="amber_options[amber_storage_location]" value="%s" />' . 
-            '<p class="description">Path to the location where captures are stored on disk, relative to the uploads directory.</p>',
+            '<p class="description">Path to the location where snapshots are stored on disk, relative to the uploads directory.</p>',
             isset( $this->options['amber_storage_location'] ) ? esc_attr( $this->options['amber_storage_location']) : ''
         );
     }
@@ -338,8 +338,8 @@ jQuery(document).ready(function($) {
         $option = $this->options['amber_update_strategy'];
         ?>
             <select id="amber_update_strategy" name="amber_options[amber_update_strategy]">
-                <option value="0" <?php if ( $option == 0 ) { echo 'selected="selected"'; } ?>>Update captures periodically</option>
-                <option value="1" <?php if ( $option == 1 ) { echo 'selected="selected"'; } ?>>Do not update captures</option>
+                <option value="0" <?php if ( $option == 0 ) { echo 'selected="selected"'; } ?>>Update snapshots periodically</option>
+                <option value="1" <?php if ( $option == 1 ) { echo 'selected="selected"'; } ?>>Do not update snapshots</option>
             </select> 
             <p class="description">Select "Do not update" if you want to preserve links at the time the content is published. Otherwise, link storage will be periodically updated.</p>
         <?php
