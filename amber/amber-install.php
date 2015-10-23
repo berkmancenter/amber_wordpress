@@ -24,7 +24,7 @@ class AmberInstall {
 		  type VARCHAR(200) DEFAULT '' NOT NULL,
 		  size int,
 		  provider int,
-		  provider_id VARCHAR(128) DEFAULT '' NOT NULL,
+		  provider_id VARCHAR(2000) DEFAULT '' NOT NULL,
 		  PRIMARY KEY  (id,provider)
 		)";
 		$tables['amber_activity'] =  "(
@@ -145,7 +145,7 @@ class AmberInstall {
 							  type VARCHAR(200) DEFAULT '' NOT NULL,
 							  size int,
 							  provider int,
-							  provider_id VARCHAR(128) DEFAULT '' NOT NULL,
+							  provider_id VARCHAR(2000) DEFAULT '' NOT NULL,
 							  PRIMARY KEY  (id,provider)
 							)");
 			AmberInstall::install_tables( $tables );
