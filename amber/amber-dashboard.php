@@ -13,8 +13,8 @@ class Amber_List_Table extends WP_List_Table {
                 
         //Set parent defaults
         parent::__construct( array(
-            'singular'  => 'capture',     //singular name of the listed records
-            'plural'    => 'captures',    //plural name of the listed records
+            'singular'  => 'snapshot',     //singular name of the listed records
+            'plural'    => 'snapshots',    //plural name of the listed records
             'ajax'      => false          //does this table support ajax?
         ) );
         
@@ -319,14 +319,14 @@ class AmberDashboardPage
                     <h3>Global Statistics</h3>
                     <table>
                         <tbody>
-                            <tr><td>Captures preserved</td><td><?php print($this->cache_size()); ?></td></tr>
-                            <tr><td>Links to capture</td><td><?php print($this->queue_size()); ?></td></tr>
+                            <tr><td>Snapshots preserved</td><td><?php print($this->cache_size()); ?></td></tr>
+                            <tr><td>Links to snapshot</td><td><?php print($this->queue_size()); ?></td></tr>
                             <tr><td>Last check</td><td><?php print($this->last_check()); ?></td></tr>
                             <tr><td>Disk space used</td><td><?php print($this->disk_usage() . " of " . Amber::get_option('amber_max_disk')); ?> MB</td></tr>
                         </tbody>
                     </table>
 
-                    <?php submit_button("Delete all captures", "small", "delete_all"); ?>
+                    <?php submit_button("Delete all snapshots", "small", "delete_all"); ?>
                     <?php submit_button("Scan content for links to preserve", "small", "scan"); ?>
                     <?php submit_button("Preserve all new links", "small", "cache_now"); ?>
                     <?php submit_button("Export list of cached pages", "small", "export"); ?>
