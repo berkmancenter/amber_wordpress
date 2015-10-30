@@ -85,6 +85,7 @@ class AmberInstall {
 		if (empty($options)) {	
 			/* Set default options */
 			$options =  array(
+				'amber_post_types' => 'post,page',
 	            'amber_max_file' => 1000,
 	            'amber_max_disk' => 1000,
 	            'amber_available_action' => AMBER_ACTION_NONE,

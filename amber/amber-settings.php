@@ -82,6 +82,13 @@ class AmberSettingsPage
         );      
 
         add_settings_field(
+            'amber_post_types', 
+            'Included post types', 
+            array( $this, 'amber_post_types_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'          
+        );      
+        add_settings_field(
             'amber_max_file', 
             'Maximum file size (kB)', 
             array( $this, 'amber_max_file_callback' ), 
@@ -358,6 +365,11 @@ class AmberSettingsPage
             }
         }
 
+        /* Process selected post types */
+        $crawled_post_types = $input['amber_post_types'];
+        $stringified_post_types = implode(',', $crawled_post_types);
+        $new_input['amber_post_types'] = $stringified_post_types;
+
         /* Validate excluded sites regular expressions */
         $excluded_sites = explode( ',' , $input['amber_excluded_sites'] );
         $sanitized_excluded_sites = array();
@@ -507,6 +519,27 @@ jQuery(document).ready(function($) {
             </select> 
             <p class="description">TK</p>
         <?php
+    }
+
+    public function amber_post_types_callback()
+    {
+        $post_types = get_post_types( array('public'), 'objects', 'and' ); 
+
+        $crawled_post_types = explode( ',', $this->options['amber_post_types'] );
+        $ignored_post_types = array( 'revision' );
+
+        printf('<select id="amber_post_types" name="amber_options[amber_post_types][]" multiple="1" size="5">' . PHP_EOL);
+        foreach ( $post_types as $post_type ) {
+
+            if ( in_array( $post_type->name, $ignored_post_types ) ) {
+                continue;
+            } elseif ( in_array( $post_type->name, $crawled_post_types ) ) {
+                echo '<option value="'. $post_type->name .'" selected="1">' . $post_type->label . '</option>' . PHP_EOL;
+            } else {
+                echo '<option value="'. $post_type->name .'">' . $post_type->label . '</option>' . PHP_EOL;
+            }         
+        }
+        printf('</select>' . PHP_EOL);
     }
 
     public function amber_max_file_callback()
