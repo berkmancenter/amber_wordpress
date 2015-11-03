@@ -273,7 +273,7 @@ class AmberSettingsPage
 
         add_settings_section(
             'amber_services_section', 
-            '3rd Section to be named later', 
+            'Optional Functionality', 
             array( $this, 'print_services_section_info' ), 
             'amber-settings-admin' // Page
         );  
@@ -487,7 +487,7 @@ jQuery(document).ready(function($) {
 
     public function print_services_section_info()
     {
-        print 'TK: Third party services section';
+        print 'Connect to academic efforts to retrieve more accurate data and additional snapshots';
     }
 
     /** 
@@ -517,7 +517,7 @@ jQuery(document).ready(function($) {
                 <option value="<?php echo AMBER_BACKEND_PERMA; ?>" <?php if ( is_array($options) && in_array(AMBER_BACKEND_PERMA, $options) ) { echo 'selected="selected"'; } ?>>Perma.cc</option>
                 <option value="<?php echo AMBER_BACKEND_INTERNET_ARCHIVE; ?>" <?php if ( is_array($options) && in_array(AMBER_BACKEND_INTERNET_ARCHIVE, $options) ) { echo 'selected="selected"'; } ?>>Internet Archive</option>
             </select> 
-            <p class="description">TK</p>
+            <p class="description">Preserve snapshots in multiple storage locations by selecting one or more alternates above. Amber will show your visitors only the storage location selected in the dropdown menu.</p>
         <?php
     }
 
@@ -715,7 +715,7 @@ jQuery(document).ready(function($) {
                 <option value="<?php echo AMBER_EXTERNAL_AVAILABILITY_NONE; ?>" <?php if ( $option == AMBER_EXTERNAL_AVAILABILITY_NONE ) { echo 'selected="selected"'; } ?>>Do not use an external service</option>
                 <option value="<?php echo AMBER_EXTERNAL_AVAILABILITY_NETCLERK; ?>" <?php if ( $option == AMBER_EXTERNAL_AVAILABILITY_NETCLERK ) { echo 'selected="selected"'; } ?>>Use NetClerk</option>
             </select> 
-            <p class="description">TBD: Describe what it means to use NetClerk</p>
+            <p class="description">Optional: Use site accessibility data from the Berkman Center for Internet & Society at Harvard University</p>
         <?php
     }
 
@@ -727,7 +727,7 @@ jQuery(document).ready(function($) {
                 <option value="<?php echo AMBER_REPORT_AVAILABILITY_NONE; ?>" <?php if ( $option == AMBER_REPORT_AVAILABILITY_NONE ) { echo 'selected="selected"'; } ?>>Do not report site availability to an external service</option>
                 <option value="<?php echo AMBER_REPORT_AVAILABILITY_NETCLERK; ?>" <?php if ( $option == AMBER_REPORT_AVAILABILITY_NETCLERK ) { echo 'selected="selected"'; } ?>>Use NetClerk</option>
             </select> 
-            <p class="description">TBD: Describe what it means to report to NetClerk</p>
+            <p class="description">Optional: Contribute site accessibility data for research as part of the Berkman Center for Internet & Society at Harvard University</p>
         <?php
     }
 
@@ -735,7 +735,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_timegate" name="amber_options[amber_timegate]" value="%s" />' .
-            '<p class="description">TBD: Describe what it meanst to use a TimeGate</p>',
+            '<p class="description">Optional: Request additional snapshots from the Internet Archive, the Library of Congress web archive, archive.today, and more</p>',
             isset( $this->options['amber_timegate'] ) ? esc_attr( $this->options['amber_timegate']) : ''
         );
     }
