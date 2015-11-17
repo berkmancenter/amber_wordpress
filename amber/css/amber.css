@@ -141,7 +141,7 @@
  color: white;             
  border-radius: 4px;
  background-color: #5b88b3;
- min-width: 355px;
+ min-width: 380px;
  z-index: 999999;
 }
 
@@ -160,7 +160,7 @@
   border-radius: 4px 4px 0 0;
   width: 100%;
   line-height: 20px;
-  padding: 8px 0 4px;
+  padding: 8px 15px 4px 0;
   background-color: #34495e;
 }
 
