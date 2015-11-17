@@ -352,7 +352,7 @@ var amber = {
         if (!amber.hovering_on_popup) {
           amber.clear_hover();
         }
-      }, Math.min(100,delay * 1000));
+      }, Math.min(500,delay * 1000));
     }
   },
 
