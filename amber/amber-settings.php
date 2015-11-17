@@ -278,21 +278,23 @@ class AmberSettingsPage
             'amber-settings-admin' // Page
         );  
 
-        add_settings_field(
-            'amber_external_availability', 
-            'Use a third-party database to check site availability', 
-            array( $this, 'amber_external_availability_callback' ), 
-            'amber-settings-admin', 
-            'amber_services_section'
-        );      
+        if (isset($this->options['amber_enable_netclerk']) && $this->options['amber_enable_netclerk']) {
+            add_settings_field(
+                'amber_external_availability', 
+                'Use a third-party database to check site availability', 
+                array( $this, 'amber_external_availability_callback' ), 
+                'amber-settings-admin', 
+                'amber_services_section'
+            );      
 
-        add_settings_field(
-            'amber_report_availability', 
-            'Inform a third-party database of site availability', 
-            array( $this, 'amber_report_availability_callback' ), 
-            'amber-settings-admin', 
-            'amber_services_section'
-        );      
+            add_settings_field(
+                'amber_report_availability', 
+                'Inform a third-party database of site availability', 
+                array( $this, 'amber_report_availability_callback' ), 
+                'amber-settings-admin', 
+                'amber_services_section'
+            );      
+        }
 
         add_settings_field(
             'amber_timegate', 
