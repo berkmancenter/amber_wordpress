@@ -1,6 +1,7 @@
 var amber = {
 
   hovering_on_popup : false,
+  hovering_on_link : false,
   locale : 'en',
   country : '',
   rtl : false,
@@ -282,8 +283,9 @@ var amber = {
   },
 
   start_link_hover : function (e) {
+    amber.hovering_on_link = true;    
     var behavior = amber.parse_behavior(this.getAttribute("data-amber-behavior"));
-    if (amber.execute_action(behavior,"hover")) {
+    if (amber.execute_action(behavior,"hover") && !amber.hover_up()) {
       var cache = amber.parse_cache(this.getAttribute("data-versionurl"), this.getAttribute("data-versiondate"));
       var args = {
         '{{DATE}}' : amber.format_date_from_string(cache.default.date),
@@ -294,6 +296,7 @@ var amber = {
       t = this;
       var delay = behavior[amber.country] ? behavior[amber.country].delay : behavior.default.delay;
       var timer = setTimeout(function() {
+
         var amberElement = document.createElement('div');
         amberElement.innerHTML = amber.replace_args(behavior.default.status == "up" ? amber.get_text('hover_html_up') : amber.get_text('hover_html_down'), args);
         document.body.appendChild(amberElement.firstChild);
@@ -309,31 +312,31 @@ var amber = {
         amber.attach_cache_view_event();
 
         amber.get_memento(t.getAttribute('href'), t.getAttribute('data-versiondate'),
-        function(response) {
-          if (response['url']) {
-            /* Set URL */
-            var cachelink = document.querySelectorAll(".amber-hover .amber-memento-link")[0];
-            if (cachelink == undefined) {
-              return; /* The hover may have gone away */
+          function(response) {
+            if (response['url']) {
+              /* Set URL */
+              var cachelink = document.querySelectorAll(".amber-hover .amber-memento-link")[0];
+              if (cachelink == undefined) {
+                return; /* The hover may have gone away */
+              }
+              var linktext;
+              cachelink.setAttribute('href', response['url']);
+              if (response['date']) {
+                linktext = amber.replace_args(
+                  amber.get_text("timegate_with_date"), 
+                  {'{{MEMENTO_DATE}}' : amber.format_date_from_string(response['date'])});
+              } else {
+                linktext = amber.get_text("timegate_without_date");
+              }
+              cachelink.innerHTML = amber.replace_args(cachelink.innerHTML, {
+                  '{{MEMENTO_MESSAGE}}' : linktext,
+                });
+              /* Update hover div */
+              var hover = document.querySelectorAll(".amber-hover")[0];
+              hover.className = hover.className + " memento-found";
+              hover.style.top = (pos.top - 20) + "px";
             }
-            var linktext;
-            cachelink.setAttribute('href', response['url']);
-            if (response['date']) {
-              linktext = amber.replace_args(
-                amber.get_text("timegate_with_date"), 
-                {'{{MEMENTO_DATE}}' : amber.format_date_from_string(response['date'])});
-            } else {
-              linktext = amber.get_text("timegate_without_date");
-            }
-            cachelink.innerHTML = amber.replace_args(cachelink.innerHTML, {
-                '{{MEMENTO_MESSAGE}}' : linktext,
-              });
-            /* Update hover div */
-            var hover = document.querySelectorAll(".amber-hover")[0];
-            hover.className = hover.className + " memento-found";
-            hover.style.top = (pos.top - 20) + "px";
-          }
-        });
+          });
 
       }, delay * 1000);
       this.setAttribute("amber-timer",timer);
@@ -341,6 +344,7 @@ var amber = {
   },
 
   end_link_hover : function (e) {
+    amber.hovering_on_link = false;
     var behavior = amber.parse_behavior(this.getAttribute("data-amber-behavior"));
     if (amber.execute_action(behavior,"hover")) {
       clearTimeout(this.getAttribute("amber-timer"));
@@ -349,10 +353,10 @@ var amber = {
          Add some special handling if the hover display is 0, to avoid wierdness */
       var delay = behavior[amber.country] ? behavior[amber.country].delay : behavior.default.delay;
       setTimeout(function() {
-        if (!amber.hovering_on_popup) {
+        if (!amber.hovering_on_popup && !amber.hovering_on_link) {
           amber.clear_hover();
         }
-      }, Math.min(100,delay * 1000));
+      }, 1000);
     }
   },
 
@@ -373,6 +377,11 @@ var amber = {
         request.send();
       });
     });    
+  },
+
+  hover_up : function(e) {
+    var hover = document.querySelectorAll(".amber-hover")[0];
+    return (typeof hover != typeof undefined);
   },
 
   clear_hover : function (e) {
