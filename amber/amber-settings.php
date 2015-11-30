@@ -82,13 +82,6 @@ class AmberSettingsPage
         );      
 
         add_settings_field(
-            'amber_post_types', 
-            'Included post types', 
-            array( $this, 'amber_post_types_callback' ), 
-            'amber-settings-admin', 
-            'amber_cache_section'          
-        );      
-        add_settings_field(
             'amber_max_file', 
             'Maximum file size (kB)', 
             array( $this, 'amber_max_file_callback' ), 
@@ -166,6 +159,13 @@ class AmberSettingsPage
             array( $this, 'amber_aws_region_callback' ), 
             'amber-settings-admin', 
             'amber_cache_section'
+        );      
+        add_settings_field(
+            'amber_post_types', 
+            'Included post types', 
+            array( $this, 'amber_post_types_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'          
         );      
 
         add_settings_field(
