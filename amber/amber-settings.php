@@ -298,7 +298,7 @@ class AmberSettingsPage
         
         add_settings_field(
             'amber_timegate', 
-            'Check a TimeGate server for additional copies of snapshotted content', 
+            'Check a TimeGate server for additional snapshots', 
             array( $this, 'amber_timegate_callback' ), 
             'amber-settings-admin', 
             'amber_services_section'
