@@ -867,7 +867,7 @@ EOF;
 
 	public static function display_meta_boxes($post)
 	{
-		submit_button("Cache links now", "small", "cache_now");
+		submit_button("Preserve links now", "small", "cache_now");
 		wp_nonce_field( 'amber_cache_now', '_wpnonce_amber' ); 
 		print '
 <div id="cache-status"></div>
