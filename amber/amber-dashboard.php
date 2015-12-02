@@ -128,12 +128,12 @@ class Amber_List_Table extends WP_List_Table {
             'site'           => 'Site',
             'url'            => 'URL',
             'status'         => 'Status',
-            'last_checked'   => 'Last Checked',
+            'last_checked'   => 'Last checked',
             'date'           => 'Date preserved',
             'size'           => 'Size (kB)',
             'activity_date'  => 'Last viewed',
             'views'          => 'Total views',
-            'method'         => 'Archive Method',
+            'method'         => 'Storage method',
             'message'        => 'Notes',
         );
         return $columns;
@@ -366,9 +366,9 @@ class AmberDashboardPage
                     </table>
 
                     <?php submit_button("Delete all snapshots", "small", "delete_all"); ?>
-                    <?php submit_button("Scan content for links to snapshot", "small", "scan"); ?>
+                    <?php submit_button("Scan content for links to preserve", "small", "scan"); ?>
                     <?php submit_button("Snapshot all new links", "small", "cache_now"); ?>
-                    <?php submit_button("Export list of preserved content", "small", "export"); ?>
+                    <?php submit_button("Export list of snapshots", "small", "export"); ?>
                     
                 </div>            
             </form>

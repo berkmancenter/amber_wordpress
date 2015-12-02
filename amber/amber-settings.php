@@ -298,7 +298,7 @@ class AmberSettingsPage
         
         add_settings_field(
             'amber_timegate', 
-            'Check a TimeGate server for additional copies of snapshotted content', 
+            'Check a TimeGate server for additional snapshots', 
             array( $this, 'amber_timegate_callback' ), 
             'amber-settings-admin', 
             'amber_services_section'
@@ -507,7 +507,7 @@ jQuery(document).ready(function($) {
                     <option value="<?php echo AMBER_BACKEND_AMAZON_S3; ?>" <?php if ( $option == AMBER_BACKEND_AMAZON_S3 ) { echo 'selected="selected"'; } ?>>Amazon Web Services S3</option>
                 <?php } ?>
             </select> 
-            <p class="description">Amber can store snapshots locally, in your website's storage space. If you prefer, you can store snapshots in an alternative backend. At this time, Amber is compatible with the following services: <a href="http://perma.cc/" target="_blank">Perma.cc</a>, the Internet Archive, and Amazon Web Services S3.</p>
+            <p class="description">Amber can store snapshots locally, in your website's storage space. If you prefer, you can store snapshots in an alternative backend. At this time, Amber is compatible with the following services: <a href="https://perma.cc/" target="_blank">Perma.cc</a>, the <a href="https://archive.org" target="_blank">Internet Archive</a>, and <a href="https://aws.amazon.com/s3/">Amazon S3</a>.</p>
         <?php
     }
 
@@ -540,7 +540,7 @@ jQuery(document).ready(function($) {
                 echo '<option value="'. $post_type->name .'">' . $post_type->label . '</option>' . PHP_EOL;
             }
         }
-        printf('</select><p class="description">TK</p>');
+        printf('</select><p class="description">Preserve snapshots from particular <a href="https://codex.wordpress.org/Post_Types" target="_blank">post types</a>, including custom post types.</p>');
     }
 
     public function amber_max_file_callback()
@@ -671,7 +671,7 @@ jQuery(document).ready(function($) {
             <select id="amber_available_action" name="amber_options[amber_available_action]">
                 <option value="<?php echo AMBER_ACTION_NONE; ?>" <?php if ( $option == AMBER_ACTION_NONE ) { echo 'selected="selected"'; } ?>>None</option>
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
-                <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Popup</option>
+                <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Pop-up</option>
             </select> 
             <p class="description">How a visitor to your site will experience links to pages that are currently available.</p>
         <?php
@@ -684,7 +684,7 @@ jQuery(document).ready(function($) {
             <select id="amber_unavailable_action" name="amber_options[amber_unavailable_action]">
                 <option value="<?php echo AMBER_ACTION_NONE; ?>" <?php if ( $option == AMBER_ACTION_NONE ) { echo 'selected="selected"'; } ?>>None</option>
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
-                <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Popup</option>
+                <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Pop-up</option>
                 <option value="<?php echo AMBER_ACTION_CACHE; ?>" <?php if ( $option == AMBER_ACTION_CACHE ) { echo 'selected="selected"'; } ?>>Link directly to Snapshot</option>
             </select> 
             <p class="description">How a visitor to your site will experience links to pages that are currently unavailable.</p>
@@ -737,7 +737,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_timegate" name="amber_options[amber_timegate]" value="%s" />' .
-            '<p class="description">Optional: Request additional snapshots from the Internet Archive, the Library of Congress web archive, archive.today, and more</p>',
+            '<p class="description">Optional: Request additional snapshots from the Internet Archive, the Library of Congress web archive, archive.today, and more.</p>',
             isset( $this->options['amber_timegate'] ) ? esc_attr( $this->options['amber_timegate']) : ''
         );
     }
@@ -766,7 +766,7 @@ jQuery(document).ready(function($) {
             <select class="country_field" id="amber_country_available_action" name="amber_options[amber_country_available_action]">
                 <option value="<?php echo AMBER_ACTION_NONE; ?>" <?php if ( $option == AMBER_ACTION_NONE ) { echo 'selected="selected"'; } ?>>None</option>
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
-                <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Popup</option>
+                <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Pop-up</option>
             </select> 
             <p class="description">How a visitor to your site will experience links to pages that are currently available.</p>
         <?php
@@ -779,7 +779,7 @@ jQuery(document).ready(function($) {
             <select class="country_field" id="amber_country_unavailable_action" name="amber_options[amber_country_unavailable_action]">
                 <option value="<?php echo AMBER_ACTION_NONE; ?>" <?php if ( $option == AMBER_ACTION_NONE ) { echo 'selected="selected"'; } ?>>None</option>
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
-                <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Popup</option>
+                <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Pop-up</option>
                 <option value="<?php echo AMBER_ACTION_CACHE; ?>" <?php if ( $option == AMBER_ACTION_CACHE ) { echo 'selected="selected"'; } ?>>Link directly to Snapshot</option>
             </select> 
             <p class="description">How a visitor to your site will experience links to pages that are currently unavailable.</p>
