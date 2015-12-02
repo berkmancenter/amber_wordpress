@@ -175,7 +175,7 @@ class Amber {
 	    	case AMBER_BACKEND_LOCAL:
 	    		$fetcher = new AmberFetcher(Amber::get_storage_instance($backend), array(
 		      		'amber_max_file' => Amber::get_option('amber_max_file',1000),
-	    	  		'header_text' => "You are viewing an archive of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
+	    	  		'header_text' => "You are viewing a snapshot of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
 	      			'amber_excluded_formats' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
     			));
 		        break;
@@ -193,7 +193,7 @@ class Amber {
 	    	case AMBER_BACKEND_AMAZON_S3:
 	    		$fetcher = new AmberFetcher(Amber::get_storage_instance($backend), array(
 		      		'amber_max_file' => 5000000, /* Max size for S3 file */
-	    	  		'header_text' => "You are viewing an archive of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
+	    	  		'header_text' => "You are viewing a snapshot of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
 	      			'amber_excluded_formats' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
     			));
 		        break;
