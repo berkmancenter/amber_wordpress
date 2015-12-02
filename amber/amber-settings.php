@@ -507,7 +507,7 @@ jQuery(document).ready(function($) {
                     <option value="<?php echo AMBER_BACKEND_AMAZON_S3; ?>" <?php if ( $option == AMBER_BACKEND_AMAZON_S3 ) { echo 'selected="selected"'; } ?>>Amazon Web Services S3</option>
                 <?php } ?>
             </select> 
-            <p class="description">Amber can store snapshots locally, in your website's storage space. If you prefer, you can store snapshots in an alternative backend. At this time, Amber is compatible with the following services: <a href="http://perma.cc/" target="_blank">Perma.cc</a>, the Internet Archive, and Amazon Web Services S3.</p>
+            <p class="description">Amber can store snapshots locally, in your website's storage space. If you prefer, you can store snapshots in an alternative backend. At this time, Amber is compatible with the following services: <a href="https://perma.cc/" target="_blank">Perma.cc</a>, the <a href="https://archive.org" target="_blank">Internet Archive, and <a href="https://aws.amazon.com/s3/">Amazon S3</a>.</p>
         <?php
     }
 
