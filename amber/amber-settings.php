@@ -737,7 +737,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_timegate" name="amber_options[amber_timegate]" value="%s" />' .
-            '<p class="description">Optional: Request additional snapshots from the Internet Archive, the Library of Congress web archive, archive.today, and more</p>',
+            '<p class="description">Optional: Request additional snapshots from the Internet Archive, the Library of Congress web archive, archive.today, and more.</p>',
             isset( $this->options['amber_timegate'] ) ? esc_attr( $this->options['amber_timegate']) : ''
         );
     }
