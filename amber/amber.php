@@ -884,10 +884,10 @@ jQuery(document).ready(function($) {
 				var failed = response.failed.join("<br/>");
 				var result = "";
 				if (cached) {
-					result += "<p><strong>These links were cached successfully</strong><br/>" + cached + "</p>";
+					result += "<p><strong>These links were preserved successfully</strong><br/>" + cached + "</p>";
 				}
 				if (failed) {
-					result += "<p><strong>These links were not cached</strong><br/>" + failed + "</p>";
+					result += "<p><strong>These links were not preserved</strong><br/>" + failed + "</p>";
 				}
 				if (!result) {
 					result = "No links found";					
