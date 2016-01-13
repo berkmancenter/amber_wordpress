@@ -90,7 +90,7 @@ class Amber {
 		    	$storage = new InternetArchiveStorage(array());
 		    	break;
 	        case AMBER_BACKEND_AMAZON_S3:
-				require_once("vendor/aws/aws-autoloader.php");
+/*				require_once("vendor/aws/aws-autoloader.php");*/
 				$storage = new AmazonS3Storage(array(
 					'access_key' => Amber::get_option('amber_aws_access_key',''),
 					'secret_key' => Amber::get_option('amber_aws_secret_key',''),
