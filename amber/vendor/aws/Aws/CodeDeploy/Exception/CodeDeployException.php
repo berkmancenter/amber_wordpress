@@ -1,9 +1,10 @@
 <?php
+
 namespace Aws\CodeDeploy\Exception;
 
-use Aws\Exception\AwsException;
+use Aws\Common\Exception\ServiceResponseException;
 
 /**
- * Represents an error interacting with AWS CodeDeploy.
+ * Exception thrown by the CodeDeploy service client.
  */
-class CodeDeployException extends AwsException {}
+class CodeDeployException extends ServiceResponseException {}
