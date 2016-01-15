@@ -1,0 +1,264 @@
+/* Interstitial page */
+.amber-overlay {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: white;
+  opacity: 0.5;
+  z-index: 999998;
+}
+
+.amber-interstitial {
+  height: 515px;
+  width: 475px;
+  top: 200px;
+  position: fixed;
+  border-radius: 4px;
+  background-color: #34495e;
+  color: white;
+  font-family: Arial, sans-serif;      
+  line-height: 28px;
+  z-index: 999999;
+}                          
+
+.amber-interstitial.amber-down {
+  background: #34495e url(alert-large.png) center 30px no-repeat;
+}
+
+.amber-interstitial a.amber-close {                                               
+  float: right;
+  display: block;                                                
+  width: 25px;
+  height: 25px;
+  margin: 15px 15px 0 0;
+  background: url(close-button.png) top left no-repeat;
+} 
+
+.amber-body {
+  padding: 100px 50px 15px;
+  text-align: center;
+}                  
+
+.amber-interstitial .amber-status-text {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.amber-interstitial .amber-cache-text {
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #6294c8;
+
+}
+
+.amber-interstitial a.amber-focus {
+  color: white;
+  font-weight: bold;
+  border-radius: 4px;
+  font-size: 24px;
+  text-decoration: none !important;
+  background-color: #86b0dc;
+  padding: 10px 30px;
+  width: 250px;
+  display: inline-block;
+  margin-bottom: 50px;
+}
+
+.amber-interstitial a.amber-memento-link {
+  display: none;
+}
+
+.amber-interstitial a.amber-memento-link.found {
+  color: white;
+  top: -40px;
+  height: 10px;
+  margin: 0 auto -10px auto;
+  position: relative;
+  display: block;
+  width: 250px;
+  font-size: 12px;
+  line-height: 14px;
+}
+
+.amber-iframe-container {
+  height: 140px;
+  width: 230px;
+  margin: 0 auto;
+  background-color: white;
+  overflow: hidden;
+}
+
+.amber-iframe-container > a {
+  display: block;
+  position: absolute;
+  height: 140px;
+  width: 230px;
+  z-index: 999999;
+}
+
+.amber-interstitial iframe {
+  width: 400%;
+  height: 400%;
+  max-width: 400%;
+  max-height: 400%;
+  overflow: hidden;
+  zoom: 0.25;
+  -moz-transform: scale(0.25);
+  -moz-transform-origin: 0 0;
+  -o-transform: scale(0.25);
+  -o-transform-origin: 0 0;
+  -webkit-transform: scale(0.25);
+  -webkit-transform-origin: 0 0;  
+}
+
+.amber-interstitial a.amber-original-link {
+  margin-top: -190px;
+  padding-top: 190px;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  color: white;
+  text-decoration: underline !important;
+}
+
+.amber-interstitial a.amber-info {
+  margin-top: 50px;
+  margin-right: 10px;
+}
+
+
+/* Hover */
+
+.amber-hover {
+ position: absolute;
+ font-family: Arial, sans-serif;
+ font-size: 13px;
+ color: white;             
+ border-radius: 4px;
+ background-color: #34495e;
+ min-width: 380px;
+ z-index: 999999;
+ padding-right: 15px;
+ box-sizing: content-box;
+}
+
+.amber-arrow {
+  position: absolute;
+  width: 8px;
+  height: 8px;                               
+  margin-top: -4px;
+  margin-left: 60px;
+  background-color: #5b88b3;
+  transform: rotate(45deg);                                                       
+  -webkit-transform: rotate(45deg);                                                       
+}        
+
+.amber-hover .amber-text {
+  border-radius: 4px 4px 0 0;
+  width: 100%;
+  line-height: 20px;
+  padding: 8px 15px 4px 0;
+  background-color: #34495e;
+}
+
+.amber-hover.memento-found .amber-text {
+  padding-bottom: 0;
+}
+
+.amber-hover .amber-status-text {
+  font-weight: bold;
+  padding-left: 40px;
+  background-position: 8px center;
+  background-repeat: no-repeat;
+}
+
+.amber-hover.amber-up .amber-status-text {
+  background-image: url(check-small.png);
+}
+
+.amber-hover.amber-down .amber-status-text {
+  background-image: url(alert-small.png);
+}
+
+.amber-hover .amber-cache-text {
+  padding-left: 40px;
+  color: #86b0dc;
+}
+
+.amber-hover a.amber-info {
+  margin-top: 8px;
+  margin-right: -5px;
+}
+
+.amber-hover .amber-links {
+  border-radius: 0 0 4px 4px;
+  padding: 8px 15px 8px 0;
+  width: 100%;
+  background-color: #5b88b3;
+}
+
+.amber-hover .amber-links a {
+  color: white !important;
+  display: inline-block;
+  font-size: 12px;
+  text-decoration: underline !important;
+  line-height: 30px;
+  margin-left: 30px;
+}
+
+.amber-hover .amber-links a:first-child {
+  margin-left: 40px;
+}
+
+.amber-hover .amber-links a:hover {
+  color: white !important;
+}
+
+.amber-hover a.amber-memento-link {
+  display: none;
+}
+
+.amber-hover.memento-found a.amber-memento-link {
+  color: white !important;
+  display: block;
+  height: 20px;
+  padding-left: 40px;
+  padding-bottom: 4px;
+  font-size: 10px;
+  line-height: 20px;
+  background-color: #34495e;
+  z-index: 9999999;
+}
+
+.amber-hover a.amber-focus {
+  font-weight: bold;
+  border-radius: 4px;
+  font-size: 14px;
+  text-decoration: none !important;
+  background-color: #86b0dc;
+  padding: 0 25px;
+}
+
+/* Both */
+
+a.amber-info {
+  float: right;
+  text-align: center;
+  text-decoration: none;
+  width: 15px;
+  height: 15px;
+  line-height: 15px;
+  color: #34495e;
+  background-color: #86b0dc;
+  border: 0 solid transparent;
+  border-radius: 50%;
+}
+
+a.amber-info:hover {
+  color: white;
+}
