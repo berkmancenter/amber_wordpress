@@ -421,11 +421,11 @@ class AmberSettingsPage
                       'bucket' => $input['amber_aws_bucket'],
                       'region' => $input['amber_aws_region'],
                     ));
-            } catch (\Aws\S3\Exception\S3Exception $e) {
-                add_settings_error('amber_backend', 'amber_backend', "There is a problem with the provided Amazon 
-                configuration. Check that the access key and secret key are correct, 
+            } catch (Exception $e) {
+                add_settings_error('amber_backend', 'amber_backend', "There is a problem with the provided Amazon
+                configuration. Check that the access key and secret key are correct,
                 and that they provide write access to the selected bucket. Ensure that
-                your bucket name is unique - it cannot have the same name as any other 
+                your bucket name is unique - it cannot have the same name as any other
                 bucket in S3.");
             }
         }
