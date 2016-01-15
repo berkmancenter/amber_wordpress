@@ -11,14 +11,14 @@ class AmazonS3Storage extends AmberStorage implements iAmberStorage  {
 		}
 		$bucket = $options['bucket'];
 	  	parent::__construct('s3://' . $bucket);
-	  	$this->aws = new Aws\S3\S3Client(array(
+
+		$credentials = new Aws\Common\Credentials\Credentials($options['access_key'], $options['secret_key']);
+
+	  	$this->aws = Aws\S3\S3Client::factory(array(
 			'version' => 'latest',
 			'region' => $options['region'],
-	  		'credentials' => array(
-	  			'key' => $options['access_key'],
-	  			'secret' => $options['secret_key'],
-			)));
-		$this->aws->registerStreamWrapper();   
+	  		'credentials' => $credentials));
+		$this->aws->registerStreamWrapper();
 
 		/* Create bucket for storage, if it does not already exist,
 		   and confirm that we have write access to the selected bucket.
@@ -29,7 +29,7 @@ class AmazonS3Storage extends AmberStorage implements iAmberStorage  {
 			@mkdir($this->file_root);
 		}
 		@$this->aws->PutObject(array("Bucket" => $bucket,
-								  "Key" => "credentials_test", 
+								  "Key" => "credentials_test",
 								  "Body" => "It works"));
 		@$this->aws->DeleteObject(array("Bucket" => $bucket,
 								     "Key" => "credentials_test"));
