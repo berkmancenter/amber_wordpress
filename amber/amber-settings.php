@@ -503,7 +503,7 @@ jQuery(document).ready(function($) {
                 <option value="<?php echo AMBER_BACKEND_LOCAL; ?>" <?php if ( $option == AMBER_BACKEND_LOCAL ) { echo 'selected="selected"'; } ?>>Local</option>
                 <option value="<?php echo AMBER_BACKEND_PERMA; ?>" <?php if ( $option == AMBER_BACKEND_PERMA ) { echo 'selected="selected"'; } ?>>Perma.cc</option>
                 <option value="<?php echo AMBER_BACKEND_INTERNET_ARCHIVE; ?>" <?php if ( $option == AMBER_BACKEND_INTERNET_ARCHIVE ) { echo 'selected="selected"'; } ?>>Internet Archive</option>
-                <?php if (version_compare(PHP_VERSION, "5.5") >= 0) { ?>
+                <?php if (version_compare(PHP_VERSION, "5.3.3") >= 0) { ?>
                     <option value="<?php echo AMBER_BACKEND_AMAZON_S3; ?>" <?php if ( $option == AMBER_BACKEND_AMAZON_S3 ) { echo 'selected="selected"'; } ?>>Amazon Web Services S3</option>
                 <?php } ?>
             </select>
