@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Amber
- * Plugin URI: https://github.com/berkmancenter/amber_wordpress
+ * Plugin URI: http://amberlink.org
  * Description: Amber keeps links working on blogs and websites.
  * Version: 1.4
  * Author: Berkman Center for Internet & Society
@@ -877,7 +877,7 @@ jQuery(document).ready(function($) {
 		print "var data = { 'action': 'amber_cache_now', 'id': '$post->ID', '_wpnonce': $('#_wpnonce_amber').val() };";
 		print '
 	$("input#cache_now").click(function(){
-		$("div#cache-status").html("Caching links...")
+		$("div#cache-status").html("Preserving links...")
 		$.post(ajaxurl, data, function(response) {
 			if (response) {
 				var cached = response.cached.join("<br/>");
