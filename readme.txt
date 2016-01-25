@@ -48,6 +48,13 @@ For additional information on intellectual property issues that concern bloggers
 
 Amber respects the Robots Exclusion Standard and does not preserve any web page that opts out of web crawling via this protocol. It also uses the user agent "Amber" when preserving web pages, which you can choose to disallow on your website. You can read a full overview at [Amberlink.org](http://amberlink.org/fetcher/).
 
+== Screenshots ==
+
+1. If a link on your website were to go down, Amber provides your visitors with a snapshot of that link.
+2. Mobile compatibility provides all visitors with the ability to view these snapshots.
+3. You can configure the snapshot storage and delivery preferences to fit the needs of your website and visitors.
+4. Ensure the content to which you link never vanishes down the memory hole.
+
 == Changelog ==
 
 = Version 1.4 =
