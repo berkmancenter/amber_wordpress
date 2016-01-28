@@ -12,6 +12,8 @@ Amber keeps links working on blogs and websites.
 
 == Description ==
 
+[youtube http://www.youtube.com/watch?v=25Kz7PqapG4]
+
 Whether links fail because of DDoS attacks, censorship, or just plain old link rot, reliably accessing linked content is a problem for Internet users everywhere. The more routes we provide to information, the more all people can freely share that information, even in the face of filtering or blockages. Amber adds to these routes.
 
 Amber automatically preserves a snapshot of every page linked to on a website, giving visitors a fallback option if links become inaccessible. If one of the pages linked to on this website were to ever go down, Amber can provide visitors with access to an alternate version. This safeguards the promise of the URL: that information placed online can remain there, even amidst network or endpoint disruptions.
