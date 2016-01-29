@@ -359,9 +359,9 @@ class Amber {
 	 * Add our CSS and Javascript to every page
 	 */
 	public static function register_plugin_assets() {
-		wp_register_style('amber', plugins_url('amber/css/amber.css'));
+		wp_register_style('amber', plugins_url('css/amber.css', __FILE__));
 		wp_enqueue_style('amber');
-		wp_register_script('amber', plugins_url('amber/js/amber.js'));
+		wp_register_script('amber', plugins_url('js/amber.js', __FILE__));
 		wp_enqueue_script('amber');
 		wp_localize_script('amber', 'amber_config', array(
 			'lookup_availability' => (AMBER_EXTERNAL_AVAILABILITY_NETCLERK == Amber::get_option('amber_external_availability', AMBER_EXTERNAL_AVAILABILITY_NONE)),
