@@ -59,6 +59,9 @@ Amber respects the Robots Exclusion Standard and does not preserve any web page 
 
 == Changelog ==
 
+= Version 1.4.1 =
+Fixed an issue with displaying saved pages to viewers. All users should upgrade Amber to v1.4.1
+
 = Version 1.4 =
 *Release date: December 7, 2015*
 
