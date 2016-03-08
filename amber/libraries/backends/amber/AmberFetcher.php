@@ -19,10 +19,9 @@ class AmberFetcher implements iAmberFetcher {
   /**
    * Fetch the URL and associated assets and pass it on to the designated Storage service
    * @param $url
-   * @return 
+   * @return
    */
   public function fetch($url) {
-
     if (!$url) {
       throw new RuntimeException("Empty URL");
     }
@@ -42,8 +41,9 @@ class AmberFetcher implements iAmberFetcher {
 
     $size = $root_item['info']['size_download'];
     if ($size == 0) {
-      throw new RuntimeException("Empty document"); 
+      throw new RuntimeException("Empty document");
     }
+
     // Get other assets
     if (isset($root_item['headers']['Content-Type']) &&
         ($content_type = $root_item['headers']['Content-Type']) &&
@@ -54,10 +54,10 @@ class AmberFetcher implements iAmberFetcher {
       $asset_paths = $this->assetHelper->extract_assets($body);
       /* Use the url of the document we end up downloading as a reference point for
          relative asset references, since we may have been redirected from the one
-         we originally requested. */ 
-      $assets = $this->assetHelper->expand_asset_references($root_item['info']['url'], $asset_paths, 
+         we originally requested. */
+      $assets = $this->assetHelper->expand_asset_references($root_item['info']['url'], $asset_paths,
                                                             $this->assetHelper->extract_base_tag($body));
-      $assets = $this->download_assets($assets, $root_item['info']['url']); 
+      $assets = $this->download_assets($assets, $root_item['info']['url']);
       $assets = $this->download_css_assets_recursive($assets, $root_item['info']['url'], $size);
       $body = $this->assetHelper->rewrite_links($body, $assets);
       $body = $this->assetHelper->insert_banner($body, $this->headerText, array("url" => $url, "date" => date('Y/m/d')));
@@ -72,11 +72,11 @@ class AmberFetcher implements iAmberFetcher {
     if ($this->storage && $root_item) {
       $result = $this->storage->save($url, $root_item['body'], $root_item['headers'], isset($assets) ? $assets : array());
       if (!$result) {
-        throw new RuntimeException("Could not save cache");  
+        throw new RuntimeException("Could not save cache");
       }
       $storage_metadata = $this->storage->get_metadata($url);
       if (!$storage_metadata || empty($storage_metadata)) {
-        throw new RuntimeException("Could not retrieve metadata");   
+        throw new RuntimeException("Could not retrieve metadata");
       }
       //TODO: If cannot retrieve storage metadata, or id/url/cache not populated (perhaps due to permissions errors
       //      in saving the cache), fail more gracefully instead of with errors because the keys are not set
@@ -97,7 +97,7 @@ class AmberFetcher implements iAmberFetcher {
 
   /**
    * Given a list of assets (CSS, images, javascript, etc.) to download, also download any assets referenced
-   * from any CSS files in the list. For example, background images, or incldued CSS files. 
+   * from any CSS files in the list. For example, background images, or incldued CSS files.
    * Repeat until all referenced CSS files have been processed
    * @param $assets array of assets to scan for referenced assets
    * @param $base string with the URL of the document that included the assets (needed for relative paths)
@@ -122,8 +122,8 @@ class AmberFetcher implements iAmberFetcher {
         $css_assets = $this->download_assets($css_assets, $url);
 
         if (!empty($css_assets)) {
-          $css_assets = $this->download_css_assets_recursive($css_assets,$value['url'],$size,$max_depth - 1);  
-        } 
+          $css_assets = $this->download_css_assets_recursive($css_assets,$value['url'],$size,$max_depth - 1);
+        }
 
         $all_css_assets = array_merge($all_css_assets, $css_assets);
         $css_body = $this->assetHelper->rewrite_links($css_body, $css_assets, $value['url']);
@@ -134,10 +134,10 @@ class AmberFetcher implements iAmberFetcher {
     return $assets;
   }
 
-  /** 
+  /**
    * Tell if a file should be cached or not
    */
-  private function cacheable_item($data, &$reason) {    
+  private function cacheable_item($data, &$reason) {
     $reason = "";
     if ($data['info']['size_download'] > ($this->maxFileSize * 1024)) {
       $reason = "File size too large";
@@ -148,9 +148,9 @@ class AmberFetcher implements iAmberFetcher {
       foreach ($this->excludedContentTypes as $exclude) {
         if (trim($exclude) && (strpos(strtolower($content_type), trim($exclude)) !== FALSE)) {
           $reason = "Content type not allowed";
-          return FALSE;  
+          return FALSE;
         }
-      }      
+      }
     }
     if (AmberNetworkUtils::find_meta_no_archive($data['body'])) {
       $reason = "noarchive/noindex meta tag found";
@@ -184,7 +184,7 @@ class AmberFetcher implements iAmberFetcher {
     $response = AmberNetworkUtils::open_multi_url($urls, array(CURLOPT_REFERER => $url));
     foreach ($assets as $key => $asset) {
       if (is_array($response[$asset['url']])) {
-        $result[$key] = array_merge($response[$asset['url']],$asset);        
+        $result[$key] = array_merge($response[$asset['url']],$asset);
       }
     }
     return $result;
@@ -205,7 +205,7 @@ class AmberAssetHelper {
   public function extract_assets($body, $dom = null) {
     if ($body) {
       if (!$dom) {
-        $dom = $this->get_dom($body);        
+        $dom = $this->get_dom($body);
       }
 
       $refs = $this->extract_dom_tag_attributes($dom, 'img', 'src');
@@ -228,14 +228,14 @@ class AmberAssetHelper {
     $dom->loadHTML($body);
     libxml_clear_errors();
     libxml_use_internal_errors($old_setting);
-    return $dom;    
+    return $dom;
   }
 
   public function extract_css_assets($body) {
     $refs = $this->extract_css_assets_urls($body);
     $refs = array_merge($refs,$this->extract_css_asset_imports($body));
     $refs = array_filter($refs, array($this, "filter_css_asset_names"));
-    return $refs;    
+    return $refs;
   }
 
   public function extract_css_assets_urls($body) {
@@ -261,18 +261,18 @@ class AmberAssetHelper {
   /* The CSS asset detection function relies on regular expressions, not on
      parsing the DOM. Therefore, when called on HTML files that contain embedded
      javscript, there can be false positives where a function signature looks
-     like a file reference from a CSS file. For example: given 
+     like a file reference from a CSS file. For example: given
      "function url(link)", the text 'link' gets incorrectly detected as an asset. This
      shouldn't be a problem, since the asset won't get downloaded, UNLESS the
-     site doesn't serve a 404 when it's reqested. (bad! bad!). In such a case, 
-     we replace all instances of "link" in the HTML doc with the asset path, 
+     site doesn't serve a 404 when it's reqested. (bad! bad!). In such a case,
+     we replace all instances of "link" in the HTML doc with the asset path,
      leading to predictably messy results.
 
-     Therefore, this function, which filters out some 'known bad' asset names, 
+     Therefore, this function, which filters out some 'known bad' asset names,
      those that if applied through search-replace to the HTML document would
      cause problems. This is a partial solution to a broader problem, which is
-     that our current search-replace logic is vulnerable to collisions between 
-     asset paths and HTML text that doesn't represent an asset path. A more 
+     that our current search-replace logic is vulnerable to collisions between
+     asset paths and HTML text that doesn't represent an asset path. A more
      complete solution could involve smarter regexes, or using DOM parsing logic
      as part of the search-replace process.
   */
@@ -282,7 +282,7 @@ class AmberAssetHelper {
 
   /**
    * Given a page URL and a list of assets referenced from that page, return an array list of absolute URIs
-   * to each of the assets keyed by the path used to reference it. 
+   * to each of the assets keyed by the path used to reference it.
    * @param $page_url
    * @param $assets
    * @param $html_base string with the contents of the <base> tag from the page, if exists
@@ -309,7 +309,7 @@ class AmberAssetHelper {
         $parsed_asset_copy = parse_url($asset_copy);
         $asset_path = $asset_copy;
         if ($parsed_asset_copy) {
-          if (!isset($parsed_asset_copy['host'])) {          
+          if (!isset($parsed_asset_copy['host'])) {
             if (!($asset_path && $asset_path[0] == '/')) {
               /* Relative path */
               if ($html_base) {
@@ -320,7 +320,7 @@ class AmberAssetHelper {
               }
             }
             $asset_path = preg_replace("/^\\//","", $asset_path); /* Remove leading '/' */
-            $asset_path = join('/',array($server, $asset_path));            
+            $asset_path = join('/',array($server, $asset_path));
           }
           $result[$asset]['url'] = $asset_path;
         }
@@ -345,7 +345,7 @@ class AmberAssetHelper {
           $base = '../' . $base;
       }
       foreach ($assets as $key => $asset) {
-        /* Don't rewrite a link which points to an asset that we weren't able to fetch. 
+        /* Don't rewrite a link which points to an asset that we weren't able to fetch.
            That could indicate that we've flagged something that's not actually a link. */
         if (!empty($asset['body'])) {
           $p = join("/",array($base, $this->storage->build_asset_path($asset)));
@@ -363,10 +363,10 @@ class AmberAssetHelper {
     return $result;
   }
 
-  /** 
-   * Rewrite the "<base href='foo'/>" tag in the header if it exists. This tag sets the base URL from which 
+  /**
+   * Rewrite the "<base href='foo'/>" tag in the header if it exists. This tag sets the base URL from which
    * relative URLs are relative to, which gives us problems if it refers back to the original site.
-   **/ 
+   **/
   public function rewrite_base_tag($body) {
     $body = preg_replace('/<base\s+href=[\'"]\S+[\'"]\s*\/?>/','',$body,1);
     return $body;
@@ -447,7 +447,7 @@ EOD;
     $attribute = "";
     if ($body) {
       if (!$dom) {
-        $dom = $this->get_dom($body);        
+        $dom = $this->get_dom($body);
       }
       foreach ($dom->getElementsByTagName('base') as $t) {
         if ($t->hasAttribute('href')) {
@@ -469,7 +469,7 @@ class AmberRobots {
    * @param $url
    * @return bool
    */
-  public static function url_permitted($robots, $url) { 
+  public static function url_permitted($robots, $url) {
     /* Sanity check to ensure that this actually a robots.txt file */
     if ((stripos($robots, "user-agent") === FALSE) || (stripos($robots, "disallow") === FALSE))
       return true;
@@ -491,7 +491,7 @@ class AmberRobots {
     if (isset($data['info']['http_code']) && ($data['info']['http_code'] == 200)) {
       $body = $data['body'];
       return (!$body || AmberRobots::url_permitted($body, $url));
-    } 
+    }
     return true;
   }
 

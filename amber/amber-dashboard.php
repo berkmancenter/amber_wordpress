@@ -7,24 +7,24 @@ if(!class_exists('WP_List_Table')){
 global $wpdb;
 
 class Amber_List_Table extends WP_List_Table {
-    
+
     function __construct(){
         global $status, $page, $wpdb;
-                
+
         //Set parent defaults
         parent::__construct( array(
             'singular'  => 'snapshot',     //singular name of the listed records
             'plural'    => 'snapshots',    //plural name of the listed records
             'ajax'      => false          //does this table support ajax?
         ) );
-        
+
     }
 
     function get_report() {
         global $wpdb;
         $prefix = $wpdb->prefix;
 
-        $statement = 
+        $statement =
             "SELECT c.id, c.url, c.status, c.last_checked, c.message, ca.date, ca.size, ca.provider, ca.location, a.views, a.date as activity_date, substring_index(c.url,'://',-1) as url_sort " .
             "FROM ${prefix}amber_check c " .
             "LEFT JOIN ${prefix}amber_cache ca on ca.id = c.id " .
@@ -42,7 +42,7 @@ class Amber_List_Table extends WP_List_Table {
         }
 
         $rows = $wpdb->get_results($statement, ARRAY_A);
-        return $rows;        
+        return $rows;
     }
 
     /** Column display functions **/
@@ -58,10 +58,10 @@ class Amber_List_Table extends WP_List_Table {
             } else {
                 $url = join('/',array(get_site_url(),htmlspecialchars($item['location'])));
             }
-            $actions['view'] =  "<a href='${url}'>View</a>";     
+            $actions['view'] =  "<a href='${url}'>View</a>";
         }
         if (!empty($item['id'])) {
-            $url = join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard")) 
+            $url = join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard"))
             . "&delete=" . $item['id']
             . "&provider=" . $item['provider'];
             $params = array('orderby', 'order');
@@ -69,7 +69,7 @@ class Amber_List_Table extends WP_List_Table {
                 if (isset($_REQUEST[$param])) {
                     $url .= "&${param}=" . $_REQUEST[$param];
                 }
-            }    
+            }
             $url = wp_nonce_url($url, 'delete_link_' . $item['id']);
             $actions['delete'] = "<a href='${url}'>Delete</a>";
         }
@@ -123,7 +123,7 @@ class Amber_List_Table extends WP_List_Table {
             case AMBER_BACKEND_LOCAL:
               return "Local storage";
               break;
-        } 
+        }
     }
 
     /** Define the columns and sortable columns for the table **/
@@ -170,7 +170,7 @@ class Amber_List_Table extends WP_List_Table {
         $this->_column_headers = array($columns, $hidden, $sortable);
 
         /** Load the data from the database **/
-        $data = $this->get_report();                
+        $data = $this->get_report();
 
         /** Currently handling pagination within the PHP code **/
         $current_page = $this->get_pagenum();
@@ -179,12 +179,12 @@ class Amber_List_Table extends WP_List_Table {
 
         /** Setup the data for the table **/
         $this->items = $data;
-        
+
         /** Register our pagination options & calculations. **/
         $this->set_pagination_args( array(
-            'total_items' => $total_items,                  
-            'per_page'    => $per_page,                     
-            'total_pages' => ceil($total_items/$per_page)   
+            'total_items' => $total_items,
+            'per_page'    => $per_page,
+            'total_pages' => ceil($total_items/$per_page)
         ) );
     }
 }
@@ -206,11 +206,11 @@ class AmberDashboardPage
      */
     public function add_plugin_page()
     {
-        add_management_page( 
-            'Amber Dashboard', 
-            'Amber Dashboard', 
-            'manage_options', 
-            'amber-dashboard', 
+        add_management_page(
+            'Amber Dashboard',
+            'Amber Dashboard',
+            'manage_options',
+            'amber-dashboard',
             array( $this, 'render_dashboard_page' )
         );
     }
@@ -225,14 +225,14 @@ class AmberDashboardPage
         if (isset($_REQUEST['delete_all'])) {
             $this->delete_all();
         } else if (isset($_REQUEST['delete'])) {
-            $this->delete($_REQUEST['delete'], $_REQUEST['provider']);         
+            $this->delete($_REQUEST['delete'], $_REQUEST['provider']);
         } else if (isset($_REQUEST['export'])) {
-            $this->export();            
+            $this->export();
         }
         /* Since at least one action ('delete') is passed as a GET request in the URL,
          * redirect to this same page, but without that action in the URL. (This prevents
          * problems on refresh, such as deleting the item again). Add back any page parameters
-         * we want to keep before redirecting. (This would not be necessary if submitted 
+         * we want to keep before redirecting. (This would not be necessary if submitted
          * delete requests through a post, with a combination of javascript and hidden fields)
          */
         if (isset($_REQUEST['delete_all']) || isset($_REQUEST['delete'])) {
@@ -268,7 +268,7 @@ class AmberDashboardPage
     private function disk_usage() {
         global $wpdb;
         $status = new AmberStatus(new AmberWPDB($wpdb), $wpdb->prefix);
-        $result = round($status->get_cache_size() / (1024 * 1024), 2);        
+        $result = round($status->get_cache_size() / (1024 * 1024), 2);
         return $result ? $result : 0;
     }
 
@@ -276,27 +276,27 @@ class AmberDashboardPage
         check_admin_referer( 'delete_link_' . $id );
         $storage = Amber::get_storage_instance($provider);
         if (!is_null($storage)) {
-            $storage->delete(array('id' => $id));            
+            $storage->delete(array('id' => $id));
         }
         $status = Amber::get_status();
         $status->delete($id, $provider);
     }
-    
+
     private function delete_all() {
         global $wpdb;
         check_admin_referer('amber_dashboard');
         $storage = Amber::get_storage();
         $storage->delete_all();
         $status = Amber::get_status();
-        $status->delete_all();  
+        $status->delete_all();
         $prefix = $wpdb->prefix;
         $wpdb->query("DELETE from ${prefix}amber_queue");
-    }   
+    }
 
     private function export() {
         global $wpdb;
         $prefix = $wpdb->prefix;
-        $statement = 
+        $statement =
             "SELECT c.id, c.url, c.status, c.last_checked, c.message, ca.date, ca.size, ca.location, a.views, a.date as activity_date " .
             "FROM ${prefix}amber_check c " .
             "LEFT JOIN ${prefix}amber_cache ca on ca.id = c.id " .
@@ -346,19 +346,19 @@ class AmberDashboardPage
 
 
     function render_dashboard_page(){
-        
+
         $this->list_table = new Amber_List_Table();
         $this->list_table->prepare_items();
-        
+
         ?>
         <div class="wrap">
             <form id="amber_dashboard" method="get">
                 <?php wp_nonce_field( 'amber_dashboard' ); ?>
 
                 <div id="icon-users" class="icon32"><br/></div>
-                <h2>Amber Dashboard</h2>           
+                <h2>Amber Dashboard</h2>
 
-                <div id="amber-stats">  
+                <div id="amber-stats">
                     <h3>Global Statistics</h3>
                     <table>
                         <tbody>
@@ -373,8 +373,8 @@ class AmberDashboardPage
                     <?php submit_button("Scan content for links to preserve", "small", "scan"); ?>
                     <?php submit_button("Snapshot all new links", "small", "cache_now"); ?>
                     <?php submit_button("Export list of snapshots", "small", "export"); ?>
-                    
-                </div>            
+
+                </div>
             </form>
             <form  id="amber_dashboard-2">
                 <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
@@ -467,7 +467,7 @@ jQuery(document).ready(function($) {
             if (response) {
                 // Cached a page, check to see if there's another
                 show_status("Preserving..." + response);
-                setTimeout(cache_one, 100);     
+                setTimeout(cache_one, 100);
             } else {
                 show_status_done("Done preserving links");
             }
@@ -484,7 +484,7 @@ jQuery(document).ready(function($) {
         $.post(ajaxurl, data, function(response) {
             if (response && response != 0) {
                 show_status("Scanning content. " + response + " items remaining.");
-                setTimeout(scan_one, 100);      
+                setTimeout(scan_one, 100);
             } else {
                 show_status_done("Done scanning content");
             }
@@ -501,7 +501,7 @@ jQuery(document).ready(function($) {
             } else {
                 show_status_done("No items to scan");
             }
-        });     
+        });
     }
 });
 </script>
