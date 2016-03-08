@@ -99,17 +99,20 @@ class AmberStatus implements iAmberStatus {
    */
   public function save_check(array $data) {
     $prefix = $this->table_prefix;
-
-    foreach (array('last_checked', 'next_check', 'status', 'url') as $key) {
+    foreach (array('url') as $key) {
       if (!array_key_exists($key,$data)) {
         error_log(join(":", array(__FILE__, __METHOD__, "Missing required key when updating status check", $key)));
         return false;
       }
     }
+    foreach (array('last_checked', 'next_check', 'status') as $key) {
+      if (!array_key_exists($key,$data)) {
+        $data[$key] = 0;
+      }
+    }
     if (!isset($data['message'])) {
       $data['message'] = "";
     }
-
     if (!isset($data['id'])) {
       $data['id'] = md5($data['url']);
       //TODO: Remove duplication of this with AmberStorage

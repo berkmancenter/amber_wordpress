@@ -78,19 +78,23 @@ class Amber_List_Table extends WP_List_Table {
     }
 
     function column_status($item) {
-        return $item['status'] ? 'Up' : 'Down';
+        if (empty($item['last_checked'])) {
+            return "";
+        } else {
+            return $item['status'] ? 'Up' : 'Down';
+        }
     }
 
     function column_size($item) {
         if (isset($item['provider']) && ($item['provider'] == AMBER_BACKEND_PERMA)) {
             return "";
         } else {
-            return round($item['size'] / 1024, 2);
+            return !empty($item['size']) ? round($item['size'] / 1024, 2) : "";
         }
     }
 
     function column_last_checked($item) {
-        return isset($item['last_checked']) ? date('r',$item['last_checked']) : "";
+        return !empty($item['last_checked']) ? date('r',$item['last_checked']) : "";
     }
 
     function column_date($item) {
@@ -318,10 +322,10 @@ class AmberDashboardPage
           $rows[] = array(
             'site' => $host,
             'url' => $r['url'],
-            'status' => $r['status'] ? 'Up' : 'Down',
-            'last_checked' => isset($r['last_checked']) ? date('c',$r['last_checked']) : "",
-            'date' => isset($r['date']) ? date('c',$r['date']) : "",
-            'size' => round($r['size'] / 1024,2),
+            'status' => empty($r['last_checked']) ? "" : ($r['status'] ? 'Up' : 'Down'),
+            'last_checked' => (!empty($r['last_checked'])) ? date('r',$r['last_checked']) : "",
+            'date' => (isset($r['date']) && ($r['date'] > 0)) ? date('c',$r['date']) : "",
+            'size' => !empty($r['size']) ? round($r['size'] / 1024,2) : "",
             'a.date' => isset($r['a_date']) ? date('c',$r['a_date']) : "",
             'views' => isset($r['views']) ? $r['views'] : 0,
             'message' => isset($r['message']) ? $r['message'] : ""
