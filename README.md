@@ -9,6 +9,7 @@ Whether links fail because of DDoS attacks, censorship, or just plain old link r
 ## System Requirements ##
 
 * WordPress 4.0 or higher
+* PHP cURL extension enabled
 
 ## Installation ##
 
