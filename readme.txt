@@ -63,6 +63,15 @@ Amber respects the Robots Exclusion Standard and does not preserve any web page 
 
 == Changelog ==
 
+= Version 1.4.2 =
+*Release date: March 14, 2016*
+
+* Do not call third-party service to identify user's location if location-specific features are not enabled
+* If a URL cannot be preserved, display the reason why on the Amber Dashboard
+* Increase default limit on snapshot sizes from 1MB to 5MB
+* Properly annotate links that have additional attributes
+* Display warning if cURL is not installed (credit: [webster](https://github.com/webster))
+
 = Version 1.4.1 =
 Fixed an issue with displaying saved pages to viewers. All users should upgrade Amber to v1.4.1
 
