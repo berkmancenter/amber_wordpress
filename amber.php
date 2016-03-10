@@ -3,7 +3,7 @@
  * Plugin Name: Amber
  * Plugin URI: http://amberlink.org
  * Description: Amber keeps links working on blogs and websites.
- * Version: 1.4.1
+ * Version: 1.4.2
  * Author: Berkman Center for Internet & Society
  * Author URI: https://cyber.law.harvard.edu
  * License: GPL3
@@ -349,7 +349,7 @@ class Amber {
 	 */
 	public static function filter($text) {
 	  if (true) /* It's enabled! */ {
-	    $re = '/href=["\'](http[^\v()<>{}\[\]]+)[\'"]/i';
+	    $re = '/href=["\'](http[^\v()<>{}\[\]]+?)[\'"]/i';
 	    $text = preg_replace_callback($re, 'Amber::filter_callback', $text);
 	  }
 	  return $text;
@@ -452,6 +452,7 @@ class Amber {
 			$cache_metadata = $fetcher->fetch($item);
 		} catch (RuntimeException $re) {
 			$update['message'] = $re->getMessage();
+			$update['url'] = $item;
 			$status->save_check($update);
 			return false;
 		}
@@ -909,6 +910,13 @@ jQuery(document).ready(function($) {
 <div class="error">
 	<p>Permalinks must be enabled (set to something other than "Default") for Amber to work properly.
 	Enable Permalinks <a href="'. get_site_url() . '/wp-admin/options-permalink.php">here</a></p>
+</div>';
+		}
+
+		if (!in_array("curl", get_loaded_extensions())) {
+			print '
+<div class="error">
+	<p>The PHP cURL extension must be installed for Amber to work properly. Ask your web host to install it, or follow the instructions <a href="https://secure.php.net/manual/en/curl.installation.php" target="_blank">here</a>.</p>
 </div>';
 		}
 	}

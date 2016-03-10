@@ -44,7 +44,7 @@ class AmberStatus implements iAmberStatus {
   public function has_cache($url) {
     $prefix = $this->table_prefix;
     $result = $this->db->selectAll("SELECT * FROM ${prefix}amber_cache WHERE url = %s", array($url));
-    return count($result) > 0;     
+    return count($result) > 0;
   }
 
   /**
@@ -59,7 +59,7 @@ class AmberStatus implements iAmberStatus {
     $prefix = $this->table_prefix;
     $provider_string = implode(', ', array_fill(0, count($provider_types), '%s'));
     $result = $this->db->select(
-      "SELECT * FROM ${prefix}amber_cache WHERE id = %s AND provider in (" . $provider_string . ")", 
+      "SELECT * FROM ${prefix}amber_cache WHERE id = %s AND provider in (" . $provider_string . ")",
       array_merge(array($id), $provider_types));
     return $result;
   }
@@ -76,7 +76,7 @@ class AmberStatus implements iAmberStatus {
     $prefix = $this->table_prefix;
     $query_result = $this->db->selectAll(' SELECT ca.location, ca.date, ch.status, ca.size, ca.provider ' .
                                 " FROM ${prefix}amber_cache ca, ${prefix}amber_check ch " .
-                                ' WHERE ca.url = %s AND ca.id = ch.id', 
+                                ' WHERE ca.url = %s AND ca.id = ch.id',
                                 array($url));
     $result = array();
     /* See if we can a result from one of our preferred providers */
@@ -99,23 +99,26 @@ class AmberStatus implements iAmberStatus {
    */
   public function save_check(array $data) {
     $prefix = $this->table_prefix;
-
-    foreach (array('last_checked', 'next_check', 'status', 'url') as $key) {
+    foreach (array('url') as $key) {
       if (!array_key_exists($key,$data)) {
         error_log(join(":", array(__FILE__, __METHOD__, "Missing required key when updating status check", $key)));
         return false;
       }
     }
+    foreach (array('last_checked', 'next_check', 'status') as $key) {
+      if (!array_key_exists($key,$data)) {
+        $data[$key] = 0;
+      }
+    }
     if (!isset($data['message'])) {
       $data['message'] = "";
     }
-
     if (!isset($data['id'])) {
       $data['id'] = md5($data['url']);
       //TODO: Remove duplication of this with AmberStorage
     }
     $result = $this->db->select("SELECT COUNT(id) as count FROM ${prefix}amber_check WHERE id = %s", array($data['id']));
-    $params = array($data['url'], $data['status'], $data['last_checked'], $data['next_check'], 
+    $params = array($data['url'], $data['status'], $data['last_checked'], $data['next_check'],
                     $data['message'], $data['id']);
     if ($result['count']) {
       $updateQuery = "UPDATE ${prefix}amber_check " .
@@ -150,9 +153,9 @@ class AmberStatus implements iAmberStatus {
         return false;
       }
     }
-    $result = $this->db->select("SELECT COUNT(id) as count FROM ${prefix}amber_cache WHERE id = %s AND provider = %d", 
+    $result = $this->db->select("SELECT COUNT(id) as count FROM ${prefix}amber_cache WHERE id = %s AND provider = %d",
                                 array($data['id'], $data['provider']));
-    $params = array($data['url'], $data['location'], $data['date'], $data['type'], 
+    $params = array($data['url'], $data['location'], $data['date'], $data['type'],
                     $data['size'], $data['provider'], $data['provider_id'], $data['id']);
     if ($result['count']) {
       $updateQuery = "UPDATE ${prefix}amber_cache " .
@@ -184,7 +187,7 @@ class AmberStatus implements iAmberStatus {
     $prefix = $this->table_prefix;
 
     $result = array();
-    $rows = $this->db->selectAll("SELECT url FROM ${prefix}amber_check WHERE next_check < %d ORDER BY next_check ASC", 
+    $rows = $this->db->selectAll("SELECT url FROM ${prefix}amber_check WHERE next_check < %d ORDER BY next_check ASC",
                                     array(time()));
     if ($result === FALSE) {
       error_log(join(":", array(__FILE__, __METHOD__, "Error retrieving URLs to check from database")));
@@ -198,7 +201,7 @@ class AmberStatus implements iAmberStatus {
   }
 
   /**
-   * Save the fact that a user viewed an externally hosted cache, based on the 
+   * Save the fact that a user viewed an externally hosted cache, based on the
    * URL of the cache (e.g. http://perma.cc/xxx)
    * If the storage provider is the native, locally hosted one, do NOT record
    * the view, since in that case we get more accurate data by tracking actual
@@ -260,13 +263,13 @@ class AmberStatus implements iAmberStatus {
     $result = array();
     $current_size = $this->get_cache_size();
     if ($current_size > $max_disk) {
-      
+
       /* Sqlite and Mysql have different names for a function we need */
       if ($this->db->db_type() == "sqlite")
         $max_function = "max";
       else
         $max_function = "greatest";
-        
+
       $rows = $this->db->selectAll("SELECT cc.id, cc.url, size FROM ${prefix}amber_cache cc " .
                                    "LEFT JOIN ${prefix}amber_activity ca ON cc.id = ca.id " .
                                    "ORDER BY ${max_function}(IFNULL(ca.date,0),cc.date) ASC");
@@ -300,8 +303,8 @@ class AmberStatus implements iAmberStatus {
   public function delete($id, $provider = 0) {
     $prefix = $this->table_prefix;
 
-    $this->db->delete("DELETE FROM ${prefix}amber_cache WHERE id = %s AND provider = %d", array($id, $provider));    
+    $this->db->delete("DELETE FROM ${prefix}amber_cache WHERE id = %s AND provider = %d", array($id, $provider));
     $this->db->delete("DELETE FROM ${prefix}amber_check WHERE id = %s AND %s not in (select id from ${prefix}amber_cache where id = %s)", array($id, $id, $id));
   }
 
-} 
+}
