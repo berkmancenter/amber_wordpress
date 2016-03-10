@@ -33,6 +33,10 @@ Full installation instructions, as well as a guide for configurations and settin
 1. Use the Settings -> Amber screen to configure Amber.
 1. Start preserving links!
 
+= Other Requirements =
+
+PHP cURL extension enabled
+
 == Frequently Asked Questions ==
 
 Here are two of the most frequently asked questions. A full list of FAQs, as well as all Amber documentation, can be found on the [Amber wiki guide](https://github.com/berkmancenter/amber_wordpress/wiki).
