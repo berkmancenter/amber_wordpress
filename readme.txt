@@ -4,7 +4,7 @@ Donate link: https://cyber.law.harvard.edu
 Tags: links, archiving
 Requires at least: 4.0.0
 Tested up to: 4.4
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -12,7 +12,7 @@ Amber keeps links working on blogs and websites.
 
 == Description ==
 
-[youtube http://www.youtube.com/watch?v=25Kz7PqapG4]
+[youtube http://www.youtube.com/watch?v=TfslrakKHyo]
 
 Whether links fail because of DDoS attacks, censorship, or just plain old link rot, reliably accessing linked content is a problem for Internet users everywhere. The more routes we provide to information, the more all people can freely share that information, even in the face of filtering or blockages. Amber adds to these routes.
 
@@ -24,7 +24,10 @@ Amber is an open source project led by the [Berkman Center for Internet & Societ
 
 Learn more at [Amberlink.org](http://amberlink.org).
 
+
 == Installation ==
+
+[youtube http://www.youtube.com/watch?v=25Kz7PqapG4]
 
 Full installation instructions, as well as a guide for configurations and settings, can be found on the [Amber wiki guide](https://github.com/berkmancenter/amber_wordpress/wiki).
 
@@ -32,6 +35,7 @@ Full installation instructions, as well as a guide for configurations and settin
 1. Activate the plugin through the 'Plugins' screen in WordPress.
 1. Use the Settings -> Amber screen to configure Amber.
 1. Start preserving links!
+
 
 = Other Requirements =
 
@@ -64,21 +68,27 @@ Amber respects the Robots Exclusion Standard and does not preserve any web page 
 == Changelog ==
 
 = Version 1.4.2 =
-*Release date: March 14, 2016*
+*Release date: March 15, 2016*
+
+Thanks entirely to your downloads and feedback, this release adds new features and fixes reported bugs. New in Amber v1.4.2 for WordPress:
 
 * **Increased default snapshot size.** The default limit for snapshot sizes has been increased to 5MB from 1MB. You can still configure the snapshot size limit as you see fit.
-* **New fields added to the Dashboard.** If a link cannot be preserved, the Amber Dashboard now displays the reason why it cannot be preserved.
+
+* **New fields added to the Dashboard.** If a link cannot be preserved, the Amber Dashboard now displays the reason why it cannot be preserved in the Notes column.
+
 * **Improved URL identification.** Amber now properly preserves all links that contain additional HTML attributes.
+
 * **Updated location-specific behavior.** Amber allows users to specify if location-specific features are enabled via the dropdown menu in Amber Settings. If no country is specified for Amber Delivery, Amber no longer calls a third-party service.
+
 * **Updated dependency checking.** If the cURL library is not installed, Amber now displays a notice and warning upon plugin activation (credit: [webster](https://github.com/webster))
 
 = Version 1.4.1 =
-Fixed an issue with displaying saved pages to viewers. All users should upgrade Amber to v1.4.1
+Fixed an issue with displaying saved pages to viewers. All users should upgrade Amber to v1.4.1.
 
 = Version 1.4 =
 *Release date: December 7, 2015*
 
-We’re in the WordPress plugin directory! New and improved in Amber v1.4 for WordPress:
+We're in the WordPress plugin directory! New and improved in Amber v1.4 for WordPress:
 
 * **Storage of snapshots in other locations.** You can now choose to store snapshots on one or more third party storage and archiving systems: the [Internet Archive](http://archive.org), [Perma.cc](http://perma.cc), and [Amazon Web Services (S3)]( http://https://aws.amazon.com/s3/). You can enable this feature to free up space, take advantage of donated host space, or simply to contribute to existing web archival efforts. Remember: lots of copies keeps stuff safe!
 
