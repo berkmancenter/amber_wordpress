@@ -72,7 +72,7 @@ Amber respects the Robots Exclusion Standard and does not preserve any web page 
 
 New in Amber v1.4.3 for WordPress:
 
-* **PHP 5.3 Compatability.** Amber is now compatible with PHP 5.2.
+* **PHP 5.2 Compatability.** Amber is now compatible with PHP 5.2.
 
 * **Security fixes.** Better protection against XSS attacks from malicious snapshots.
 
