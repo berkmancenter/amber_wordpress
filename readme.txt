@@ -67,6 +67,15 @@ Amber respects the Robots Exclusion Standard and does not preserve any web page 
 
 == Changelog ==
 
+= Version 1.4.3 =
+*Release date: March 28, 2016*
+
+New in Amber v1.4.3 for WordPress:
+
+* **PHP 5.3 Compatability.** Amber is now compatible with PHP 5.2.
+
+* **Security fixes.** Better protection against XSS attacks from malicious snapshots.
+
 = Version 1.4.2 =
 *Release date: March 15, 2016*
 
