@@ -349,7 +349,8 @@ class Amber {
 	 * Note: This treats all absolute URLs as external links.
 	 */
 	public static function filter($text) {
-	  if (true) /* It's enabled! */ {
+	  /* Only annotate links if there are some actions defined */
+	  if (Amber::action_type_enabled(array(AMBER_ACTION_HOVER, AMBER_ACTION_POPUP, AMBER_ACTION_CACHE))) {
 	    $re = '/href=["\'](http[^\v()<>{}\[\]]+?)[\'"]/i';
 	    $text = preg_replace_callback($re, 'Amber::filter_callback', $text);
 	  }
@@ -360,14 +361,30 @@ class Amber {
 	 * Add our CSS and Javascript to every page
 	 */
 	public static function register_plugin_assets() {
-		wp_register_style('amber', plugins_url('css/amber.css', __FILE__));
-		wp_enqueue_style('amber');
-		wp_register_script('amber', plugins_url('js/amber.js', __FILE__));
-		wp_enqueue_script('amber');
-		wp_localize_script('amber', 'amber_config', array(
-			'lookup_availability' => (AMBER_EXTERNAL_AVAILABILITY_NETCLERK == Amber::get_option('amber_external_availability', AMBER_EXTERNAL_AVAILABILITY_NONE)),
-			'site_name' => get_bloginfo( 'name' )
-			));
+		if (Amber::action_type_enabled(array(AMBER_ACTION_HOVER, AMBER_ACTION_POPUP))) {
+			wp_register_style('amber', plugins_url('css/amber.css', __FILE__));
+			wp_enqueue_style('amber');
+		}
+		if (Amber::action_type_enabled(array(AMBER_ACTION_HOVER, AMBER_ACTION_POPUP, AMBER_ACTION_CACHE))) {
+			wp_register_script('amber', plugins_url('js/amber.js', __FILE__));
+			wp_enqueue_script('amber');
+			wp_localize_script('amber', 'amber_config', array(
+				'lookup_availability' => (AMBER_EXTERNAL_AVAILABILITY_NETCLERK == Amber::get_option('amber_external_availability', AMBER_EXTERNAL_AVAILABILITY_NONE)),
+				'site_name' => get_bloginfo( 'name' )
+				));
+		}
+	}
+
+	/* Are any of a list of actions enabled in the settings? */
+	private static function action_type_enabled($actions) {
+		$result = false;
+		$options = array('amber_available_action', 'amber_unavailable_action', 'amber_country_available_action', 'amber_country_unavailable_action');
+		foreach ($options as $option) {
+			if (in_array(Amber::get_option($option, AMBER_ACTION_NONE), $actions)) {
+				$result = true;
+			}
+		}
+		return $result;
 	}
 
 	public static function cron_add_schedule($schedules)
