@@ -67,6 +67,17 @@ Amber respects the Robots Exclusion Standard and does not preserve any web page 
 
 == Changelog ==
 
+= Version 1.4.4 =
+*Release date: April 13, 2016*
+
+New in Amber v1.4.4 for WordPress:
+
+* **WordPress 4.5 Compatability** Tested with WordPress 4.5
+
+* **Bug fixes.** Fix problem with display of snapshot images and CSS
+
+* **Performance** Do not include Amber CSS and Javascript on pages where it is not required
+
 = Version 1.4.3 =
 *Release date: March 28, 2016*
 
