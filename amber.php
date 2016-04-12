@@ -732,7 +732,7 @@ EOF;
 			/* Check to make sure the cached item is being displayed in an iframe that
 			   protects the user from XSS attacks from malicious javascript that might
 			   exist in a snapshot */
-			if (!Amber::validate_cache_iframe_referrer()) {
+			if (!Amber::validate_cache_referrer()) {
 				status_header(403);
 				die();
 			} else {
@@ -800,18 +800,21 @@ EOF;
 	}
 
 	/**
-	 * Called when displaying cached content that's expected to be in an iframe
-	 * Validates that the iframe that's enclosing the cached content is being served
-	 * from the expected URL on the same server. We know that requests from this
+	 * Called when displaying cached content that's expected to be in an iframe or
+	 * referenced from a page that is itself enclosed within an iframe.
+	 * Validates that (a) the iframe that's enclosing the cached content is being served
+	 * from the expected URL on the same server; or (b) the cached asset is being served
+	 * by a page at the expected URL on the same server. We know that requests from this
 	 * URL provide the proper sandbox attributes for the iframe to prevent XSS
 	 * attacks.
 	 * @return true if access is allowed
 	 */
-	public static function validate_cache_iframe_referrer() {
+	public static function validate_cache_referrer() {
+		$result = FALSE;
 		$headers = getallheaders();
 		if (isset($headers['Referer'])) {
-			/* The Referer URL should be the same as the current URL, except with
-			'cache' instead of 'cacheframe' in the URL. */
+			/* Option 1: The Referer URL should be the same as the current URL, except with
+			'cache' instead of 'cacheframe' in the URL */
 			$referer_uri = $headers['Referer'];
 			$requested_uri =  "http"
 								. (isset($_SERVER['HTTPS']) ? 's' : '')
@@ -820,15 +823,20 @@ EOF;
 
 			/* The value that should be in the HTTP Referer header */
 			$expected_referer = str_replace("/cacheframe/", "/cache/", $requested_uri);
-			if (strcmp($expected_referer, $referer_uri) === 0) {
-				return TRUE;
+			if ($expected_referer === $referer_uri) {
+				$result = TRUE;
 			}
 			else {
-				return FALSE;
+				/* Option 2: This is an asset and the requested URL should be the same as the
+				   referring URL + "/assets/SNAPSHOT_ID.FILENAME_EXTENSION" */
+				$cutoff = strrpos($requested_uri, "/assets/");
+				$expected_asset_referrer = substr($requested_uri, 0, $cutoff + 1);
+				if ($expected_asset_referrer == $referer_uri) {
+					$result = TRUE;
+				}
 			}
 		}
-		/* No Referer header, so not allowed */
-		return FALSE;
+		return $result;
 	}
 
 	/* Respond to an ajax call to cache links on a specific page immediately
