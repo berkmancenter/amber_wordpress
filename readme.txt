@@ -4,7 +4,7 @@ Donate link: https://cyber.law.harvard.edu
 Tags: links, archiving
 Requires at least: 4.0.0
 Tested up to: 4.5
-Stable tag: 1.4.3
+Stable tag: 1.4.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -74,7 +74,7 @@ New in Amber v1.4.4 for WordPress:
 
 * **WordPress 4.5 compatability** Amber has been tested through WordPress 4.5.
 
-* **Bug fixes.** This release fixes problem with display of snapshot images and CSS.
+* **Bug fixes.** This release fixes a problem with display of snapshot images and CSS.
 
 * **Performance.** CSS and JavaScript is no longer included on pages where it is not required.
 
