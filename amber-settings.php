@@ -304,6 +304,13 @@ class AmberSettingsPage
             'amber_services_section'
         );
 
+        add_settings_field(
+            'amber_memento',
+            'Become part of p2p cache sharing network.',
+            array( $this, 'amber_memento_callback' ),
+            'amber-settings-admin',
+            'amber_services_section'
+        );
 
         register_setting(
             'amber_option_group',       // Option group
@@ -347,6 +354,7 @@ class AmberSettingsPage
             'amber_storage_location',
             'amber_excluded_formats',
             'amber_timegate',
+            'amber_memento',
             'amber_country_id',
             'amber_perma_api_key',
             'amber_perma_server_url',
@@ -739,6 +747,15 @@ jQuery(document).ready(function($) {
             '<input type="text" id="amber_timegate" name="amber_options[amber_timegate]" value="%s" />' .
             '<p class="description">Optional: Request additional snapshots from the Internet Archive, the Library of Congress web archive, archive.today, and more.</p>',
             isset( $this->options['amber_timegate'] ) ? esc_attr( $this->options['amber_timegate']) : ''
+        );
+    }
+
+    public function amber_memento_callback()
+    {
+        printf(
+            '<input type="text" id="amber_memento" name="amber_options[amber_memento]" value="%s" />' .
+            '<p class="description">Optional: Share and request snapshots with p2p sharing community.</p>',
+            isset( $this->options['amber_memento'] ) ? esc_attr( $this->options['amber_memento']) : ''
         );
     }
 

@@ -101,6 +101,7 @@ class AmberInstall {
 				'amber_perma_server_url' => 'http://perma.cc',
 				'amber_perma_api_server_url' => 'https://api.perma.cc',
 				'amber_aws_region' => 'us-east-1',
+				'amber_momento' => 'http://timegate.amberlink.org/',
 	            );
 
 			update_option('amber_options', $options);
