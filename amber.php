@@ -440,7 +440,11 @@ class Amber {
 			if ($update['status'] && (!$strategy || !$status->has_cache($item))) {
 
 				/* Save the item to the primary storage location */
-				$result = Amber::fetch_item($item, $fetcher, $status);
+				$result = Amber::fetch_item($item, $fetcher, $status, true);
+
+				if($result) {
+					Amber::notify_timegate($result);
+				}
 
 				/* Save the item to any alternate storage locations */
 				foreach (Amber::get_alternate_fetchers() as $alternate_fetcher) {
@@ -462,26 +466,52 @@ class Amber {
 	 * @param  string $item    url to fetch
 	 * @param  iAmberFetcher $fetcher instance of a fetcher to use to get the item
 	 * @param  iAmberStatus  $status  instance of a status to use to save the item
-	 * @return boolean  TRUE if succesfully cached
+	 * @param  boolean $get_cache_metadata set it true if you wish to get cache metadata on return
+	 * @return boolean  TRUE if successfully cached
 	 */
-	private static function fetch_item($item, $fetcher, $status) {
+	private static function fetch_item($item, $fetcher, $status, $get_cache_metadata = false) {
+		$return = false;
 		$cache_metadata = array();
 		try {
 			$cache_metadata = $fetcher->fetch($item);
-		} catch (RuntimeException $re) {
+			$return = true;
+		}
+		catch (RuntimeException $re) {
 			$update['message'] = $re->getMessage();
 			$update['url'] = $item;
 			$status->save_check($update);
-			return false;
 		}
-		if ($cache_metadata) {
+		if($return && $cache_metadata) {
 			$status->save_cache($cache_metadata);
-			return true;
-		} else {
-			return false;
+			if($get_cache_metadata) {
+				$return = $cache_metadata;
+			}
 		}
+		return $return;
 	}
 
+	/*
+	 *
+	 */
+	public static function notify_timegate($cache_metadata) {
+		$data = [
+			"node_id"	=> 1,
+			"url"		=> $cache_metadata['url'],
+			"cache_id"	=> $cache_metadata['provider_id'],
+			"timestamp"	=> $cache_metadata['data']
+		];
+		$url = "http://timegate.okrdx.com/add";
+		$options = array(
+			'http' => array(
+				'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+				'method'  => 'POST',
+				'content' => http_build_query($data)
+			)
+		);
+		$context  = stream_context_create($options);
+		$result = file_get_contents($url, false, $context);
+		return $result;
+	}
 
 	/* Pull an item off the "queue", and save it to the cache.
 	*/
