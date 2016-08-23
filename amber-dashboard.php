@@ -285,6 +285,7 @@ class AmberDashboardPage
         $storage = Amber::get_storage_instance($provider);
         if (!is_null($storage)) {
             $storage->delete(array('id' => $id));
+            Amber::notify_remove_to_timegate($id);
         }
         $status = Amber::get_status();
         $status->delete($id, $provider);
@@ -295,6 +296,7 @@ class AmberDashboardPage
         check_admin_referer('amber_dashboard');
         $storage = Amber::get_storage();
         $storage->delete_all();
+        Amber::notify_remove_all_to_timegate();
         $status = Amber::get_status();
         $status->delete_all();
         $prefix = $wpdb->prefix;

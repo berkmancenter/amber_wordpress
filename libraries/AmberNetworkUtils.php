@@ -13,7 +13,7 @@ class AmberNetworkUtils {
   private static function get_user_agent_string() {
     /* In the future, we could increment this automatically, but version number is not currently
        included in the code as part of our build process. */
-    $version = "1.0";
+    $version = "1.0";     
     $hostname = gethostname();
     $result = "Amber/${version} (+http://${hostname} http://amberlink.org/fetcher)";
     return $result;
@@ -24,7 +24,7 @@ class AmberNetworkUtils {
     if (isset($dict['path'])) {
       $result = AmberNetworkUtils::clean_up_path(join('/',array($base,$dict['path'])));
     } else {
-      $result = $base;
+      $result = $base;  
     }
     $result .= isset($dict['query']) ? '?' . $dict['query'] : '';
     return $result;
@@ -33,7 +33,7 @@ class AmberNetworkUtils {
   /**
    * Remove '../' elements from the path. This is only necessary because sometimes the
    * relative paths go above the 'root' level, which browsers handle by ignoring any
-   * '..' elements which go above the root. We need to replicate this behavior
+   * '..' elements which go above the root. We need to replicate this behavior 
    * because many pages in the wild depend on it.
    * @pararm $path_string string with the path component of the URL
    */
@@ -44,11 +44,11 @@ class AmberNetworkUtils {
     while ($i < count($path)) {
       if ($path[$i] == "..") {
         if ($i == 0) {
-          unset($path[$i]);
+          unset($path[$i]);          
         } else if ($path[$i-1] != "..") {
-          unset($path[$i]);
-          unset($path[$i-1]);
-          $i -= 1;
+          unset($path[$i]);          
+          unset($path[$i-1]);       
+          $i -= 1;   
         } else {
           $i += 1;
         }
@@ -81,7 +81,7 @@ class AmberNetworkUtils {
     return $headers;
   }
 
-  /**
+  /** 
    * Given a mime-type, determine if it would be rendered as HTML by a browser.
    * If this is true, we will attempt to parse it for related assets (css, images, etc.)
    */
@@ -105,7 +105,7 @@ class AmberNetworkUtils {
         $options = array(
           CURLOPT_FAILONERROR => TRUE,      /* Don't ignore HTTP errors */
                                             /* Follow redirects? */
-          CURLOPT_FOLLOWLOCATION => AmberNetworkUtils::curl_redirects_allowed(),
+          CURLOPT_FOLLOWLOCATION => AmberNetworkUtils::curl_redirects_allowed(),   
           CURLOPT_MAXREDIRS => 10,          /* No more than 10 redirects */
           CURLOPT_CONNECTTIMEOUT => 5,      /* Connection timeout */
           CURLOPT_TIMEOUT => 10,            /* Timeout for any CURL function */
@@ -160,7 +160,7 @@ class AmberNetworkUtils {
           $body = substr($data, $header_size);
           $headers = AmberNetworkUtils::extract_headers($header);
           $result[$url] = array("headers" => $headers, "body" => $body, "info" => $response_info);
-          curl_multi_remove_handle($multi, $channel);
+          curl_multi_remove_handle($multi, $channel); 
         }
         curl_multi_close($multi);
 
@@ -198,7 +198,7 @@ class AmberNetworkUtils {
    * @return array dictionary of header information and a stream to the contents of the URL
    */
   public static function open_url($url, $additional_options = array()) {
-    $result = AmberNetworkUtils::open_multi_url(array($url), $additional_options);
+    $result = AmberNetworkUtils::open_multi_url(array($url), $additional_options);    
     if (count($result) == 1) {
       return array_pop($result);
     } else {
@@ -207,7 +207,7 @@ class AmberNetworkUtils {
   }
 
   /**
-   * Open a single URL, and return an array with dictionary of header information and the contents
+   * Open a single URL, and return an array with dictionary of header information and the contents 
    * of the URL. Handle redirects ourselves, rather than using CURLOPT_FOLLOWLOCATION
    * Adapted from http://slopjong.de/2012/03/31/curl-follow-locations-with-safe_mode-enabled-or-open_basedir-set/
    * @param $url string of resource to download
@@ -216,7 +216,7 @@ class AmberNetworkUtils {
   public static function open_single_url($url, $additional_options = array(), $follow_redirects = TRUE) {
     $options = array(
       CURLOPT_FAILONERROR => TRUE,      /* Don't ignore HTTP errors */
-      CURLOPT_FOLLOWLOCATION => FALSE,  /* Don't follow redirects */
+      CURLOPT_FOLLOWLOCATION => FALSE,  /* Don't follow redirects */ 
       CURLOPT_CONNECTTIMEOUT => 5,      /* Connection timeout */
       CURLOPT_TIMEOUT => 10,            /* Timeout for any CURL function */
       CURLOPT_RETURNTRANSFER => 1,      /* Return the output as a string */
@@ -225,7 +225,7 @@ class AmberNetworkUtils {
       CURLOPT_ENCODING => '',           /* Handle compressed data */
     );
 
-    $max_redirects = 5;
+    $max_redirects = 5;    
     try {
 
       $ch = curl_init($url);
@@ -234,7 +234,7 @@ class AmberNetworkUtils {
       }
       $original_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
       $newurl = $original_url;
-
+      
       do {
         curl_setopt($ch, CURLOPT_URL, $newurl);
         $response = curl_exec($ch);
@@ -243,21 +243,21 @@ class AmberNetworkUtils {
           $newurl = $response_info['redirect_url'];
         } else if ($meta = AmberNetworkUtils::find_meta_redirect($response)) {
           $newurl = $meta;
-        } else {
+        } else { 
           break; // Not a redirect, so we're done
         }
-        // if no scheme is present then the new url is a relative path and thus needs some extra care
-        if (!preg_match("/^https?:/i", $newurl)) {
+        // if no scheme is present then the new url is a relative path and thus needs some extra care        
+        if (!preg_match("/^https?:/i", $newurl)) {          
           $last_slash = strrpos($original_url,"/",9); // Starting at position 9 starts search past http://
           if ($last_slash == (strlen($original_url) - 1)) {
-            $newurl = $original_url . $newurl;
+            $newurl = $original_url . $newurl;  
           } else if ($last_slash === FALSE) {
             $newurl = join("/",array($original_url, $newurl));
           } else {
             $newurl = join("/",array(substr($original_url, 0, $last_slash), $newurl));
-          }
-        }
-      } while ((--$max_redirects) && $follow_redirects);
+          }          
+        }    
+      } while ((--$max_redirects) && $follow_redirects);     
       curl_close($ch);
 
     } catch (RuntimeException $e) {
@@ -265,7 +265,7 @@ class AmberNetworkUtils {
       curl_close($ch);
       return FALSE;
     }
-
+    
     if (!$max_redirects) {
       return FALSE; // We ran out of redirects without getting a result
     } else {
@@ -279,7 +279,7 @@ class AmberNetworkUtils {
   }
 
   /**
-   * Look at the results from a lookup using curl_multi, and identify urls that we need
+   * Look at the results from a lookup using curl_multi, and identify urls that we need 
    * to query again, because a redirect is needed but was not followed
    * @param  $urls associative array of url lookups, keyed by url
    * @return associative array of the subset of items that need to be queried again
@@ -292,7 +292,7 @@ class AmberNetworkUtils {
       } else if (AmberNetworkUtils::find_meta_redirect($data['body'])) {
         $result[$url] = $data;
       }
-    }
+    }  
     return $result;
   }
 
@@ -317,7 +317,7 @@ class AmberNetworkUtils {
    *   <meta http-equiv="refresh" content="30; URL=http://www.example.org/login">
    *   <meta http-equiv="REFRESH" content="0; url=http://www.example.org/login">
    *   <meta http-equiv="refresh" content="5"> (NOT A REDIRECT)
-   * @param  $body strong with HTML
+   * @param  $body strong with HTML 
    * @return string with URL if a redirect is found, or FALSE if one is not found
    */
   public static function find_meta_redirect($body) {
@@ -346,6 +346,38 @@ class AmberNetworkUtils {
     } else {
       return FALSE;
     }
+  }
+
+  /**
+   * Make POST request to APIs.
+   * @param string $url URL of the API Endpoint.
+   * @param array $fields API Payload.
+   * @return array response of the API call (generally array)
+   */
+  public static function make_post_call($url, $fields, $json=true) {
+    $query = http_build_query($fields);
+    $options = array(
+      CURLOPT_RETURNTRANSFER => true,     // return web page
+      CURLOPT_HEADER         => false,    // don't return headers
+      CURLOPT_FOLLOWLOCATION => AmberNetworkUtils::curl_redirects_allowed(),     // follow redirects
+      CURLOPT_ENCODING       => "",       // handle all encodings
+      CURLOPT_USERAGENT      => AmberNetworkUtils::get_user_agent_string(), // who am i
+      CURLOPT_AUTOREFERER    => true,     // set referer on redirect
+      CURLOPT_CONNECTTIMEOUT => 5,      // timeout on connect
+      CURLOPT_TIMEOUT        => 5,      // timeout on response
+      CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
+      CURLOPT_POST           => 1,        // Post request enabled
+      CURLOPT_POSTFIELDS     => $query
+    );
+    $ch = curl_init($url);
+    curl_setopt_array($ch, $options);
+    $content = curl_exec($ch);
+    if($json) {
+      $content = json_decode($content);
+    }
+    $header  = curl_getinfo( $ch );
+    curl_close($ch);
+    return array($header, $content);
   }
 
 }

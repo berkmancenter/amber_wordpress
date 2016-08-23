@@ -438,6 +438,22 @@ class AmberSettingsPage
             }
         }
 
+		    if($input['amber_memento'] == "") {
+					Amber::deregister_from_timegate();
+					$new_input['amber_memento'] = $input['amber_memento'];
+				}
+		    else if(Amber::get_option('amber_memento') != $new_input['amber_memento']) {
+		        list($success, $message) = Amber::register_on_timegate($input['amber_memento']);
+		        if($success) {
+		            _e($message);
+		            $new_input['amber_memento'] = $input['amber_memento'];
+		        }
+		        else {
+		            add_settings_error('amber_memento', 'amber_memento', $message);
+		            $new_input['amber_memento'] = Amber::get_option('amber_memento', '');
+		        }
+		    }
+
         return $new_input;
     }
 
@@ -754,7 +770,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_memento" name="amber_options[amber_memento]" value="%s" />' .
-            '<p class="description">Optional: Share and request snapshots with p2p sharing community.</p>',
+            '<p class="description">Optional: Share and request snapshots with p2p sharing community. (blank to disable)</p>',
             isset( $this->options['amber_memento'] ) ? esc_attr( $this->options['amber_memento']) : ''
         );
     }

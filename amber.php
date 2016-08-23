@@ -35,6 +35,7 @@ class Amber {
 	private static $amber_storage;
 	private static $amber_availability;
 	private static $amber_memento_service;
+	private static $amber_custom_timegates;
 
 	public static function get_option($key, $default = "")
 	{
@@ -236,6 +237,26 @@ class Amber {
 		Amber::$amber_memento_service = $memento_service;
 	}
 
+	public static function get_custom_timegates($force = false) {
+		if (!Amber::$amber_custom_timegates || $force) {
+			$registrations = get_option('amber_timegate_registration_hashes');
+			$registrations = json_decode($registrations, true);
+			$servers = [];
+			$site_url = get_option('siteurl');
+			foreach($registrations as $url => $token) {
+				$new_server = new AmberMementoService(array(
+					'server_url' => $url,
+					'custom_timegate' => true,
+					'token' => $token,
+					'site_url' => $site_url
+				));
+				$servers[] = $new_server;
+			}
+			Amber::$amber_custom_timegates = $servers;
+		}
+		return Amber::$amber_custom_timegates;
+	}
+
 	public static function get_behavior($status, $country = false)
 	{
 
@@ -414,6 +435,7 @@ class Amber {
 	    $storage = Amber::get_storage();
 	    foreach ($purge as $item) {
 	      $storage->delete($item['id']);
+	      Amber::notify_remove_to_timegate($item['id']);
 	      $status->delete($item['id']);
 	    }
 	  }
@@ -442,23 +464,19 @@ class Amber {
 				/* Save the item to the primary storage location */
 				$result = Amber::fetch_item($item, $fetcher, $status, true);
 
-				if($result) {
-					Amber::notify_timegate($result);
-				}
-
 				/* Save the item to any alternate storage locations */
 				foreach (Amber::get_alternate_fetchers() as $alternate_fetcher) {
 					Amber::fetch_item($item, $alternate_fetcher, $status);
 				}
 
 				if ($result) {
-				  	Amber::disk_space_purge();
-				  	return true;
+					Amber::notify_add_to_timegate($result);
+					Amber::disk_space_purge();
+					return true;
 				}
 			}
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	/**
@@ -469,48 +487,83 @@ class Amber {
 	 * @param  boolean $get_cache_metadata set it true if you wish to get cache metadata on return
 	 * @return boolean  TRUE if successfully cached
 	 */
-	private static function fetch_item($item, $fetcher, $status, $get_cache_metadata = false) {
-		$return = false;
-		$cache_metadata = array();
+	private static function fetch_item($item, $fetcher, $status) {
 		try {
 			$cache_metadata = $fetcher->fetch($item);
-			$return = true;
 		}
 		catch (RuntimeException $re) {
 			$update['message'] = $re->getMessage();
 			$update['url'] = $item;
 			$status->save_check($update);
+			return false;
 		}
-		if($return && $cache_metadata) {
+		if($cache_metadata) {
 			$status->save_cache($cache_metadata);
-			if($get_cache_metadata) {
-				$return = $cache_metadata;
-			}
+			return $cache_metadata;
 		}
-		return $return;
+		return false;
 	}
 
 	/*
-	 *
+	 * Register the site on newly added custom TimeGate url.
+	 * This function is a helper function to abstracted register function written in AmberMementoService.
 	 */
-	public static function notify_timegate($cache_metadata) {
-		$data = [
-			"node_id"	=> 1,
-			"url"		=> $cache_metadata['url'],
-			"cache_id"	=> $cache_metadata['provider_id'],
-			"timestamp"	=> $cache_metadata['data']
-		];
-		$url = "http://timegate.okrdx.com/add";
-		$options = array(
-			'http' => array(
-				'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-				'method'  => 'POST',
-				'content' => http_build_query($data)
-			)
-		);
-		$context  = stream_context_create($options);
-		$result = file_get_contents($url, false, $context);
-		return $result;
+	public static function register_on_timegate($url) {
+		$site_url = get_option('siteurl');
+		$hash = get_option('amber_timegate_registration_hashes', '{}');
+		$server = new AmberMementoService(array(
+			'server_url' => $url,
+			'custom_timegate' => true,
+			'site_url' => $site_url,
+			'hash' => $hash
+		));
+		$email = get_option('admin_email');
+		$url = get_option('siteurl');
+		$data = $server->registerSite($url, $email, $hash);
+		if($hash != $data[2]) {
+			update_option('amber_timegate_registration_hashes', $hash);
+		}
+		return array($data[0], $data[1]);
+	}
+
+	public static function deregister_from_timegate() {
+		$custom_timegates = Amber::get_custom_timegates();
+		foreach($custom_timegates as $server) {
+			$server->deRegisterSite();
+		}
+		update_option('amber_timegate_registration_hashes', '{}');
+		Amber::$amber_custom_timegates = [];
+		return true;
+	}
+
+	/*
+	 * Notify the custom timegate about cache metadata addition
+	 */
+	public static function notify_add_to_timegate($cache_metadata) {
+		$custom_timegates = Amber::get_custom_timegates();
+		foreach($custom_timegates as $server) {
+			$server->notifyAddToTimegate($cache_metadata['url'], $cache_metadata['provider_id'], $cache_metadata['date']);
+		}
+	}
+
+	/*
+	 * Notify the custom timegate about cache metadata deletion
+	 */
+	public static function notify_remove_to_timegate($cache_id) {
+		$custom_timegates = Amber::get_custom_timegates();
+		foreach($custom_timegates as $server) {
+			$server->notifyRemoveToTimegate($cache_id);
+		}
+	}
+
+	/*
+	 * Notify remove all to custom timegate
+	 */
+	public static function notify_remove_all_to_timegate() {
+		$custom_timegates = Amber::get_custom_timegates();
+		foreach($custom_timegates as $server) {
+			$server->notifyRemoveAllToTimegate();
+		}
 	}
 
 	/* Pull an item off the "queue", and save it to the cache.
@@ -547,7 +600,7 @@ class Amber {
 		$prefix = $wpdb->prefix;
 		foreach ($links as $link) {
 			$query = $wpdb->prepare(
-				"INSERT IGNORE INTO ${prefix}amber_queue (id, url, created) VALUES(%s, %s, %d)",
+				"INSERT INTO ${prefix}amber_queue (id, url, created) VALUES(%s, %s, %d)",
 				array(md5($link), $link, time()));
 			$wpdb->query($query);
 		}
@@ -682,6 +735,8 @@ class Amber {
 		add_rewrite_rule('^.*amber/logcacheview?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_logcacheview&$1', "top");
 		add_rewrite_rule('^.*amber/status?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_status&$1', "top");
 		add_rewrite_rule('^.*amber/memento?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_memento&$1', "top");
+		add_rewrite_rule('^.*amber/ping?$', '/wp-admin/admin-ajax.php?action=amber_ping', 'top');
+		add_rewrite_rule('^.*amber/listall', '/wp-admin/admin-ajax.php?action=amber_listall', 'top');
 	}
 
 	/**
@@ -1082,11 +1137,58 @@ jQuery(document).ready(function($) {
 			$date = str_replace(" ", "+", $_REQUEST['date']);
     		$memento_service = Amber::get_memento_service();
 		    $lookup_result = $memento_service->getMemento( $_REQUEST['url'], $date );
+			  if(!$lookup_result) {
+					$p2p_network = Amber::get_custom_timegates();
+					foreach($p2p_network as $memento_service) {
+						$lookup_result = $memento_service->getMemento( $_REQUEST['url'], $date );
+						if($lookup_result) {
+							break;
+						}
+					}
+				}
+				if(!$lookup_result) {
+					$lookup_result = array();
+				}
     		print(json_encode($lookup_result, JSON_UNESCAPED_SLASHES));
    			status_header( 200 );
     	} else {
     		status_header( 400 );
     	}
+		die();
+	}
+
+	/* Handle ping requests from custom TimeGate for checking if node is alive or not */
+	public static function ajax_ping() {
+		header("Content-Type: application/json");
+		header("Cache-Control: no-cache, must-revalidate");
+		header("Pragma: no-cache");
+		header("Expires: 0");
+		status_header( 200 );
+		echo(json_encode(array('reply' => 'pong', 'timegate-opt-in' => (Amber::get_option('amber_memento') == '')?false:true)));
+		die();
+	}
+
+	public static function ajax_listall() {
+		header("Content-Type: application/json");
+		header("Cache-Control: no-cache, must-revalidate");
+		header("Pragma: no-cache");
+		header("Expires: 0");
+		if(Amber::get_option('amber_memento') == '') {
+			status_header(401);
+			echo json_encode(array(
+				'success' => false
+			));
+		}
+		else {
+			status_header(200);
+			global $wpdb;
+			$prefix = $wpdb->prefix;
+			$result = $wpdb->get_results("SELECT url, date, provider_id FROM ${prefix}amber_cache");
+			echo json_encode(array(
+				'success' => true,
+				'cache' => $result
+			));
+		}
 		die();
 	}
 
@@ -1174,5 +1276,7 @@ add_action( 'wp_ajax_nopriv_amber_status', array('Amber', 'ajax_get_url_status')
 add_action( 'wp_ajax_amber_status', array('Amber', 'ajax_get_url_status') );
 add_action( 'wp_ajax_nopriv_amber_memento', array('Amber', 'ajax_get_memento') );
 add_action( 'wp_ajax_amber_memento', array('Amber', 'ajax_get_memento') );
-
-?>
+add_action( 'wp_ajax_nopriv_amber_ping', array('Amber', 'ajax_ping') );
+add_action( 'wp_ajax_amber_ping', array('Amber', 'ajax_ping') );
+add_action( 'wp_ajax_nopriv_amber_listall', array('Amber', 'ajax_listall') );
+add_action( 'wp_ajax_amber_listall', array('Amber', 'ajax_listall') );

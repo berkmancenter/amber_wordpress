@@ -118,6 +118,8 @@ class AmberInstall {
 		add_rewrite_rule('^.*amber/logcacheview?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_logcacheview&$1', "top");
 		add_rewrite_rule('^.*amber/status?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_status&$1', "top");
 		add_rewrite_rule('^.*amber/memento?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_memento&$1', "top");
+		add_rewrite_rule('^.*amber/ping', '/wp-admin/admin-ajax.php?action=amber_ping', 'top');
+		add_rewrite_rule('^.*amber/listall', '/wp-admin/admin-ajax.php?action=amber_listall', 'top');
 		flush_rewrite_rules();
 	}
 

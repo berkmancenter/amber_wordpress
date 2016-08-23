@@ -169,7 +169,7 @@ class AmberStorage implements iAmberStorage {
    */
   public function delete_all() {
     if ($this->file_root) {
-      $this->rrmdir($this->file_root);
+      $this->rrmdir($this->file_root, false);
     }
     return TRUE;
   }
