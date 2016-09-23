@@ -29,8 +29,6 @@ class Amber {
 	 * @return AmberStorage
 	 */
 	private static function get_storage() {
-    	// $file_path = join(DIRECTORY_SEPARATOR, array(DRUPAL_ROOT, variable_get('amber_storage_location', 'sites/default/files/amber')));
-
     	$base_dir = wp_upload_dir();
     	$subdir = Amber::get_option('amber_storage_location', 'amber');
     	$file_path = join(DIRECTORY_SEPARATOR, array($base_dir['basedir'], $subdir));
@@ -207,6 +205,21 @@ class Amber {
     	return $actions;
 	}
 
+	/**
+	 * If the total disk space usage is over the configured limit, delete enough items to bring it under
+	 */
+	private static function disk_space_purge() {
+	  $status = Amber::get_status();
+	  $purge = $status->get_items_to_purge(Amber::get_option('amber_max_disk',1000) * 1024 * 1024);
+	  if ($purge) {
+	    $storage = Amber::get_storage();
+	    foreach ($purge as $item) {
+	      $storage->clear_cache_item($item['id']);
+	      $status->delete($item['id']);
+	    }
+	  }
+	}
+
 	private static function cache_link($item, $force = false) {
 
 		$checker = Amber::get_checker();
@@ -236,12 +249,7 @@ class Amber {
 				}
 				if ($cache_metadata) {
 					$status->save_cache($cache_metadata);
-				  	/* Clear caches that could contain HTML with versions of the links that don't contain data- attributes */
-				  	/* TODO: Ideally we would clear the cache only once per cron job */
-				  	// cache_clear_all('*', 'cache_filter',TRUE);
-				  	// cache_clear_all('*', 'cache_field',TRUE);
-				  	// amber_disk_space_purge();
-				  	// watchdog('amber', "Cached: @url in @seconds seconds", array('@url' => $item, '@seconds' => time() - $start), WATCHDOG_DEBUG);
+				  	Amber::disk_space_purge();
 				  	return true;
 				}
 			}
