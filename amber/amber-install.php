@@ -88,6 +88,10 @@ class AmberInstall {
 	            'amber_update_strategy' => 0,
 	            'amber_country_id' => '',
 	            'amber_excluded_sites' => parse_url(home_url(), PHP_URL_HOST),
+				'amber_backend' => AMBER_BACKEND_LOCAL,
+				'amber_perma_server_url' => 'http://perma.cc',
+				'amber_perma_api_server_url' => 'https://api.perma.cc',
+				'amber_aws_region' => 'us-east-1',
 	            );
 
 			update_option('amber_options', $options);			
@@ -128,9 +132,10 @@ class AmberInstall {
 			AmberInstall::install_tables( $tables );
 
 			$options = get_option( 'amber_options' );
-			$options['amber_backend'] = 0;
+			$options['amber_backend'] = AMBER_BACKEND_LOCAL;
 			$options['amber_perma_server_url'] = "http://perma.cc";
 			$options['amber_perma_api_server_url'] = "https://api.perma.cc";
+			$options['amber_aws_region'] = "us-east-1";
 			update_option( 'amber_options', $options );
 			update_option( 'amber_db_version', $amber_db_version );
 		}
