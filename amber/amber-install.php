@@ -80,6 +80,8 @@ class AmberInstall {
 		 *  class function */
 		error_log("wp_schedule_event in amber-install.php");
 		wp_schedule_event( time(), 'fiveminutes', 'amber_cron_event_hook' );
+		
+		flush_rewrite_rules();
 	}
 
 	public static function deactivate() {

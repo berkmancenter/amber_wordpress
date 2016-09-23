@@ -413,27 +413,9 @@ class Amber {
 
 	/* Rewrite rules to direct requests for cached content */
 	public static function add_rewrite_rules() {
-
-		// TODO : Make this work, and do not rely on editing .htaccess
-
-		// add_rewrite_rule(
-		//     '^.*amber/cache/([a-f0-9]+)/?$',
-		//     "/index.php?amber_cache=$matches[1]",
-		//     "index.php",
-		//     'top'
-		// );
-		// 		flush_rewrite_rules();
-
-//  		print "<pre>";
-// global $wp_rewrite;
-// print_r($wp_rewrite);
-// 		print "</pre>";
-
-		// =====================
-		// TODO : Move this to Activation ONLY
-		// =====================	
-		// flush_rewrite_rules();
-		// die();
+		add_rewrite_rule('^.*amber/cache/([a-f0-9]+)/?$', '/index.php?amber_cache=$1', "top");
+		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/?$', '/index.php?amber_cacheframe=$1', "top");
+		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/assets/(.*)/?$', '/index.php?amber_cacheframe=$1&amber_asset=$2', "top");
 	}
 
 	/**
