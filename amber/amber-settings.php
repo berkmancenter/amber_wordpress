@@ -523,16 +523,18 @@ jQuery(document).ready(function($) {
         $crawled_post_types = explode(',',$this->options['amber_post_types']);
         $ignored_post_types = array('revision');
 
+        $all_post_types = get_post_types( array(), 'objects', 'and' );
+        $crawled_post_types = explode( ',', $options );
+        $ignored_post_types = array( 'revision', 'attachment', 'nav_menu_item');
         printf('<select id="amber_post_types" name="amber_options[amber_post_types][]" multiple="1" size="5">' . PHP_EOL);
         foreach ( $post_types  as $post_type ) {
-
             if(in_array( $post_type->name, $ignored_post_types )) {
                 continue;
             } elseif (in_array($post_type->name, $crawled_post_types)) {
                 echo '<option value="'. $post_type->name .'" selected="1">' . $post_type->label . '</option>' . PHP_EOL;
             } else {
                 echo '<option value="'. $post_type->name .'">' . $post_type->label . '</option>' . PHP_EOL;
-            }         
+            }
         }
         printf('</select>' . PHP_EOL);
 
