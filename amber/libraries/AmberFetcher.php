@@ -472,7 +472,7 @@ class AmberNetworkUtils {
        included in the code as part of our build process. */
     $version = "1.0";     
     $hostname = gethostname();
-    $result = "AmberBot/${version} (+http://${hostname} http://amberlink.org/bot)";
+    $result = "Amber/${version} (+http://${hostname} http://amberlink.org/fetcher)";
     return $result;
   }
 
