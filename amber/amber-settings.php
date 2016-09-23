@@ -343,8 +343,43 @@ class AmberSettingsPage
         }
         $new_input['amber_excluded_sites'] = sanitize_text_field( implode( ",", $sanitized_excluded_sites ) );
         
-        return $new_input;
+        /* Validate backend settings */
+        switch ($input['amber_backend']) {
+            case AMBER_BACKEND_PERMA:                
+                foreach (array('amber_perma_api_key', 'amber_perma_server_url', 'amber_perma_api_server_url') as $key)
+                if (empty($input[$key]) ) {
+                    add_settings_error($key, $key, "API key, Server URL, and API Server URL are required for Perma storage");
+                    break;
+                }
+                break;
+            case AMBER_BACKEND_AMAZON_S3:                
+                foreach (array('amber_aws_access_key', 'amber_aws_secret_key', 'amber_aws_bucket', 'amber_aws_region') as $key)
+                if (empty($input[$key]) ) {
+                    add_settings_error($key, $key, "AWS Access Key, Secret Key, Bucket, and Region are required for Amazon S3 storage");
+                    break;
+                }
+                /* Attempt to connect to AWS with provided credentials */
+                try {
+                    require_once("vendor/aws/aws-autoloader.php");
+                    $storage = new AmazonS3Storage(array(
+                          'access_key' => $input['amber_aws_access_key'],
+                          'secret_key' => $input['amber_aws_secret_key'],
+                          'bucket' => $input['amber_aws_bucket'],
+                          'region' => $input['amber_aws_region'],
+                        ));
+                } catch (\Aws\S3\Exception\S3Exception $e) {
+                    add_settings_error('amber_backend', 'amber_backend', "There is a problem with the provided Amazon 
+                    configuration. Check that the access key and secret key are correct, 
+                    and that they provide write access to the selected bucket. Ensure that
+                    your bucket name is unique - it cannot have the same name as any other 
+                    bucket in S3.");
+                }
+                break;
+        }
 
+
+
+        return $new_input;
     }
 
     /** 
