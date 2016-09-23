@@ -381,40 +381,38 @@ class AmberSettingsPage
         $new_input['amber_excluded_sites'] = sanitize_text_field( implode( ",", $sanitized_excluded_sites ) );
         
         /* Validate backend settings */
-        switch ($input['amber_backend']) {
-            case AMBER_BACKEND_PERMA:                
-                foreach (array('amber_perma_api_key', 'amber_perma_server_url', 'amber_perma_api_server_url') as $key)
-                if (empty($input[$key]) ) {
-                    add_settings_error($key, $key, "API key, Server URL, and API Server URL are required for Perma storage");
-                    break;
-                }
+        if (($input['amber_backend'] == AMBER_BACKEND_PERMA) || 
+                (isset($input['amber_alternate_backends']) && in_array(AMBER_BACKEND_PERMA, $input['amber_alternate_backends']))) {
+            foreach (array('amber_perma_api_key', 'amber_perma_server_url', 'amber_perma_api_server_url') as $key)
+            if (empty($input[$key]) ) {
+                add_settings_error($key, $key, "API key, Server URL, and API Server URL are required for Perma storage");
                 break;
-            case AMBER_BACKEND_AMAZON_S3:                
-                foreach (array('amber_aws_access_key', 'amber_aws_secret_key', 'amber_aws_bucket', 'amber_aws_region') as $key)
-                if (empty($input[$key]) ) {
-                    add_settings_error($key, $key, "AWS Access Key, Secret Key, Bucket, and Region are required for Amazon S3 storage");
-                    break;
-                }
-                /* Attempt to connect to AWS with provided credentials */
-                try {
-                    require_once("vendor/aws/aws-autoloader.php");
-                    $storage = new AmazonS3Storage(array(
-                          'access_key' => $input['amber_aws_access_key'],
-                          'secret_key' => $input['amber_aws_secret_key'],
-                          'bucket' => $input['amber_aws_bucket'],
-                          'region' => $input['amber_aws_region'],
-                        ));
-                } catch (\Aws\S3\Exception\S3Exception $e) {
-                    add_settings_error('amber_backend', 'amber_backend', "There is a problem with the provided Amazon 
-                    configuration. Check that the access key and secret key are correct, 
-                    and that they provide write access to the selected bucket. Ensure that
-                    your bucket name is unique - it cannot have the same name as any other 
-                    bucket in S3.");
-                }
-                break;
+            }
         }
-
-
+        if (($input['amber_backend'] == AMBER_BACKEND_AMAZON_S3) || 
+                (isset($input['amber_alternate_backends']) && in_array(AMBER_BACKEND_AMAZON_S3, $input['amber_alternate_backends']))) {
+            foreach (array('amber_aws_access_key', 'amber_aws_secret_key', 'amber_aws_bucket', 'amber_aws_region') as $key)
+            if (empty($input[$key]) ) {
+                add_settings_error($key, $key, "AWS Access Key, Secret Key, Bucket, and Region are required for Amazon S3 storage");
+                break;
+            }
+            /* Attempt to connect to AWS with provided credentials */
+            try {
+                require_once("vendor/aws/aws-autoloader.php");
+                $storage = new AmazonS3Storage(array(
+                      'access_key' => $input['amber_aws_access_key'],
+                      'secret_key' => $input['amber_aws_secret_key'],
+                      'bucket' => $input['amber_aws_bucket'],
+                      'region' => $input['amber_aws_region'],
+                    ));
+            } catch (\Aws\S3\Exception\S3Exception $e) {
+                add_settings_error('amber_backend', 'amber_backend', "There is a problem with the provided Amazon 
+                configuration. Check that the access key and secret key are correct, 
+                and that they provide write access to the selected bucket. Ensure that
+                your bucket name is unique - it cannot have the same name as any other 
+                bucket in S3.");
+            }
+        }
 
         return $new_input;
     }
@@ -450,11 +448,19 @@ jQuery(document).ready(function($) {
         }
     });
     $("#amber_backend").change(function(e) { 
+        var v = $("#amber_alternate_backends").val();
+        if (v == null) { v = []; }
         $(".local").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_LOCAL . ');
-        $(".perma").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_PERMA . ');
+        $(".perma").parent().parent().toggle(($("#amber_backend").val() == ' . AMBER_BACKEND_PERMA . ') || (v.indexOf("' . AMBER_BACKEND_PERMA . '") != -1));
         $(".perma-hidden").parent().parent().toggle($(this).val() == "Hidden Perma fields");
-        $(".ia").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_INTERNET_ARCHIVE . ');
+        $(".ia").parent().parent().toggle(($("#amber_backend").val() == ' . AMBER_BACKEND_INTERNET_ARCHIVE . ') || (v.indexOf("' . AMBER_BACKEND_INTERNET_ARCHIVE . '") != -1));
         $(".aws").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_AMAZON_S3 . ');
+    });
+    $("#amber_alternate_backends").change(function(e) { 
+        var v = $("#amber_alternate_backends").val();
+        if (v == null) { v = []; }
+        $(".perma").parent().parent().toggle(($("#amber_backend").val() == ' . AMBER_BACKEND_PERMA . ') || (v.indexOf("' . AMBER_BACKEND_PERMA . '") != -1));
+        $(".ia").parent().parent().toggle(($("#amber_backend").val() == ' . AMBER_BACKEND_INTERNET_ARCHIVE . ') || (v.indexOf("' . AMBER_BACKEND_INTERNET_ARCHIVE . '") != -1));
     });
     $("#amber_country_id").change();
     $("#amber_available_action").change();
