@@ -325,7 +325,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<textarea rows="5" cols="40" id="amber_excluded_sites" name="amber_options[amber_excluded_sites]">%s</textarea>' .
-            '<p class="description">A list of hostnames or IP addresses, separated by line. Amber will not preserve any link containing an excluded site.</p>',
+            '<p class="description">A list of hostnames or IP addresses, separated by commas. Amber will not preserve any link containing an excluded site.</p>',
             isset( $this->options['amber_excluded_sites'] ) ? esc_textarea( $this->options['amber_excluded_sites']) : ''
         );
     }
