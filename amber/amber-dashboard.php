@@ -58,6 +58,12 @@ class Amber_List_Table extends WP_List_Table {
         }
         if (!empty($item['id'])) {
             $url = join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard")) . "&delete=" . $item['id'];
+            $params = array('orderby', 'order');
+            foreach ($params as $param) {
+                if (isset($_REQUEST[$param])) {
+                    $url .= "&${param}=" . $_REQUEST[$param];
+                }
+            }    
             $url = wp_nonce_url($url, 'delete_link_' . $item['id']);
             $actions['delete'] = "<a href='${url}'>Delete</a>";
         }
@@ -192,7 +198,7 @@ class AmberDashboardPage
          */
         if (isset($_REQUEST['delete_all']) || isset($_REQUEST['delete'])) {
             $redirect = join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard"));
-            $params = array('amber_sort, amber_dir');
+            $params = array('orderby', 'order');
             foreach ($params as $param) {
                 if (isset($_REQUEST[$param])) {
                     $redirect .= "&${param}=" . $_REQUEST[$param];
