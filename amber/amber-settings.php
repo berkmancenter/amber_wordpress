@@ -114,30 +114,6 @@ class AmberSettingsPage
         );      
 
         add_settings_field(
-            'amber_update_strategy', 
-            'Update strategy for captures', 
-            array( $this, 'amber_update_strategy_callback' ), 
-            'amber-settings-admin', 
-            'amber_cache_section'
-        );      
-
-        add_settings_field(
-            'amber_excluded_sites', 
-            'Excluded URL Patterns', 
-            array( $this, 'amber_excluded_sites_callback' ), 
-            'amber-settings-admin', 
-            'amber_cache_section'
-        );      
-
-        add_settings_field(
-            'amber_excluded_formats', 
-            'Excluded file formats', 
-            array( $this, 'amber_excluded_formats_callback' ), 
-            'amber-settings-admin', 
-            'amber_cache_section'
-        );      
-
-        add_settings_field(
             'amber_perma_api_key', 
             'Perma API key', 
             array( $this, 'amber_perma_api_key_callback' ), 
@@ -189,6 +165,30 @@ class AmberSettingsPage
             'amber_aws_region', 
             'S3 Region', 
             array( $this, 'amber_aws_region_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
+        add_settings_field(
+            'amber_update_strategy', 
+            'Update strategy for captures', 
+            array( $this, 'amber_update_strategy_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
+        add_settings_field(
+            'amber_excluded_sites', 
+            'Excluded URL Patterns', 
+            array( $this, 'amber_excluded_sites_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
+        add_settings_field(
+            'amber_excluded_formats', 
+            'Excluded file formats', 
+            array( $this, 'amber_excluded_formats_callback' ), 
             'amber-settings-admin', 
             'amber_cache_section'
         );      
@@ -385,7 +385,7 @@ class AmberSettingsPage
                 (isset($input['amber_alternate_backends']) && in_array(AMBER_BACKEND_PERMA, $input['amber_alternate_backends']))) {
             foreach (array('amber_perma_api_key', 'amber_perma_server_url', 'amber_perma_api_server_url') as $key)
             if (empty($input[$key]) ) {
-                add_settings_error($key, $key, "API key, Server URL, and API Server URL are required for Perma storage");
+                add_settings_error($key, $key, "API key is required for Perma storage");
                 break;
             }
         }

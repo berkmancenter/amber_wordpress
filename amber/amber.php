@@ -322,7 +322,7 @@ class Amber {
 	 */
 	private static function lookup_url($url) {
 	  $status = Amber::get_status();
-	  return Amber::build_link_attributes($status->get_summary($url));
+	  return Amber::build_link_attributes($status->get_summary($url, array(Amber::get_option('amber_backend', 0))));
 	}
 
 	/**
