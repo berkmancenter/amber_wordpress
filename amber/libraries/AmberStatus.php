@@ -3,11 +3,10 @@
 require_once 'AmberDB.php';
 
 interface iAmberStatus {
-  public function get_check($url, $source = 'amber');
-  public function get_cache($url, $source = 'amber');
-  public function get_check_by_id($id, $source = 'amber');
-  public function get_cache_by_id($id, $source = 'amber');
-  public function get_summary($url);
+  public function get_check($url);
+  public function has_cache($url);
+  public function get_cache_by_id($id, $provider_types);
+  public function get_summary($url, $preferred_providers);
   public function get_cache_size();
   public function save_check(array $data);
   public function save_cache(array $data);
@@ -31,41 +30,66 @@ class AmberStatus implements iAmberStatus {
    * @param $source string with the name of the source of the check (e.g. 'amber', 'herdict')
    * @return array|mixed
    */
-  public function get_check($url, $source = 'amber') {
-    return $this->get_item($url, 'amber_check');
-  }
-
-  public function get_cache($url, $source = 'amber') {
-    return $this->get_item($url, 'amber_cache');
-  }
-
-  private function get_item($url, $table) {
+  public function get_check($url) {
     $prefix = $this->table_prefix;
-    $result = $this->db->select("SELECT * FROM ${prefix}${table} WHERE url = %s", array($url));
+    $result = $this->db->select("SELECT * FROM ${prefix}amber_check WHERE url = %s", array($url));
     return $result;
   }
 
-  public function get_check_by_id($id, $source = 'amber') {
-    return $this->get_item_by_id($id, 'amber_check');
-  }
-
-  public function get_cache_by_id($id, $source = 'amber') {
-    return $this->get_item_by_id($id, 'amber_cache');
-  }
-
-  private function get_item_by_id($id, $table) {
+  /**
+   * Is there a cache for this URL?
+   * @param  string  $url The URL to lookup
+   * @return boolean      True if there is a cache, False if not
+   */
+  public function has_cache($url) {
     $prefix = $this->table_prefix;
-    $result = $this->db->select("SELECT * FROM ${prefix}${table} WHERE id = %s", array($id));
+    $result = $this->db->selectAll("SELECT * FROM ${prefix}amber_cache WHERE url = %s", array($url));
+    return count($result) > 0;     
+  }
+
+  /**
+   * Get information about a cache held by the system from one of the given provider types.
+   * If there are multiple caches within the list of given provider types, one will be returned
+   * at random. (In common usage, however, this should not arise)
+   * @param  string $id      ID of the item to lookup
+   * @param  array  $provider_types array of provider IDs to search within
+   * @return asociative array of cache information
+   */
+  public function get_cache_by_id($id, $provider_types) {
+    $prefix = $this->table_prefix;
+    $provider_string = implode(', ', array_fill(0, count($provider_types), '%s'));
+    $result = $this->db->select(
+      "SELECT * FROM ${prefix}amber_cache WHERE id = %s AND provider in (%s)", 
+      array($id, $provider_string));
     return $result;
   }
 
-  public function get_summary($url) {
+  /**
+   * Get summary information about a cache (suitable for annotating a link) based on
+   * a URL. In case there are multiple caches for the URL, provide a list of one or
+   * more "preferred" cache providers to set as the default cache
+   * @param  string $url                 URL to find a cache for
+   * @param  array $preferred_providers  list of cache provider IDs
+   * @return associative array           where the 'default' key points at the summary
+   */
+  public function get_summary($url, $preferred_providers ) {
     $prefix = $this->table_prefix;
-    $result = $this->db->select(' SELECT ca.location, ca.date, ch.status, ca.size ' .
+    $query_result = $this->db->selectAll(' SELECT ca.location, ca.date, ch.status, ca.size, ca.provider ' .
                                 " FROM ${prefix}amber_cache ca, ${prefix}amber_check ch " .
                                 ' WHERE ca.url = %s AND ca.id = ch.id', 
                                 array($url));
-    return array('default' => $result);
+    $result = array();
+    /* See if we can a result from one of our preferred providers */
+    foreach ($query_result as $key => $value) {
+      if (isset($value['provider']) && in_array($value['provider'], $preferred_providers)) {
+        $result['default'] = $value;
+      }
+    }
+    /* if we couldn't find one matching a preferred provider, take the first one */
+    if (!isset($result['default']) && (count($query_result) > 0)) {
+      $result['default'] = $query_result[0];
+    }
+    return $result;
   }
 
   /**
@@ -126,7 +150,8 @@ class AmberStatus implements iAmberStatus {
         return false;
       }
     }
-    $result = $this->db->select("SELECT COUNT(id) as count FROM ${prefix}amber_cache WHERE id = %s", array($data['id']));
+    $result = $this->db->select("SELECT COUNT(id) as count FROM ${prefix}amber_cache WHERE id = %s AND provider = %d", 
+                                array($data['id'], $data['provider']));
     $params = array($data['url'], $data['location'], $data['date'], $data['type'], 
                     $data['size'], $data['provider'], $data['provider_id'], $data['id']);
     if ($result['count']) {
@@ -139,7 +164,9 @@ class AmberStatus implements iAmberStatus {
                                         'size = %d, ' .
                                         'provider = %d, ' .
                                         'provider_id = %s ' .
-                                        'WHERE id = %s';
+                                        'WHERE id = %s ' .
+                                        'AND provider = %d ';
+      $params[] = $data['provider'];
       $this->db->update($updateQuery, $params);
     } else {
       $updateQuery = "INSERT into ${prefix}amber_cache " .
@@ -266,16 +293,15 @@ class AmberStatus implements iAmberStatus {
   }
 
   /**
-   * Delete an item from the cache and check tables. Do NOT delete activity data.
+   * Delete an item from the cache table, and from the check table
+   * if all caches have been deleted. Do NOT delete activity data.
    * @param $id
    */
-  public function delete($id) {
+  public function delete($id, $provider = 0) {
     $prefix = $this->table_prefix;
 
-    foreach (array('amber_cache', 'amber_check') as $table) {
-      $this->db->delete("DELETE FROM ${prefix}${table} WHERE id = %s", array($id));
-    }
+    $this->db->delete("DELETE FROM ${prefix}amber_cache WHERE id = %s AND provider = %d", array($id, $provider));    
+    $this->db->delete("DELETE FROM ${prefix}amber_check WHERE id = %s AND %s not in (select id from ${prefix}amber_cache where id = %s)", array($id, $id, $id));
   }
-
 
 } 
