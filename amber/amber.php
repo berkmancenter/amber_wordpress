@@ -207,10 +207,9 @@ class Amber {
 
 	public static function cron_add_schedule($schedules)
 	{
-		error_log("cron_add_schedule in Amber::cron_add_schedule()");
-	 	$schedules['minutely'] = array(
-	 		'interval' => 60,
-	 		'display' => __( 'Once a minute' )
+	 	$schedules['fiveminute'] = array(
+	 		'interval' => 300,
+	 		'display' => __( 'Every five minutes' )
 	 	);
 	 	return $schedules;
 	}
@@ -218,8 +217,7 @@ class Amber {
 	/** 
 	 * Hourly cron job
 	 */
-	public static function hourly_event_hook() {
-		error_log("hourly_event_hook in Amber::hourly_event_hook()");
+	public static function cron_event_hook() {
 		Amber::dequeue_link();
 	}
 
@@ -495,7 +493,7 @@ add_filter( 'post_row_actions', array('Amber', 'add_post_row_actions'), 10, 2 );
 add_filter( 'page_row_actions', array('Amber', 'add_page_row_actions'), 10, 2 );
 
 /* Setup cron */
-add_action( 'amber_cron_event_hook', array('Amber', 'hourly_event_hook') );
+add_action( 'amber_cron_event_hook', array('Amber', 'cron_event_hook') );
 add_filter( 'cron_schedules', array('Amber', 'cron_add_schedule') );
 
 ?>
