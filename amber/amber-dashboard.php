@@ -449,14 +449,14 @@ jQuery(document).ready(function($) {
     }
 
     function scan_all () {
-        $("#batch_status").html("Scanning content for links...");
+        show_status("Scanning content for links...");
         var data = { 'action': 'amber_scan_start', '_wpnonce': $("#_wpnonce").val() };
         $.post(ajaxurl, data, function(response) {
             if (response) {
-                $("#batch_status").html(response + "items left to scan");
+                show_status(response + " items left to scan");
                 setTimeout(scan_one, 100);
             } else {
-                $("#batch_status").html("No items to scan");
+                show_status_done("No items to scan");
             }
         });     
     }
