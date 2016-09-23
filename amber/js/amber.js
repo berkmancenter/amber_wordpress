@@ -306,6 +306,86 @@ var amber = {
       hover.parentNode.removeChild(hover);
   },
 
+  /* Add event listeners for amber-annotated links */
+  update_link_event_listeners : function() {
+    /* First, clear any pre-existing listeners */
+    amber.util_forEachElement("a[data-versionurl]", function(e, i) {
+      amber.util_clearEventListener(e, 'click', amber.show_cache);
+      amber.util_clearEventListener(e, 'click', amber.show_interstitial);
+      amber.util_clearEventListener(e, 'mouseover', amber.start_link_hover);
+      amber.util_clearEventListener(e, 'mouseout', amber.end_link_hover);
+      amber.util_clearEventListener(e, 'click', amber.clear_hover);
+    });
+
+    /* Now add new listeners, based on the behavior desired */
+    amber.util_forEachElement("a[data-versionurl][data-amber-behavior*=cache]", function(e, i) {
+      amber.util_addEventListener(e, 'click', amber.show_cache);
+    });
+    amber.util_forEachElement("a[data-versionurl][data-amber-behavior*=popup]", function(e, i) {
+      amber.util_addEventListener(e, 'click', amber.show_interstitial);
+    });
+    amber.util_forEachElement("a[data-versionurl][data-amber-behavior*=hover]", function(e, i) {
+      amber.util_addEventListener(e, 'mouseover', amber.start_link_hover);
+      amber.util_addEventListener(e, 'mouseout', amber.end_link_hover);
+      amber.util_addEventListener(e, 'click', amber.clear_hover);
+    });
+  },
+
+  timegate : function() {
+    console.log("Looking for timegates");
+  },
+
+  /* Update data-* attributes based on updated availability information */
+  update_availability : function(availability) {
+    var data = availability.data;
+    console.log(data);
+    if (data) {
+      for (var i = 0; i < data.length; i++) {
+        amber.util_forEachElement("a[href='" + data[i].url + "']", function(e, index) {
+          e.setAttribute('data-amber-behavior', data[i].behavior);
+        });
+      };
+      amber.update_link_event_listeners();
+    }
+  },
+
+  /* Call the server to see if there's updated availability information for cached URLs */
+  get_availability : function() {
+    var request, params = "", urls = [];
+    amber.util_forEachElement("a[data-versionurl]", function(e, i) {
+      params && (params += "&");
+      params += "url[]=" + encodeURIComponent(e.href);
+    });
+
+    if (params && (amber.get_country() != undefined)) {
+      params += "&country=" + amber.get_country();
+
+      request = new XMLHttpRequest();
+      request.open('POST', "/amber/status");
+      request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      request.onload = function() {
+        if (request.readyState === 4) {
+          amber.update_availability(JSON.parse(request.responseText));
+        }
+      };
+      request.send(params);
+    } 
+  },
+
+  /* Get memento URL for a given URL */
+  get_memento : function(href) {
+    console.log(href);
+    var timegate = "http://timetravel.mementoweb.org/timegate/";
+    var request = new XMLHttpRequest();
+    request.onload = function() {
+      if (request.readyState === 4) {
+        console.log("I got a response");
+      }
+    };
+    request.open('HEAD', timegate + href);
+    request.send();
+  },
+
   /* Utility functions to provide support for IE8+ */
   util_addEventListener : function (el, eventName, handler) {
     if (el.addEventListener) {
@@ -314,6 +394,15 @@ var amber = {
       el.attachEvent('on' + eventName, function(){
         handler.call(el);
       });
+    }
+  },
+
+  util_clearEventListener : function (el, eventName, handler) {
+    if (el.removeEventListener) {
+      el.removeEventListener(eventName, handler);
+    } else {
+      // el.detachEvent('on' + eventName);
+      // TODO: Clear the event for IE7-9. See http://ejohn.org/blog/flexible-javascript-events/
     }
   },
 
@@ -352,31 +441,34 @@ var amber = {
 
 amber.util_ready(function($) {
 
-    amber.util_forEachElement("a[data-versionurl][data-amber-behavior*=cache]", function(e, i) {
-      amber.util_addEventListener(e, 'click', amber.show_cache);
-    });
-    amber.util_forEachElement("a[data-versionurl][data-amber-behavior*=popup]", function(e, i) {
-      amber.util_addEventListener(e, 'click', amber.show_interstitial);
-    });
-    amber.util_forEachElement("a[data-versionurl][data-amber-behavior*=hover]", function(e, i) {
-      amber.util_addEventListener(e, 'mouseover', amber.start_link_hover);
-      amber.util_addEventListener(e, 'mouseout', amber.end_link_hover);
-      amber.util_addEventListener(e, 'click', amber.clear_hover);
-    });
+    amber.update_link_event_listeners();
     amber.util_addEventListener(window, 'unload', amber.clear_hover);
+    amber.get_country();
 
-    if (amber.country_specific_behavior_exists()) {
-      amber.get_country();
+    /* Drupal-specific configuration */
+    if ((typeof Drupal != 'undefined') && (typeof Drupal.settings.amber != 'undefined')) {
+      amber.name = Drupal.settings.amber.name;
+      amber.lookup_availability = Drupal.settings.amber.lookup_availability;
     }
 
-    /* Drupal-specific code */
-    if ((typeof Drupal != 'undefined') && (typeof Drupal.settings.amber != 'undefined')){
-      amber.name = Drupal.settings.amber.name;
+    /* Wordpress-specific configuration */
+    if (typeof amber_config != 'undefined') {
+      amber.lookup_availability = amber_config.lookup_availability;
     }
 
     /* Set the locale, based on global variable */
     if (typeof amber_locale != 'undefined') {
       amber.set_locale(amber_locale);
+    }
+
+    /* Query timegate for mementos */
+    // amber.util_forEachElement("a[data-versionurl]", function(e, i) {
+    //   amber.get_memento(e.href);
+    // });
+
+    /* Get availability information from NetClerk */
+    if (amber.lookup_availability != 'undefined' && amber.lookup_availability) {
+      amber.get_availability();
     }
 
 });

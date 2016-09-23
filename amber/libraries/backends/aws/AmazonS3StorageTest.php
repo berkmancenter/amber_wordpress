@@ -10,13 +10,14 @@ require_once("AmazonS3Storage.php");
   */
 class AmazonS3StorageTest extends AmberStorageTest {
 
-    protected static $bucket = "jeffryelichtherewego";
+    protected static $bucket;
     protected static $access_key;
     protected static $secret_key;
 
-	static public function setUpBeforeClass() {
-	  date_default_timezone_set('UTC');
-	}
+    static public function setUpBeforeClass() {
+      date_default_timezone_set('UTC');
+      self::$bucket = uniqid("ambertest");
+    }
 
     private function is_environment_setup() {
         return (getenv("AWS_ACCESS_KEY_ID") && getenv("AWS_SECRET_ACCESS_KEY") && getenv("AWS_LIBRARY_PATH"));
