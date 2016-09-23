@@ -111,6 +111,7 @@ class AmberDashboardPage
     		return "";
     	}
 		$url = join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard")) . "&delete=" . $row['id'];
+		$url = wp_nonce_url($url, 'delete_link_' . $row['id']);
     	return "<a href='${url}'>Delete</a>";    	
     }
 
@@ -129,16 +130,17 @@ class AmberDashboardPage
     }
 
     private function delete_all() {
-    	$prefix = $this->db->prefix;
-
+    	check_admin_referer('amber_dashboard');
 	  	$storage = Amber::get_storage();
 	  	$storage->clear_cache();
 	  	$status = Amber::get_status();
 	  	$status->delete_all();
+    	$prefix = $this->db->prefix;
 	  	$this->db->query("DELETE from ${prefix}amber_queue");
     }	
 
     private function delete($id) {
+    	check_admin_referer( 'delete_link_' . $id );
 	  	$storage = Amber::get_storage();
 	  	$storage->clear_cache_item($id);
 	  	$status = Amber::get_status();
@@ -154,19 +156,20 @@ class AmberDashboardPage
 
     	if (isset($_REQUEST['delete_all'])) {
     		$this->delete_all();
-    	} else if (isset($_REQUEST['scan'])) {
-    		$this->scan();
-    	} else if (isset($_REQUEST['cache_now'])) {
-    		$this->cache_now();
-    	} else if (isset($_REQUEST['delete'])) {
-    		$this->delete($_REQUEST['delete']);
-    	}
+    	} // else if (isset($_REQUEST['scan'])) {
+    	// 	$this->scan();
+    	// } else if (isset($_REQUEST['cache_now'])) {
+    	// 	$this->cache_now();
+    	// } else if (isset($_REQUEST['delete'])) {
+    	// 	$this->delete($_REQUEST['delete']);
+    	// }
 
         ?>
         <div class="wrap">
             <?php screen_icon(); ?>
             <h2>Amber Dashboard</h2>           
 <form action="<?php echo get_site_url(); ?>/wp-admin/tools.php?page=amber-dashboard" method="post">
+<?php wp_nonce_field( 'amber_dashboard' ); ?>
 <table >
 	<tr>
 		<td>
@@ -254,7 +257,7 @@ jQuery(document).ready(function($) {
 	$("input#scan").click(function() {  scan_all(); return false;});
 
 	function cache_one() {
-		var data = { 'action': 'amber_cache' };
+		var data = { 'action': 'amber_cache', '_wpnonce': $("#_wpnonce").val() };
 		$.post(ajaxurl, data, function(response) {
 			if (response) {
 				// Cached a page, check to see if there's another
@@ -275,7 +278,7 @@ jQuery(document).ready(function($) {
 	}
 
 	function scan_one() {
-		var data = { 'action': 'amber_scan' };
+		var data = { 'action': 'amber_scan', '_wpnonce': $("#_wpnonce").val()};
 		$.post(ajaxurl, data, function(response) {
 			if (response && response != 0) {
 				$("#batch_status").html("Scanning content. " + response + " items remaining.");
@@ -291,7 +294,7 @@ jQuery(document).ready(function($) {
 		$("#batch_status").html("Scanning content for links...");
 		// TODO: Some fancy chrome to hide the rest of the page while
 		// this is going on
-		var data = { 'action': 'amber_scan_start' };
+		var data = { 'action': 'amber_scan_start', '_wpnonce': $("#_wpnonce").val() };
 		$.post(ajaxurl, data, function(response) {
 			if (response) {
 				$("#batch_status").html(response + "items left to scan");

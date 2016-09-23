@@ -195,16 +195,6 @@ class Amber {
 		wp_enqueue_script('amber');
 	}
 
-	// public static function add_post_row_actions( $actions, WP_Post $post ) {
- //    	$actions['amber-cache'] = "<a href='#'>Cache now</a>";
- //    	return $actions;
-	// }
-
-	// public static function add_page_row_actions( $actions, WP_Post $post ) {
- //    	$actions['amber-cache'] = "<a href='#'>Cache now</a>";
- //    	return $actions;
-	// }
-
 	public static function cron_add_schedule($schedules)
 	{
 	 	$schedules['fiveminute'] = array(
@@ -467,6 +457,7 @@ class Amber {
 	/* Respond to an ajax call to cache links on a specific page immediately
 	 */
 	public static function ajax_cache_now() {
+		check_ajax_referer( 'amber_cache_now' );
 		$id = $_POST['id'];
 		if ($id) {
 			$links = Amber::extract_links($id, true);
@@ -489,6 +480,7 @@ class Amber {
 	   that all links have been cached.
 	 */
 	public static function ajax_cache() {
+		check_ajax_referer( 'amber_dashboard' );
 		$url = Amber::dequeue_link();
 		print $url;
 		die();
@@ -500,6 +492,7 @@ class Amber {
 	   to be worked through by ajax_scan().
 	 */
 	public static function ajax_scan_start() {
+		check_ajax_referer( 'amber_dashboard' );
 		$post_ids = get_posts(array(
 		    'numberposts'   => -1, // get all posts.
 		    'fields'        => 'ids', // Only get post IDs
@@ -519,6 +512,7 @@ class Amber {
 		   request. This is used for both pages AND posts, so the
 		   maximum per request is actually twice this, depending
 		   on the mix of content on the site */
+		check_ajax_referer( 'amber_dashboard' );
 		$batch_size = 2; 
 		$number_remaining = 0;
 		$transients = array('amber_scan_pages', 'amber_scan_posts');
@@ -554,13 +548,15 @@ class Amber {
 
 	public static function display_meta_boxes($post)
 	{
-		print submit_button("Cache links now", "small", "cache_now");
+		submit_button("Cache links now", "small", "cache_now");
+		wp_nonce_field( 'amber_cache_now', '_wpnonce_amber' ); 
 		print '
 <div id="cache-status"></div>
-<script type="text/javascript" >';
-		print "var data = { 'action': 'amber_cache_now', 'id': '$post->ID' };";
-		print '
+<script type="text/javascript" >
 jQuery(document).ready(function($) { 
+';
+		print "var data = { 'action': 'amber_cache_now', 'id': '$post->ID', '_wpnonce': $('#_wpnonce_amber').val() };";
+		print '
 	$("input#cache_now").click(function(){
 		$("div#cache-status").html("Caching links...")
 		$.post(ajaxurl, data, function(response) {
@@ -616,10 +612,6 @@ add_action( 'init', array('Amber', 'add_rewrite_rules') );
 add_filter( 'query_vars', array('Amber', 'custom_query_vars') );
 add_action( 'parse_query', array('Amber', 'display_cached_content') );
 add_filter( 'wp_headers', array('Amber', 'filter_cached_content_headers') );
-
-/* Add "Cache Now" link to links */
-// add_filter( 'post_row_actions', array('Amber', 'add_post_row_actions'), 10, 2 );
-// add_filter( 'page_row_actions', array('Amber', 'add_page_row_actions'), 10, 2 );
 
 /* Add "Cache Now" link to edit pages */
 add_action( 'add_meta_boxes', array('Amber', 'add_meta_boxes') );
