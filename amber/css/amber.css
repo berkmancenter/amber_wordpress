@@ -138,7 +138,7 @@
  color: white;             
  border-radius: 4px;
  background-color: #5b88b3;
- min-width: 350px;
+ min-width: 355px;
  z-index: 999999;
 }
 
@@ -223,6 +223,12 @@
   font-size: 9px;
   line-height: 12px;
   z-index: 9999999;
+}
+
+.amber-hover.amber-down a.amber-memento-link.found {
+  margin-left: 70px;
+  margin-top: -19px;
+  height: 19px;
 }
 
 .amber-hover a.amber-focus {

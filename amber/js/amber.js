@@ -13,7 +13,7 @@ var amber = {
       '<div class="amber-interstitial amber-down"><a href="#" class="amber-close"></a><div class="amber-body"><div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div>' +
       '<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the capture</a><a class="amber-memento-link" href="#">We also have a memento</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
       hover_html_up   : '<div class="amber-hover amber-up"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">This page should be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div></div><div class="amber-links"><a class="amber-cache-link" href="{{CACHE}}">View the capture</a><a href="{{LINK}}" class="amber-focus">Continue to the page</a></div><div class="amber-arrow"></div><a class="amber-memento-link" href="#">We also have a memento</a></div>',
-      hover_html_down : '<div class="amber-hover amber-down"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div></div><div class="amber-links"><a class="amber-cache-link amber-focus" href="{{CACHE}}">View the capture</a><a class="amber-memento-link" href="#">We also have a memento</a><a href="{{LINK}}">Continue to the page</a></div><div class="amber-arrow"></div><a class="amber-memento-link" href="#">We also have a memento</a></div>',
+      hover_html_down : '<div class="amber-hover amber-down"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div></div><div class="amber-links"><a class="amber-cache-link amber-focus" href="{{CACHE}}">View the capture</a><a href="{{LINK}}">Continue to the page</a></div><div class="amber-arrow"></div><a class="amber-memento-link" href="#">We also have a memento</a></div>',
       this_site: "This site"
     },
     fa : {
@@ -393,7 +393,6 @@ var amber = {
     var request = new XMLHttpRequest();
     request.onload = function() {
       if (request.readyState === 4) {
-        console.log(request.responseText);
         callback(JSON.parse(request.responseText));
       }
     };
