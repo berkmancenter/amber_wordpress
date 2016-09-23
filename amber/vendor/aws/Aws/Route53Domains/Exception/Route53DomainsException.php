@@ -1,9 +1,10 @@
 <?php
+
 namespace Aws\Route53Domains\Exception;
 
-use Aws\Exception\AwsException;
+use Aws\Common\Exception\ServiceResponseException;
 
 /**
- * Represents an error interacting with the Amazon Route 53 Domains service.
+ * Exception thrown by the Route 53 Domains service client.
  */
-class Route53DomainsException extends AwsException {}
+class Route53DomainsException extends ServiceResponseException {}

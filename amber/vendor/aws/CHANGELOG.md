@@ -1,80 +1,139 @@
 # CHANGELOG
 
-## 3.2.4 - 2015-08-04
+## 2.8.24 - 2015-11-16
 
-* `Aws\DeviceFarm` - Added support for the `GetAccountSettings` operation and
-  update documentation to reflect new iOS support.
-* Made PHP7 test failures fail the build.
-* Added support for custom user-agent additions.
+* `Aws\DeviceFarm` - Added support for managing projects, device pools, runs,
+  and uploads.
+* `Aws\DynamoDb` - Fixed bug where properly opening sessions might return false
+  on HHVM.
+* `Aws\DynamoDb` - Fixed bug where calling `session_regenerate_id` without
+  changing session data would prevent data from being carried over from the
+  previous session ID.
+* `Aws\Sts` - Added support for 64-character role session names.
 
-## 3.2.3 - 2015-07-30
+## 2.8.23 - 2015-11-02
 
+* `Aws\AutoScaling` - Added support for EBS encryption.
+* `Aws\Iam` - Added support for resource-based policy simulations.
+* `Aws\Iam` - Added support for service-aware policy simulation.
+* `Aws\Ssm` - Added support for EC2 Run Command, a new EC2 feature that enables
+  you to securely and remotely manage the configuration of your Amazon EC2
+  Windows instances.
+
+## 2.8.22 - 2015-10-15
+
+* `Aws\CloudFormation` - Added support for specifying affected resource types
+  in `CreateStack` and `UpdateStack` operations.
+* `Aws\CloudFormation` - Added support for the `DescribeAccountLimits` API.
+* `Aws\CloudFront` - Added support for WebACL identifiers and related
+  operations.
+* `Aws\Cloudtrail` - Added support for log file integrity validation, log
+  encryption with AWS KMS–Managed Keys (SSE-KMS), and trail tagging.
+* `Aws\CloudWatchLogs` - Added support for export task operations.
+* `Aws\ConfigService` - Added support for config rules, evaluation strategies,
+  and compliance querying.
+* `Aws\Ec2` - Added support for spot blocks.
+* `Aws\Ecs` - Added support for more Docker options hostname, Docker labels,
+  working directory, networking disabled, privileged execution, read-only root
+  filesystem, DNS servers, DNS search domains, ulimits, log configuration, extra
+  hosts (hosts to add to /etc/hosts), and security options (for MLS systems like
+  SELinux).
+* `Aws\Lambda` - Added support for function versioning.
+* `Aws\Kinesis` - Added support for increasing and decreasing stream retention
+  periods.
+* `Aws\Kms` - Added support for scheduling and cancelling key deletions and
+  listing retirable grants.
+* `Aws\S3` - Added support for specifying server side encryption on an when
+  uploading a part of a multipart upload.
+* `Aws\Ses` - Added support for inbound email APIs.
+* `Aws\Workspaces` - Added support for storage volume encryption with AWS KMS.
+
+## 2.8.21 - 2015-09-16
+
+* `Aws\Ec2` - Added support for the "diversified" SpotFleet allocation strategy.
+* `Aws\Ec2` - Added support for reading `StateMessage` and `DataEncryptionKeyId`
+  from a `DescribeSnapshots` response.
+* `Aws\Iam` - Added support for new policy simulation APIs.
+* `Aws\Kinesis` - Added support for timestamped GetRecords call.
+* `Aws\MachineLearning` - Fixed invalid validation constraint on `Predict`
+  operation.
 * `Aws\OpsWorks` - Added support for operations on ECS clusters.
-* `Aws\Rds` - Added support for cluster operations for Amazon Aurora.
+* `Aws\Route53` - Added support for calculated and latency health checks.
+* `Aws\S3` - Added support for new `STANDARD_IA` storage class.
+* `Aws\S3` - Added support for specifying storage class in cross-region
+  replication configuration.
+* `Aws\StorageGateway` - Added support for tagging and untagging resources.
 
-## 3.2.2 - 2015-07-28
+## 2.8.20 - 2015-09-03
 
-* `Aws\S3` - Added support for receiving the storage class in the responses for
-  `GetObject` and `HeadObject` operations.
+* `Aws\CodePipeline` - Added support for using encryption keys with artifact
+  stores.
+* `Aws\ConfigService` - Added support for the `ListDiscoveredResources`
+  operation and new resource types.
+* `Aws\Ec2` - Added support for using instance weights with the
+  `RequestSpotFleet` API.
+* `Aws\Sns` - Added support for configurable SigningCertURL host patterns.
+* `Aws\StorageGateway` - Added support for tagging and untagging resources.
+* Fixed issue with loading the phar from opcache.
+
+## 2.8.19 - 2015-08-20
+
+* `Aws\S3` - Added support for event notification filters.
+
+## 2.8.18 - 2015-08-12
+
+* `Aws\ElasticBeanstalk` - Added support for enhanced health reporting.
+* `Aws\Glacier` - Fixed an issue where content bodies that equaled false (e.g.,
+  '0') would not be uploaded.
+
+## 2.8.17 - 2015-08-04
+
+* `Aws\Common` - Fixed an issue with `RefreshableInstanceProfileCredentials`
+  serilaization.
+* `Aws\DeviceFarm` - Added support for the `GetAccountSettings` operation.
+
+## 2.8.16 - 2015-07-28
+
 * `Aws\CloudWatchLogs` - Added support for 4 new operations: `PutDestination`,
   `PutDestinationPolicy`, `DescribeDestinations`, and `DeleteDestination`.
+* `Aws\S3` - Added support for receiving the storage class in the responses
+  for `GetObject` and `HeadObject` operations.
 
-## 3.2.1 - 2015-07-23
+## 2.8.15 - 2015-07-23
 
+* `Aws\CloudSearch` - Marked CloudSearchClient::getDomainClient as deprecated.
+  This method has been removed in v3 of the SDK.
 * `Aws\Ec2` - Added support for SpotFleetLaunchSpecification.
-* `Aws\Emr` - Added support for Amazon EMR release 4.0.0, which includes a new
-  application installation and configuration experience, upgraded versions of
-  Hadoop, Hive, and Spark, and now uses open source standards for ports and
-  paths. To specify an Amazon EMR release, use the release label parameter (AMI
-  versions 3.x and 2.x can still be specified with the AMI version parameter).
 * `Aws\Glacier` - Added support for the InitiateVaultLock, GetVaultLock,
   AbortVaultLock, and CompleteVaultLock API operations.
-* Fixed a memory leak that occurred when client were created and never used.
-* Updated JsonCompiler by addressing a potential race condition and ensuring
-  that caches are invalidated when upgrading to a new version of the SDK.
-* Updated protocol and acceptance tests.
 
-## 3.2.0 - 2015-07-14
+## 2.8.14 - 2015-07-14
 
-* `Aws\DeviceFarm` - Added support for AWS DeviceFarm, an app testing service 
-  that enables you to test your Android and Fire OS apps on real, physical 
-  phones and tablets that are hosted by AWS.
+* `Aws\DeviceFarm` - Added support for AWS DeviceFarm, an app testing service 
+  that enables you to test your Android and Fire OS apps on real, physical 
+  phones and tablets that are hosted by AWS.
 * `Aws\DynamoDb` - Added support for consistent scans and update streams.
 * `Aws\DynamoDbStreams` - Added support for Amazon DynamoDB Streams, giving you
-  the ability to subscribe to the transactional log of all changes transpiring
-  in your DynamoDB table.
-* `Aws\S3` - Fixed checksum encoding on multipart upload of non-seekable 
-  streams.
-* `Aws\S3\StreamWrapper` - Added guard on rename functionality to ensure wrapper
-  initialized.
-  
+  the ability to subscribe to the transactional log of all changes transpiring
+  in your DynamoDB table.
 
-## 3.1.0 - 2015-07-09
+## 2.8.13 - 2015-07-09
 
+* `Aws\AutoScaling` - Added support for step policies.
 * `Aws\CodeCommit` - Added support for AWS CodeCommit, a secure, highly 
   scalable, managed source control service that hosts private Git repositories.
 * `Aws\CodePipeline` - Added support for AWS CodePipeline, a continuous delivery
   service that enables you to model, visualize, and automate the steps required
   to release your software.
+* `Aws\Ec2` - Added support for encrypted snapshots.
 * `Aws\Iam` - Added support for uploading SSH public keys for authentication
   with AWS CodeCommit.
+* `Aws\S3` - Fixed #609 to handle non-200 responses in the Stream Wrapper.
 * `Aws\Ses` - Added support for cross-account sending through the sending
   authorization feature.
+* Fixed the way that cached credentials work via #670.
 
-## 3.0.7 - 2015-07-07
-
-* `Aws\AutoScaling` - Added support for step policies.
-* `Aws\CloudHsm` - Fixed a naming collision with the `GetConfig` operation. This
-  operation is now available through the `GetConfigFiles` method.
-* `Aws\DynamoDb` - Improved performance when unmarshalling complex documents.
-* `Aws\DynamoDb` - Fixed checksum comparison of uncompressed responses.
-* `Aws\Ec2` - Added support for encrypted snapshots.
-* `Aws\S3` - Added support for user-provided SHA256 checksums for S3 uploads.
-* `Aws\S3` - Added support for custom protocols in `Aws\S3\StreamWrapper`.
-* Added cucumber integration tests.
-* Updated the test suite to be compatible with PHP 7-alpha 2.
-
-## 3.0.6 - 2015-06-24
+## 2.8.11 - 2015-06-24
 
 * `Aws\CloudFront` - Added support for configurable `MaxTTL` and `DefaultTTL`.
 * `Aws\ConfigService` - Added support for recording changes for specific 
@@ -87,79 +146,32 @@
   instances.
 * `Aws\Redshift` - Added support for the `CreateSnapshotCopyGrant`, 
   `DescribeSnapshotCopyGrants`, and `DeleteSnapshotCopyGrant` API operations.
-* Fixed XML attribute serialization.
+* Fixed empty list serialization for Elastic Load Balancing and CloudFormation
+  operations.
 
-## 3.0.5 - 2015-06-18
-
-* `Aws\CognitoSync` - Fixed an issue in the Signature Version 4 implementation
-  that was causing issues when signing requests to the Cognito Sync service.
-* `Aws\ConfigService` - Fixed an issue that was preventing the
-  `ConfigServiceClient` from working properly.
-* `Aws\Ecs` - Added support for sorting, deregistering, and overriding
-  environment variables for task definitions.
-* `Aws\Iam` - Added new paginator and waiter configurations.
-* `Aws\S3` - Added support for the `SaveAs` parameter that was in V2.
-* `Aws\Sqs` - Fixed an issue that was preventing batch message deletion from
-  working properly.
-* `Aws` - The `Aws\Sdk::createClient()` method is no longer case-sensitive with
-  service names.
-
-## 3.0.4 - 2015-06-11
+## 2.8.10 - 2015-06-11
 
 * `Aws\AutoScaling` - Added support for attaching and detaching load balancers.
-* `Aws\CloudWatchLogs` - Added support for the PutSubscriptionFilter,
-  DescribeSubscriptionFilters, and DeleteSubscriptionFilter operations.
-* `Aws\CognitoIdentity` - Added support for the DeleteIdentities operation,
-  and hiding disabled identities with the ListIdentities operation.
 * `Aws\Ec2` - Added support for VPC flow logs and the M4 instance types.
 * `Aws\Ecs` - Added support for the UpdateContainerAgent operation.
-* `Aws\S3` - Improvements to how errors are handled in the `StreamWrapper`.
+* `Aws\CloudHsm` - Fixed a configuration issue that was affecting some operations.
+
+## 2.8.9 - 2015-06-04
+
+* `Aws\CloudWatchLogs` - Added support for the PutSubscriptionFilter,
+  DescribeSubscriptionFilters, and DeleteSubscriptionFilter operations.
+* `Aws\DynamoDb` - Fixed the DynamoDB `Marshaler` to better handler empty maps.
+* `Aws\CognitoIdentity` - Added support for the DeleteIdentities operation,
+  and hiding disabled identities with the ListIdentities operation.
 * `Aws\StorageGateway` - Added support for the ListVolumeInitiators operation.
-* `Aws` - Fixes a bug such that empty maps are handled correctly in JSON
-  requests.
 
-## 3.0.3 - 2015-06-01
-
-* `Aws\MachineLearning` - Fixed the `Predict` operation to use the provided
-  `PredictEndpoint` as the host.
-
-## 3.0.2 - 2015-05-29
-
-* `Aws` - Fixed an issue preventing some clients from being instantiated via
-  their constructors due to a mismatch between class name and endpoint prefix.
-
-## 3.0.1 - 2015-05-28
+## 2.8.8 - 2015-05-28
 
 * `Aws\Lambda` - Added Amazon S3 upload support.
 
-## 3.0.0 - 2015-05-27
-
-* Asynchronous requests.
-    * Features like _waiters_ and _multipart uploaders_ can also be used
-      asynchronously.
-    * Asynchronous workflows can be created using _promises_ and _coroutines_.
-    * Improved performance of concurrent/batched requests via _command pools_.
-* Decoupled HTTP layer.
-    * [Guzzle 6](http://guzzlephp.org) is used by default to send requests,
-      but Guzzle 5 is also supported out of the box.
-    * The SDK can now work in environments where cURL is not available.
-    * Custom HTTP handlers are also supported.
-* Follows the [PSR-4 and PSR-7 standards](http://php-fig.org).
-* Middleware system for customizing service client behavior.
-* Flexible _paginators_ for iterating through paginated results.
-* Ability to query data from _result_ and _paginator_ objects with
-  [JMESPath](http://jmespath.org/).
-* Easy debugging via the `'debug'` client configuration option.
-* Customizable retries via the `'retries'` client configuration option.
-* More flexibility in credential loading via _credential providers_.
-* Strictly follows the [SemVer](http://semver.org/) standard going forward.
-* **For more details about what has changed, see the
-  [Migration Guide](http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/migration.html)**.
-
 ## 2.8.7 - 2015-05-26
 
-* `Aws\Efs` - Added support for the [Amazon Elastic File System (Amazon
-  EFS)](http://aws.amazon.com/efs/)
+* `Aws\Efs` - [Amazon Elastic File System (Amazon EFS)](http://aws.amazon.com/efs/)
 * Failing to parse an XML error response will now fail gracefully as a
   `PhpInternalXmlParseError` AWS error code.
 
@@ -418,16 +430,6 @@ for details about any changes you may need to make to your code for this upgrade
 * Updated the CloudFront model.
 * Added support for configuring push synchronization to the Cognito Sync client.
 * Updated docblocks in a few S3 and Glacier classes to improve IDE experience.
-
-## 3.0.0-beta.1 - 2014-10-14
-
-* New requirements on Guzzle 5 and PHP 5.5.
-* Event system now uses Guzzle 5 events and no longer utilizes Symfony2.
-* `version` and `region` are noww required parameter for each client
-  constructor. You can op-into using the latest version of a service by
-  setting `version` to `latest`.
-* Removed `Aws\S3\ResumableDownload`.
-* More information to follow.
 
 ## 2.7.2 - 2014-10-23
 

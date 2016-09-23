@@ -1,9 +1,9 @@
 <?php
 namespace Aws\Ecs\Exception;
 
-use Aws\Exception\AwsException;
+use Aws\Common\Exception\ServiceResponseException;
 
 /**
- * Amazon ECS exception.
+ * Default service exception class
  */
-class EcsException extends AwsException {}
+class EcsException extends ServiceResponseException {}
