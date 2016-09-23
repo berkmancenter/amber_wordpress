@@ -89,6 +89,30 @@ class AmberSettingsPage
             'amber_cache_section'
         );      
 
+        add_settings_field(
+            'amber_update_strategy', 
+            'Update strategy for captures', 
+            array( $this, 'amber_update_strategy_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
+        add_settings_field(
+            'amber_excluded_sites', 
+            'Excluded sites', 
+            array( $this, 'amber_excluded_sites_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
+        add_settings_field(
+            'amber_excluded_formats', 
+            'Excluded file formats', 
+            array( $this, 'amber_excluded_formats_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
         add_settings_section(
             'amber_delivery_section',
             'Amber Delivery', 
@@ -152,14 +176,22 @@ class AmberSettingsPage
             'amber_unavailable_action',
             'amber_available_action_hover',
             'amber_unavailable_action_hover',
+            'amber_update_strategy',
             );
         foreach ($valid_integer_options as $opt) {
             if( isset( $input[$opt] ) )
                 $new_input[$opt] = absint( $input[$opt] );
         }
 
-        if( isset( $input['amber_storage_location'] ) )
-            $new_input['amber_storage_location'] = sanitize_text_field( $input['amber_storage_location'] );
+        $valid_string_options = array(
+            'amber_storage_location',
+            'amber_excluded_sites',
+            'amber_excluded_formats'
+            );
+        foreach ($valid_string_options as $opt) {
+            if( isset( $input[$opt] ) )
+                $new_input[$opt] = sanitize_text_field( $input[$opt] );
+        }
 
         return $new_input;
     }
@@ -197,6 +229,37 @@ class AmberSettingsPage
             isset( $this->options['amber_max_disk'] ) ? esc_attr( $this->options['amber_max_disk']) : ''
         );
     }
+
+    public function amber_update_strategy_callback()
+    {
+        $option = $this->options['amber_update_strategy'];
+        ?>
+            <select id="amber_update_strategy" name="amber_options[amber_update_strategy]">
+                <option value="0" <?php if ( $option == 0 ) { echo 'selected="selected"'; } ?>>Update captures periodically</option>
+                <option value="1" <?php if ( $option == 1 ) { echo 'selected="selected"'; } ?>>Do not update captures</option>
+            </select> 
+            <p class="description">Select "Do not update" if you want to preserve links at the time the content is published. Otherwise, link storage will be periodically updated.</p>
+        <?php
+    }
+
+    public function amber_excluded_sites_callback()
+    {
+        printf(
+            '<textarea rows="5" cols="40" id="amber_excluded_sites" name="amber_options[amber_excluded_sites]">%s</textarea>' .
+            '<p class="description">A list of hostnames or IP addresses, separated by line. Amber will not preserve any link containing an excluded site.</p>',
+            isset( $this->options['amber_excluded_sites'] ) ? esc_textarea( $this->options['amber_excluded_sites']) : ''
+        );
+    }
+
+    public function amber_excluded_formats_callback()
+    {
+        printf(
+            '<textarea rows="5" cols="40" id="amber_excluded_formats" name="amber_options[amber_excluded_formats]">%s</textarea>' .
+            '<p class="description">A list of of MIME types, separated by commas. Amber will not preserve any link containing an excluded MIME type.</p>',
+            isset( $this->options['amber_excluded_formats'] ) ? esc_textarea( $this->options['amber_excluded_formats']) : ''
+        );
+    }
+
 
     public function amber_available_action_callback()
     {

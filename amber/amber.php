@@ -62,10 +62,11 @@ class Amber {
 	 * @return IAmberFetcher
 	 */
 	public static function get_fetcher() {
+
     	$fetcher = new AmberFetcher(Amber::get_storage(), array(
 		      		'amber_max_file' => Amber::get_option('amber_max_file',1000),
 	    	  		'header_text' => "This is a cached page",
-	      			'excluded_content_types' => Amber::get_option("amber_excluded_formats",false) ? explode(PHP_EOL, Amber::get_option("amber_excluded_formats","")) : array(),
+	      			'excluded_content_types' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
     	));
 	  	return $fetcher;
 	}
@@ -318,14 +319,46 @@ class Amber {
 		return $result;
 	}
 
+	/**
+	 * Filter links that are candidates for caching to exclude local links, or links to URLs on the blacklist
+	 * @param $links array of links to check
+	 * @param $blacklist array of hostnames to exclude
+	 */
+	private static function filter_excluded_links($links)
+	{
+		$blacklist = explode(",",Amber::get_option("amber_excluded_sites",""));
+		if (!$blacklist) {
+		  return $links;
+		}
+		$result = array();
+		foreach ($links as $link) {
+		  $host = parse_url($link,PHP_URL_HOST);
+		  if ($host) {
+		    $exclude = FALSE;
+		    foreach ($blacklist as $blacklistitem) {
+		      $blacklistitem = trim($blacklistitem);
+		      if (strcasecmp($host,$blacklistitem) === 0) {
+		        $exclude = TRUE;
+		      }
+		    }
+		    if (!$exclude) {
+		      $result[] = $link;
+		    }
+		  }
+		}
+		return $result;
+	}
+
 	public static function extract_links($post_id, $cache_immediately = false) {
 		$result = array();
         $post = get_post($post_id);
         $text = $post->post_content;
 	 	$re = '/href=["\'](http[^\v()<>{}\[\]"\']+)[\'"]/';
   		$count = preg_match_all($re, $text, $matches);
+		$links = Amber::filter_excluded_links($matches[1]);
+
   		if ($count) {
-  			 $result = Amber::cache_links($matches[1],$cache_immediately);
+  			 $result = Amber::cache_links($links,$cache_immediately);
   		}
   		return $result;
 	}

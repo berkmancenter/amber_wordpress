@@ -66,6 +66,7 @@ class AmberInstall {
             'amber_available_action_hover' => 2,
             'amber_unavailable_action_hover' => 2,
             'amber_storage_location' => 'amber',
+            'amber_update_strategy' => 0,
             );
 
 		update_option('amber_options', $options);

@@ -11,7 +11,7 @@ class AmberDashboardPage
     	global $wpdb;
     	$this->db = $wpdb;
         add_action( 'admin_menu', array( $this, 'add_plugin_page' ) );
-        // add_action( 'admin_init', array( $this, 'page_init' ) );
+        add_action( 'admin_init', array( $this, 'page_init' ) );
     }
 
     /**
@@ -26,6 +26,37 @@ class AmberDashboardPage
 			'amber-dashboard', 
             array( $this, 'create_admin_page' )
         );
+    }
+
+    /* Handle any actions that might be requested on a page load.
+     * Other actions handled through ajax calls are not included in this function
+     */
+    public function page_init()
+    {
+    	global $_REQUEST;
+
+    	if (isset($_REQUEST['delete_all'])) {
+    		$this->delete_all();
+    	} else if (isset($_REQUEST['delete'])) {
+    		$this->delete($_REQUEST['delete']);    		
+    	}
+    	/* Since at least one action ('delete') is passed as a GET request in the URL,
+    	 * redirect to this same page, but without that action in the URL. (This prevents
+    	 * problems on refresh, such as deleting the item again). Add back any page parameters
+    	 * we want to keep before redirecting. (This would not be necessary if submitted 
+    	 * delete requests through a post, with a combination of javascript and hidden fields)
+    	 */
+    	if (isset($_REQUEST['delete_all']) || isset($_REQUEST['delete'])) {
+	    	$redirect = join('/',array(get_site_url(),"wp-admin/tools.php?page=amber-dashboard"));
+	    	$params = array('amber_sort, amber_dir');
+	    	foreach ($params as $param) {
+		     	if (isset($_REQUEST[$param])) {
+		    		$redirect .= "&${param}=" . $_REQUEST[$param];
+		    	}
+	    	}
+	    	wp_redirect($redirect);
+	    	die();
+    	}
     }
 
     private function cache_size() {
@@ -153,11 +184,6 @@ class AmberDashboardPage
      */
     public function create_admin_page()
     {
-    	global $_REQUEST;
-
-    	if (isset($_REQUEST['delete_all'])) {
-    		$this->delete_all();
-    	}
         ?>
         <div class="wrap">
             <?php screen_icon(); ?>
