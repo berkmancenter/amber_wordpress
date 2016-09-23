@@ -146,7 +146,7 @@ var amber = {
     if (amber.country && !(amber.country in behavior) && (behavior.default.action == action)) {
       return true;
     }
-    if (amber.country && (behavior[amber.country].action == action)) {
+    if (amber.country && behavior[amber.country] && (behavior[amber.country].action == action)) {
       return true;
     }
     return false;
@@ -365,7 +365,7 @@ amber.util_ready(function($) {
     }
 
     /* Drupal-specific code */
-    if (typeof Drupal != 'undefined') {
+    if ((typeof Drupal != 'undefined') && (typeof Drupal.settings.amber != 'undefined')){
       amber.name = Drupal.settings.amber.name;
     }
 
