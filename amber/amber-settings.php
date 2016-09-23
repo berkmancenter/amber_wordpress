@@ -233,6 +233,14 @@ class AmberSettingsPage
         );      
 
         add_settings_field(
+            'amber_timegate', 
+            'Check a TimeGate server for additional copies of captured content', 
+            array( $this, 'amber_timegate_callback' ), 
+            'amber-settings-admin', 
+            'amber_delivery_section'
+        );      
+
+        add_settings_field(
             'amber_country_id', 
             'Country', 
             array( $this, 'amber_country_id_callback' ), 
@@ -313,6 +321,7 @@ class AmberSettingsPage
         $valid_string_options = array(
             'amber_storage_location',
             'amber_excluded_formats',
+            'amber_timegate',
             'amber_country_id',
             'amber_perma_api_key',
             'amber_perma_server_url',
@@ -666,6 +675,14 @@ jQuery(document).ready(function($) {
         <?php
     }
 
+    public function amber_timegate_callback()
+    {
+        printf(
+            '<input type="text" id="amber_timegate" name="amber_options[amber_timegate]" value="%s" />' .
+            '<p class="description">TBD: Describe what it meanst to use a TimeGate</p>',
+            isset( $this->options['amber_timegate'] ) ? esc_attr( $this->options['amber_timegate']) : ''
+        );
+    }
 
     public function amber_country_id_callback()
     {
