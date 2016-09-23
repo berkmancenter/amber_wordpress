@@ -168,6 +168,13 @@ class AmberSettingsPage
             'amber-settings-admin', 
             'amber_cache_section'
         );      
+        add_settings_field(
+            'amber_post_types', 
+            'Included post types', 
+            array( $this, 'amber_post_types_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'          
+        );      
 
         add_settings_field(
             'amber_update_strategy', 
