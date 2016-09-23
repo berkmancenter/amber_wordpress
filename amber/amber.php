@@ -369,12 +369,14 @@ class Amber {
 			$exclude = FALSE;
 			foreach ($blacklist as $blacklistitem) {
 				$blacklistitem = trim($blacklistitem);
-				$blacklistitem = preg_replace("/https?:\\/\\//i", "", $blacklistitem);
-				$blacklistitem = str_replace("@", "\@", $blacklistitem); 
-				$blacklistitem = '@' . $blacklistitem . '@';
-				$cleanedlink = preg_replace("/https?:\\/\\//i", "", $link);
-				if (preg_match($blacklistitem, $cleanedlink)) {
-					$exclude = TRUE;
+				if ($blacklistitem) {
+					$blacklistitem = preg_replace("/https?:\\/\\//i", "", $blacklistitem);
+					$blacklistitem = str_replace("@", "\@", $blacklistitem); 
+					$blacklistitem = '@' . $blacklistitem . '@';
+					$cleanedlink = preg_replace("/https?:\\/\\//i", "", $link);
+					if (preg_match($blacklistitem, $cleanedlink)) {
+						$exclude = TRUE;
+					}
 				}
 			}
 			if ($exclude) {
