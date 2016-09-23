@@ -76,6 +76,14 @@
   background-color: white;
 }
 
+.amber-iframe-container > a {
+  display: block;
+  position: absolute;
+  height: 140px;
+  width: 230px;
+  z-index: 999999;
+}
+
 .amber-interstitial iframe {
   width: 400%;
   height: 400%;
