@@ -1,7 +1,7 @@
 <?php
 
 global $amber_db_version;
-$amber_db_version = '1.3';
+$amber_db_version = '1.4';
 
 class AmberInstall {
 
@@ -25,7 +25,7 @@ class AmberInstall {
 		  size int,
 		  provider int,
 		  provider_id VARCHAR(128) DEFAULT '' NOT NULL,
-		  PRIMARY KEY  (id)
+		  PRIMARY KEY  (id,provider)
 		)";
 		$tables['amber_activity'] =  "(
 		  id VARCHAR(32) NOT NULL,
@@ -56,6 +56,13 @@ class AmberInstall {
 		}
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+		/* Delete existing index on amber_cache table if it exists */
+		$cache_table_name = $wpdb->prefix . "amber_cache";
+		if ($wpdb->get_var("SHOW TABLES LIKE '$cache_table_name'") == $cache_table_name) {
+			$wpdb->query("DROP INDEX `PRIMARY` ON $cache_table_name");
+		}
+
 		foreach ($tables as $name => $table) {
 			$table_name = $wpdb->prefix . $name;
 			$sql = "CREATE TABLE $table_name $table $charset_collate";
@@ -119,9 +126,18 @@ class AmberInstall {
 
 	public static function upgrade_site() {
 		global $amber_db_version;
+		global $wpdb;
+
 		$installed_db_version = get_option( "amber_db_version" );
 		if ( $installed_db_version != $amber_db_version ) {
-			/* Upgrade from 1.0-1.2 => 1.3 */
+			/* Upgrade from 1.0-1.3 => 1.4 */
+
+			/* Delete existing index on amber_cache table if it exists */
+			$cache_table_name = $wpdb->prefix . "amber_cache";
+			if ($wpdb->get_var("SHOW TABLES LIKE '$cache_table_name'") == $cache_table_name) {
+				$wpdb->query("DROP INDEX `PRIMARY` ON $cache_table_name");
+			}
+
 			$tables = array('amber_cache' =>  "(
 							  id VARCHAR(32) NOT NULL,
 							  url VARCHAR(2000) DEFAULT '' NOT NULL,
@@ -131,7 +147,7 @@ class AmberInstall {
 							  size int,
 							  provider int,
 							  provider_id VARCHAR(128) DEFAULT '' NOT NULL,
-							  PRIMARY KEY  (id)
+							  PRIMARY KEY  (id,provider)
 							)");
 			AmberInstall::install_tables( $tables );
 
