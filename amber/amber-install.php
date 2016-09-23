@@ -27,6 +27,13 @@ class AmberInstall {
 		  views int DEFAULT 0 NOT NULL,
 		  PRIMARY KEY id (id)
 		)";
+		$tables['amber_queue'] =  "(
+		  id VARCHAR(32) NOT NULL,
+		  url VARCHAR(2000) NOT NULL,
+		  created int,
+		  locked int,
+		  PRIMARY KEY id (id)
+		)";
 		return $tables;
 	}
 
@@ -49,10 +56,28 @@ class AmberInstall {
 			$sql = "CREATE TABLE $table_name $table $charset_collate";
 			dbDelta( $sql );
 		}
+
+		/* Set default options */
+		$options =  array(
+            'amber_max_file' => 1000,
+            'amber_max_disk' => 1000,
+            'amber_available_action' => AMBER_ACTION_NONE,
+            'amber_unavailable_action' => AMBER_ACTION_HOVER,
+            'amber_available_action_hover' => 2,
+            'amber_unavailable_action_hover' => 2,
+            'amber_storage_location' => 'amber',
+            );
+
+		update_option('amber_options', $options);
+
+		/* The hook name needs to be string, it can't be a reference to a 
+		 *  class function */
+		error_log("wp_schedule_event in amber-install.php");
+		wp_schedule_event( time(), 'minutely', 'amber_cron_event_hook' );
 	}
 
 	public static function deactivate() {
-		// Nothing to do here at the moment
+		wp_clear_scheduled_hook( 'amber_cron_event_hook' );
 	}
 
 	public static function uninstall() {
@@ -62,7 +87,6 @@ class AmberInstall {
 			$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}${name}" );
 		}
 	}
-
 }
 
 ?>

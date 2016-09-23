@@ -34,7 +34,8 @@ class AmberDashboardPage
     }
 
     private function queue_size() {
-    	return 3;
+    	$prefix = $this->db->prefix;
+    	return $this->db->get_var( "SELECT COUNT(*) FROM ${prefix}amber_queue" );
     }
 
     private function last_check() {
@@ -156,16 +157,17 @@ class AmberDashboardPage
     {
     	global $_REQUEST;
 
-    	if ($_REQUEST['delete_all']) {
+    	if (isset($_REQUEST['delete_all'])) {
     		$this->delete_all();
-    	} else if ($_REQUEST['scan']) {
+    	} else if (isset($_REQUEST['scan'])) {
     		$this->scan();
-    	} else if ($_REQUEST['cache_now']) {
+    	} else if (isset($_REQUEST['cache_now'])) {
     		$this->cache_now();
-    	} else if ($_REQUEST['delete']) {
+    	} else if (isset($_REQUEST['delete'])) {
     		$this->delete($_REQUEST['delete']);
     	}
 
+    	// print wp_next_scheduled('amber_hourly_event_hook');
         ?>
         <div class="wrap">
             <?php screen_icon(); ?>
