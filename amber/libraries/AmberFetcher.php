@@ -467,6 +467,15 @@ class AmberNetworkUtils {
     return !ini_get('open_basedir') && filter_var(ini_get('safe_mode'), FILTER_VALIDATE_BOOLEAN) === false;
   }
 
+  private static function get_user_agent_string() {
+    /* In the future, we could increment this automatically, but version number is not currently
+       included in the code as part of our build process. */
+    $version = "1.0";     
+    $hostname = gethostname();
+    $result = "AmberBot/${version} (+http://${hostname} http://amberlink.org/bot)";
+    return $result;
+  }
+
   public static function full_relative_path($base, $url) {
     $dict = parse_url($url);
     if (isset($dict['path'])) {
@@ -559,7 +568,7 @@ class AmberNetworkUtils {
           CURLOPT_TIMEOUT => 10,            /* Timeout for any CURL function */
           CURLOPT_RETURNTRANSFER => 1,      /* Return the output as a string */
           CURLOPT_HEADER => TRUE,           /* Return header information as part of the file */
-          CURLOPT_USERAGENT => "Amber 1.0/compatible",
+          CURLOPT_USERAGENT => AmberNetworkUtils::get_user_agent_string(),
           CURLOPT_ENCODING => '',           /* Handle compressed data */
           // CURLOPT_VERBOSE => true,
           // CURLOPT_PROXY => 'localhost:8889',
@@ -668,7 +677,7 @@ class AmberNetworkUtils {
       CURLOPT_TIMEOUT => 10,            /* Timeout for any CURL function */
       CURLOPT_RETURNTRANSFER => 1,      /* Return the output as a string */
       CURLOPT_HEADER => TRUE,           /* Return header information as part of the file */
-      CURLOPT_USERAGENT => "Amber 1.0/compatible",
+      CURLOPT_USERAGENT => AmberNetworkUtils::get_user_agent_string(),
       CURLOPT_ENCODING => '',           /* Handle compressed data */
     );
 
