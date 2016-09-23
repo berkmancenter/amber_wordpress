@@ -25,7 +25,7 @@ class Amber_List_Table extends WP_List_Table {
         $prefix = $wpdb->prefix;
 
         $statement = 
-            "SELECT c.id, c.url, c.status, c.last_checked, c.message, ca.date, ca.size, ca.location, a.views, a.date as activity_date, substring_index(c.url,'://',-1) as url_sort " .
+            "SELECT c.id, c.url, c.status, c.last_checked, c.message, ca.date, ca.size, ca.provider, ca.location, a.views, a.date as activity_date, substring_index(c.url,'://',-1) as url_sort " .
             "FROM ${prefix}amber_check c " .
             "LEFT JOIN ${prefix}amber_cache ca on ca.id = c.id " .
             "LEFT JOIN ${prefix}amber_activity a on ca.id = a.id ";
@@ -53,7 +53,11 @@ class Amber_List_Table extends WP_List_Table {
     function column_site($item) {
         $actions = array();
         if (!empty($item['location'])) {
-            $url = join('/',array(get_site_url(),htmlspecialchars($item['location'])));
+            if (strpos($item['location'],"http") === 0) {
+                $url = htmlspecialchars($item['location']);
+            } else {
+                $url = join('/',array(get_site_url(),htmlspecialchars($item['location'])));
+            }
             $actions['view'] =  "<a href='${url}'>View</a>";     
         }
         if (!empty($item['id'])) {
@@ -76,7 +80,11 @@ class Amber_List_Table extends WP_List_Table {
     }
 
     function column_size($item) {
-        return round($item['size'] / 1024, 2);
+        if (isset($item['provider']) && ($item['provider'] == AMBER_BACKEND_PERMA)) {
+            return "";
+        } else {
+            return round($item['size'] / 1024, 2);
+        }
     }
 
     function column_last_checked($item) {
@@ -88,7 +96,6 @@ class Amber_List_Table extends WP_List_Table {
     }
 
     function column_activity_date($item) {
-        // return print_r($item,true);
         return isset($item['activity_date']) ? date('r',$item['activity_date']) : "";
     }
 
@@ -239,8 +246,10 @@ class AmberDashboardPage
 
     private function delete($id) {
         check_admin_referer( 'delete_link_' . $id );
-        $storage = Amber::get_storage();
-        $storage->clear_cache_item($id);
+        $storage = Amber::get_storage_for_item($id);
+        if (!is_null($storage)) {
+            $storage->delete($id);            
+        }
         $status = Amber::get_status();
         $status->delete($id);
     }
@@ -249,7 +258,7 @@ class AmberDashboardPage
         global $wpdb;
         check_admin_referer('amber_dashboard');
         $storage = Amber::get_storage();
-        $storage->clear_cache();
+        $storage->delete_all();
         $status = Amber::get_status();
         $status->delete_all();  
         $prefix = $wpdb->prefix;
