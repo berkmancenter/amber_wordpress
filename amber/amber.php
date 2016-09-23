@@ -408,17 +408,12 @@ class Amber {
 	/**
 	 * Retrieve an item from the cache for display
 	 * @param $id string identifying the item to return
-	 * @param $record_view boolean whether to record this view in the amber_activity table
 	 * @return null|string
 	 */
-	private static function retrieve_cache_item($id, $record_view = true) {
+	private static function retrieve_cache_item($id) {
 	  $storage = Amber::get_storage();
 	  $data = $storage->get($id);
 	  $metadata = $storage->get_metadata($id);
-	  $status = Amber::get_status();
-	  if ($record_view) {
-		  $status->save_view($id);
-	  }
 	  return ($data && $metadata) ? array('data' => $data, 'metadata' => $metadata) : NULL;
 	}
 
@@ -489,6 +484,15 @@ class Amber {
 
 		/* Displaying the cache frame page with an iframe referencing the cached item */
 		if (!empty($cache_id)) {
+			$data = Amber::retrieve_cache_item($cache_id);
+			 /* If the document is a PDF, serve it directly rather than in an iframe. Browsers
+			    will not render PDFs within sandboxed iframes. */
+			if (isset($data['metadata']['type']) && ($data['metadata']['type'] == 'application/pdf')) {
+				print $data['data'];
+			 	$status = Amber::get_status();
+				$status->save_view($cache_id);
+				die();
+			}
   			$uri = $_SERVER["REQUEST_URI"];
 			$iframe_url = "";
 			if ($uri && (strrpos($uri,"/") == (strlen($uri) - 1))) {
@@ -516,6 +520,8 @@ EOF;
 			if (empty($asset_id)) {
 				/* This is the root item */
 				$data = Amber::retrieve_cache_item($cache_frame_id);
+				$status = Amber::get_status();
+				$status->save_view($cache_frame_id);
 		    	print $data['data'];
 		    	die();
 			} else {
@@ -542,7 +548,7 @@ EOF;
 		if (!empty($cache_frame_id)) {
 			if (empty($asset_id)) {
 				/* This is the root item */
-				$data = Amber::retrieve_cache_item($cache_frame_id, false);
+				$data = Amber::retrieve_cache_item($cache_frame_id);
 			    if (isset($data['metadata']['type'])) {
 					$headers['Content-Type'] = $data['metadata']['type'];
 			    }
@@ -554,15 +560,20 @@ EOF;
 				}
 			}
 		}
-		// Add Memento header to cache iframe and cache item
 		if ((!empty($cache_id) || !empty($cache_frame_id)) && empty($asset_id)) {
 			if (!isset($data)) {
-				$data = Amber::retrieve_cache_item($cache_id, false);
+				$data = Amber::retrieve_cache_item($cache_id);
 			}
+			// Add Memento header to cache iframe and cache item
 		    if (isset($data['metadata']['cache']['amber']['date'])) {
 		    	$memento_date = Amber::format_memento_date($data['metadata']['cache']['amber']['date']);
 		    	$headers['Memento-Datetime'] = $memento_date;
 		    }
+		    // PDFs are rendered immediately, not displayed within iframes, 
+		    // so set the content-type appropriately
+			if (isset($data['metadata']['type']) && ($data['metadata']['type'] == 'application/pdf')) {
+				$headers['Content-Type'] = $data['metadata']['type'];
+			}
 		}
 		return $headers;
 	}
