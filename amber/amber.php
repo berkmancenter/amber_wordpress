@@ -362,7 +362,9 @@ class Amber {
 		wp_register_script('amber', plugins_url('amber/js/amber.js'));
 		wp_enqueue_script('amber');
 		wp_localize_script('amber', 'amber_config', array(
-			'lookup_availability' => (AMBER_EXTERNAL_AVAILABILITY_NETCLERK == Amber::get_option('amber_external_availability', AMBER_EXTERNAL_AVAILABILITY_NONE))));
+			'lookup_availability' => (AMBER_EXTERNAL_AVAILABILITY_NETCLERK == Amber::get_option('amber_external_availability', AMBER_EXTERNAL_AVAILABILITY_NONE)),
+			'site_name' => get_bloginfo( 'name' )
+			));
 	}
 
 	public static function cron_add_schedule($schedules)
