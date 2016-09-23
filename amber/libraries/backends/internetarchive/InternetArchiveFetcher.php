@@ -26,20 +26,28 @@ class InternetArchiveFetcher implements iAmberFetcher {
 
     $ia_result = AmberNetworkUtils::open_single_url($api_endpoint, array(), FALSE);
     /* Make sure that we got a valid response from the Archive */
+
     if (($ia_result === FALSE) || ($ia_result['body'] === FALSE)) {      
-      throw new RuntimeException(join(":",array("Error submitting URL to the Internet Archive")));
+      if ($ia_result['info']['http_code'] == 403) {
+        throw new RuntimeException(join(":",array("Permission denied when submitting to Internet Archive (may be blocked by robots.txt)")));
+      } else {
+        throw new RuntimeException(join(":",array("Error submitting to Internet Archive")));
+      }
     }
     if (!isset($ia_result['headers']['Content-Location'])) {
       throw new RuntimeException("Internet Archive response did not include archive location");  
     }
+
     $location = $ia_result['headers']['Content-Location'];
+    $content_type = isset($ia_result['headers']['X-Archive-Orig-Content-Type']) ? $ia_result['headers']['X-Archive-Orig-Content-Type'] : "";
+    $size = isset($ia_result['headers']['X-Archive-Orig-Content-Length']) ? $ia_result['headers']['X-Archive-Orig-Content-Length'] : 0;
     $result = array (
         'id' => md5($url),
         'url' => $url,
-        'type' => '',
+        'type' => $content_type,
         'date' => time(),
         'location' => $this->archiveUrl . $location,
-        'size' => 0,
+        'size' => $size,
         'provider' => 2, /* Internet Archive */
         'provider_id' => $location,
       );
