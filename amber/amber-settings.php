@@ -250,9 +250,33 @@ class AmberSettingsPage
         print 'Control how Amber stores captures';
     }
 
+    /* As well as printing the section text for the delivery info, add some javscript
+       to show and hide fields as appropriate.
+     */
     public function print_delivery_section_info()
     {
-        print 'Settings that control the user experience';
+        print '
+Settings that control the user experience
+<script type="text/javascript" >';
+        print "var hover_state='" . AMBER_ACTION_HOVER . "';";
+        print '
+jQuery(document).ready(function($) {
+    $("#amber_available_action").change(function(e) { $("#amber_available_action_hover").parent().parent().toggle($(this).val() == hover_state); });
+    $("#amber_unavailable_action").change(function(e) { $("#amber_unavailable_action_hover").parent().parent().toggle($(this).val() == hover_state); });
+    $("#amber_country_available_action").change(function(e) { $("#amber_country_available_action_hover").parent().parent().toggle($(this).val() == hover_state); });
+    $("#amber_country_unavailable_action").change(function(e) { $("#amber_country_unavailable_action_hover").parent().parent().toggle($(this).val() == hover_state); });
+    $("#amber_country_id").change(function(e) { 
+        $(".country_field").parent().parent().toggle($(this).val() != ""); 
+        if ($(this).val() != "") {
+            $("#amber_country_available_action").change();   
+            $("#amber_country_unavailable_action").change();           
+        }
+    });
+    $("#amber_country_id").change();   
+    $("#amber_available_action").change();   
+    $("#amber_unavailable_action").change();   
+});</script>';            
+
     }
 
     /** 
@@ -382,7 +406,7 @@ class AmberSettingsPage
     {
         $option = isset($this->options['amber_country_available_action']) ? $this->options['amber_country_available_action'] : AMBER_ACTION_NONE;
         ?>
-            <select id="amber_country_available_action" name="amber_options[amber_country_available_action]">
+            <select class="country_field" id="amber_country_available_action" name="amber_options[amber_country_available_action]">
                 <option value="<?php echo AMBER_ACTION_NONE; ?>" <?php if ( $option == AMBER_ACTION_NONE ) { echo 'selected="selected"'; } ?>>None</option>
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
                 <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Popup</option>
@@ -395,7 +419,7 @@ class AmberSettingsPage
     {
         $option = isset($this->options['amber_country_unavailable_action']) ? $this->options['amber_country_unavailable_action'] : AMBER_ACTION_NONE;
         ?>
-            <select id="amber_ucountry_navailable_action" name="amber_options[amber_country_unavailable_action]">
+            <select class="country_field" id="amber_country_unavailable_action" name="amber_options[amber_country_unavailable_action]">
                 <option value="<?php echo AMBER_ACTION_NONE; ?>" <?php if ( $option == AMBER_ACTION_NONE ) { echo 'selected="selected"'; } ?>>None</option>
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
                 <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Popup</option>
@@ -408,7 +432,7 @@ class AmberSettingsPage
     public function amber_country_available_action_hover_callback()
     {
         printf(
-            '<input type="text" id="amber_country_available_action_hover" name="amber_options[amber_country_available_action_hover]" value="%s" />' .
+            '<input class="country_field" type="text" id="amber_country_available_action_hover" name="amber_options[amber_country_available_action_hover]" value="%s" />' .
             '<p class="description">Delay before "Site Available" notification appears to a visitor on your site.</p>',
             isset( $this->options['amber_country_available_action_hover'] ) ? esc_attr( $this->options['amber_country_available_action_hover']) : ''
         );
@@ -417,13 +441,11 @@ class AmberSettingsPage
     public function amber_country_unavailable_action_hover_callback()
     {
         printf(
-            '<input type="text" id="amber_country_unavailable_action_hover" name="amber_options[amber_country_unavailable_action_hover]" value="%s" />' .
+            '<input class="country_field" type="text" id="amber_country_unavailable_action_hover" name="amber_options[amber_country_unavailable_action_hover]" value="%s" />' .
             '<p class="description">Delay before "Site Unavailable" notification appears to a visitor on your site.</p>',
             isset( $this->options['amber_country_unavailable_action_hover'] ) ? esc_attr( $this->options['amber_country_unavailable_action_hover']) : ''
         );
     }
-
-
 
     private function get_countries()
     {

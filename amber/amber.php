@@ -331,19 +331,20 @@ class Amber {
 		}
 		$result = array();
 		foreach ($links as $link) {
-		  $host = parse_url($link,PHP_URL_HOST);
-		  if ($host) {
-		    $exclude = FALSE;
-		    foreach ($blacklist as $blacklistitem) {
-		      $blacklistitem = trim($blacklistitem);
-		      if (strcasecmp($host,$blacklistitem) === 0) {
-		        $exclude = TRUE;
-		      }
-		    }
-		    if (!$exclude) {
-		      $result[] = $link;
-		    }
-		  }
+		  	$host = parse_url($link,PHP_URL_HOST);
+		  	if ($host) {
+		    	$exclude = FALSE;
+		    	foreach ($blacklist as $blacklistitem) {
+		      		$blacklistitem = trim($blacklistitem);
+		      		$blacklistitem = preg_replace("/https?:\\/\\//", "", $blacklistitem);
+		      		if (strcasecmp($host,$blacklistitem) === 0) {
+		        		$exclude = TRUE;
+		      		}
+		    	}
+		    	if (!$exclude) {
+		      		$result[] = $link;
+		    	}
+		  	}
 		}
 		return $result;
 	}
