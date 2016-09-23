@@ -74,6 +74,14 @@ class AmberSettingsPage
         );      
 
         add_settings_field(
+	    'amber_post_types', 
+            'Included post types', 
+            array( $this, 'amber_post_types_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'          
+        );      
+
+        add_settings_field(
             'amber_max_file', 
             'Maximum file size (kB)', 
             array( $this, 'amber_max_file_callback' ), 
@@ -294,6 +302,7 @@ class AmberSettingsPage
         }
 
         $valid_string_options = array(
+            'amber_post_types',
             'amber_storage_location',
             'amber_excluded_formats',
             'amber_country_id',
@@ -398,6 +407,15 @@ jQuery(document).ready(function($) {
             </select> 
             <p class="description">Text TBD</p>
         <?php
+	}
+
+    public function amber_post_types_callback()
+    {
+        printf(
+            '<input type="text" id="amber_max_file" name="amber_options[amber_post_types]" value="%s" /> ' .
+            '<p class="description">Post types to scan, besides post and page.</p>',
+            isset( $this->options['amber_post_types'] ) ? esc_attr( $this->options['amber_post_types']) : ''
+        );
     }
 
     public function amber_max_file_callback()
