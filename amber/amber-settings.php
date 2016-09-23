@@ -82,6 +82,14 @@ class AmberSettingsPage
         );      
 
         add_settings_field(
+	    'amber_alternate_backends', 
+            'Alternate backend(s) to use for storing captures', 
+            array( $this, 'amber_alternate_backends_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'          
+        );      
+
+        add_settings_field(
             'amber_max_file', 
             'Maximum file size (kB)', 
             array( $this, 'amber_max_file_callback' ), 
@@ -342,6 +350,12 @@ class AmberSettingsPage
         $stringified_post_types = implode(',', $crawled_post_types);
         $new_input['amber_post_types'] = $stringified_post_types;
 
+        if (isset($input['amber_alternate_backends'])) {
+            foreach ($input['amber_alternate_backends'] as $key => $value) {
+                $new_input['amber_alternate_backends'][$key] = sanitize_text_field($value);
+            }
+        }
+
         /* Validate excluded sites regular expressions */
         $excluded_sites = explode( ',' , $input['amber_excluded_sites'] );
         $sanitized_excluded_sites = array();
@@ -495,6 +509,18 @@ jQuery(document).ready(function($) {
         }
         printf('</select>' . PHP_EOL);
 
+    }
+
+    public function amber_alternate_backends_callback()
+    {
+        $options = isset($this->options['amber_alternate_backends']) ? $this->options['amber_alternate_backends'] : 0;
+        ?>
+            <select id="amber_alternate_backends" name="amber_options[amber_alternate_backends][]" multiple>
+                <option value="<?php echo AMBER_BACKEND_PERMA; ?>" <?php if ( is_array($options) && in_array(AMBER_BACKEND_PERMA, $options) ) { echo 'selected="selected"'; } ?>>Perma.cc</option>
+                <option value="<?php echo AMBER_BACKEND_INTERNET_ARCHIVE; ?>" <?php if ( is_array($options) && in_array(AMBER_BACKEND_INTERNET_ARCHIVE, $options) ) { echo 'selected="selected"'; } ?>>Internet Archive</option>
+            </select> 
+            <p class="description">TK</p>
+        <?php
     }
 
     public function amber_max_file_callback()
