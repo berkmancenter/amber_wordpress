@@ -7,14 +7,36 @@ var amber = {
   translations : {
     en : {
       interstitial_html_up :
-      '<div class="amber-interstitial amber-up"><a href="#" class="amber-close"></a><div class="amber-body"><div class="amber-status-text">This page should be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div>' +
-      '<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the capture</a><a class="amber-memento-link" href="#">We also have a memento</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
+'<div class="amber-interstitial amber-up"><a href="#" class="amber-close"></a><div class="amber-body">\
+<div class="amber-status-text">\This page should be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div>\
+<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the capture</a><a class="amber-memento-link" href="#">\
+{{MEMENTO_MESSAGE}}</a><div class="amber-iframe-container"><a href="{{LINK}}"></a>\
+<iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div>\
+<a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
       interstitial_html_down :
-      '<div class="amber-interstitial amber-down"><a href="#" class="amber-close"></a><div class="amber-body"><div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div>' +
-      '<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the capture</a><a class="amber-memento-link" href="#">We also have a memento</a><div class="amber-iframe-container"><a href="{{LINK}}"></a><iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div><a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
-      hover_html_up   : '<div class="amber-hover amber-up"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">This page should be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div></div><div class="amber-links"><a class="amber-cache-link" href="{{CACHE}}">View the capture</a><a href="{{LINK}}" class="amber-focus">Continue to the page</a></div><div class="amber-arrow"></div><a class="amber-memento-link" href="#">We also have a memento</a></div>',
-      hover_html_down : '<div class="amber-hover amber-down"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a><div class="amber-text"><div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div></div><div class="amber-links"><a class="amber-cache-link amber-focus" href="{{CACHE}}">View the capture</a><a href="{{LINK}}">Continue to the page</a></div><div class="amber-arrow"></div><a class="amber-memento-link" href="#">We also have a memento</a></div>',
-      this_site: "This site"
+'<div class="amber-interstitial amber-down"><a href="#" class="amber-close"></a><div class="amber-body">\
+<div class="amber-status-text">This page may not be available</div><div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div>\
+<a class="amber-focus amber-cache-link" href="{{CACHE}}">View the capture</a><a class="amber-memento-link" href="#">\
+{{MEMENTO_MESSAGE}}</a><div class="amber-iframe-container"><a href="{{LINK}}"></a>\
+<iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div>\
+<a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
+      hover_html_up   : 
+'<div class="amber-hover amber-up"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a>\
+<div class="amber-text"><div class="amber-status-text">This page should be available</div>\
+<div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div></div>\
+<div class="amber-links"><a class="amber-cache-link" href="{{CACHE}}">View the capture</a>\
+<a href="{{LINK}}" class="amber-focus">Continue to the page</a></div><div class="amber-arrow"></div>\
+<a class="amber-memento-link" href="#">{{MEMENTO_MESSAGE}}</a></div>',
+      hover_html_down : 
+'<div class="amber-hover amber-down"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a>\
+<div class="amber-text"><div class="amber-status-text">This page may not be available</div>\
+<div class="amber-cache-text">{{NAME}} has a capture from {{DATE}}</div></div>\
+<div class="amber-links"><a class="amber-cache-link amber-focus" href="{{CACHE}}">View the capture</a>\
+<a href="{{LINK}}">Continue to the page</a></div>\
+<div class="amber-arrow"></div><a class="amber-memento-link" href="#">{{MEMENTO_MESSAGE}}</a></div>',
+      this_site: "This site",
+      timegate_with_date: 'Another archive has an alternate capture from {{MEMENTO_DATE}}',
+      timegate_without_date: 'Another archive has an alternate capture'
     },
     fa : {
       interstitial_html_up :
@@ -275,9 +297,23 @@ var amber = {
         amber.get_memento(t.getAttribute('href'), t.getAttribute('data-versiondate'),
         function(response) {
           if (response['url']) {
+            /* Set URL */
             var cachelink = document.querySelectorAll(".amber-hover .amber-memento-link")[0];
+            var linktext;
             cachelink.setAttribute('href', response['url']);
-            cachelink.className = cachelink.className + " found";
+            if (response['date']) {
+              linktext = amber.replace_args(
+                amber.get_text("timegate_with_date"), 
+                {'{{MEMENTO_DATE}}' : amber.format_date_from_string(response['date'])});
+            } else {
+              linktext = amber.get_text("timegate_without_date");
+            }
+            cachelink.innerHTML = amber.replace_args(cachelink.innerHTML, {
+                '{{MEMENTO_MESSAGE}}' : linktext,
+              });
+            /* Update hover div */
+            var hover = document.querySelectorAll(".amber-hover")[0];
+            hover.className = hover.className + " memento-found";
           }
         });
 
