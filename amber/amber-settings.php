@@ -233,22 +233,6 @@ class AmberSettingsPage
         );      
 
         add_settings_field(
-            'amber_external_availability', 
-            'Use a third-party database to check site availability', 
-            array( $this, 'amber_external_availability_callback' ), 
-            'amber-settings-admin', 
-            'amber_delivery_section'
-        );      
-
-        add_settings_field(
-            'amber_timegate', 
-            'Check a TimeGate server for additional copies of captured content', 
-            array( $this, 'amber_timegate_callback' ), 
-            'amber-settings-admin', 
-            'amber_delivery_section'
-        );      
-
-        add_settings_field(
             'amber_country_id', 
             'Country', 
             array( $this, 'amber_country_id_callback' ), 
@@ -288,6 +272,37 @@ class AmberSettingsPage
             'amber_delivery_section'
         );      
 
+        add_settings_section(
+            'amber_services_section', 
+            '3rd Section to be named later', 
+            array( $this, 'print_services_section_info' ), 
+            'amber-settings-admin' // Page
+        );  
+
+        add_settings_field(
+            'amber_external_availability', 
+            'Use a third-party database to check site availability', 
+            array( $this, 'amber_external_availability_callback' ), 
+            'amber-settings-admin', 
+            'amber_services_section'
+        );      
+
+        add_settings_field(
+            'amber_report_availability', 
+            'Inform a third-party database of site availability', 
+            array( $this, 'amber_report_availability_callback' ), 
+            'amber-settings-admin', 
+            'amber_services_section'
+        );      
+
+        add_settings_field(
+            'amber_timegate', 
+            'Check a TimeGate server for additional copies of captured content', 
+            array( $this, 'amber_timegate_callback' ), 
+            'amber-settings-admin', 
+            'amber_services_section'
+        );      
+
 
         register_setting(
             'amber_option_group',       // Option group
@@ -320,6 +335,7 @@ class AmberSettingsPage
             'amber_country_unavailable_action_hover',
             'amber_update_strategy',
             'amber_external_availability',
+            'amber_report_availability',
             );
         foreach ($valid_integer_options as $opt) {
             if( isset( $input[$opt] ) )
@@ -469,6 +485,11 @@ jQuery(document).ready(function($) {
 
 });</script>';            
 
+    }
+
+    public function print_services_section_info()
+    {
+        print 'TK: Third party services section';
     }
 
     /** 
@@ -697,13 +718,25 @@ jQuery(document).ready(function($) {
 
     public function amber_external_availability_callback()
     {
-        $option = isset($this->options['amber_external_availability']) ? $this->options['amber_external_availability'] : AMBER_EXTERNAL_AVAILABILITY_NETCLERK;
+        $option = isset($this->options['amber_external_availability']) ? $this->options['amber_external_availability'] : AMBER_EXTERNAL_AVAILABILITY_NONE;
         ?>
             <select class="external_availability_field" id="amber_external_availability" name="amber_options[amber_external_availability]">
                 <option value="<?php echo AMBER_EXTERNAL_AVAILABILITY_NONE; ?>" <?php if ( $option == AMBER_EXTERNAL_AVAILABILITY_NONE ) { echo 'selected="selected"'; } ?>>Do not use an external service</option>
                 <option value="<?php echo AMBER_EXTERNAL_AVAILABILITY_NETCLERK; ?>" <?php if ( $option == AMBER_EXTERNAL_AVAILABILITY_NETCLERK ) { echo 'selected="selected"'; } ?>>Use NetClerk</option>
             </select> 
             <p class="description">TBD: Describe what it means to use NetClerk</p>
+        <?php
+    }
+
+    public function amber_report_availability_callback()
+    {
+        $option = isset($this->options['amber_report_availability']) ? $this->options['amber_report_availability'] : AMBER_REPORT_AVAILABILITY_NONE;
+        ?>
+            <select class="report_field" id="amber_report_availability" name="amber_options[amber_report_availability]">
+                <option value="<?php echo AMBER_REPORT_AVAILABILITY_NONE; ?>" <?php if ( $option == AMBER_REPORT_AVAILABILITY_NONE ) { echo 'selected="selected"'; } ?>>Do not report site availability to an external service</option>
+                <option value="<?php echo AMBER_REPORT_AVAILABILITY_NETCLERK; ?>" <?php if ( $option == AMBER_REPORT_AVAILABILITY_NETCLERK ) { echo 'selected="selected"'; } ?>>Use NetClerk</option>
+            </select> 
+            <p class="description">TBD: Describe what it means to report to NetClerk</p>
         <?php
     }
 
