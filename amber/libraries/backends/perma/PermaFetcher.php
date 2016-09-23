@@ -7,8 +7,8 @@ class PermaFetcher implements iAmberFetcher {
 
   function __construct(iAmberStorage $storage, array $options) {
     $this->apiKey = isset($options['perma_api_key']) ? $options['perma_api_key'] : "";
-    $this->apiUrl = isset($options['perma_api_url']) ? $options['perma_api_url'] : "https://api.perma-stage.org";
-    $this->archiveUrl = isset($options['perma_archive_url']) ? $options['perma_archive_url'] : "https://perma-stage.org";
+    $this->apiUrl = isset($options['perma_api_url']) ? $options['perma_api_url'] : "https://api.perma.cc";
+    $this->archiveUrl = isset($options['perma_archive_url']) ? $options['perma_archive_url'] : "https://perma.cc";
   }
 
   /**
