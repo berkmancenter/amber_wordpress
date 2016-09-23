@@ -261,6 +261,132 @@ EOD
 ));
 
   }
+
+  public function testMetaNoArchiveTagDetectionNoTag() {
+    $this->assertFalse(AmberNetworkUtils::find_meta_no_archive(""));
+    $this->assertFalse(AmberNetworkUtils::find_meta_no_archive("bogus string"));
+    $this->assertFalse(AmberNetworkUtils::find_meta_no_archive(<<<EOD
+<html>
+<head><title>bad man</title></head>
+<body>
+How are you doing?">
+</body>
+</html>
+EOD
+));
+  }
+
+  public function testMetaNoArchiveTagDetectionTagInBody() {
+    $this->assertFalse(AmberNetworkUtils::find_meta_no_archive(<<<EOD
+<html>
+<head><title>bad man</title></head>
+<body>
+The meta tag only works in the head
+<meta name="robots" content="noarchive">
+</body>
+</html>
+EOD
+));
+  }
+
+  public function testMetaNoArchiveTagDetectionSimple() {
+    $this->assertTrue(AmberNetworkUtils::find_meta_no_archive(<<<EOD
+<html>
+<head><title>bad man</title>
+<meta name="robots" content="noarchive">
+</head>
+<body>
+The meta tag only works in the head
+</body>
+</html>
+EOD
+));
+    $this->assertTrue(AmberNetworkUtils::find_meta_no_archive(<<<EOD
+<html>
+<head><title>bad man</title>
+<meta name='robots' content='noarchive'>
+</head>
+<body>
+The meta tag only works in the head
+</body>
+</html>
+EOD
+));
+    $this->assertTrue(AmberNetworkUtils::find_meta_no_archive(<<<EOD
+<html>
+<head><title>bad man</title>
+<meta name = 'robots' content = 'noarchive'>
+</head>
+<body>
+The meta tag only works in the head
+</body>
+</html>
+EOD
+));
+  }
+
+  public function testMetaNoArchiveTagDetectionAmberSpecific() {
+    $this->assertTrue(AmberNetworkUtils::find_meta_no_archive(<<<EOD
+<html>
+<head><title>bad man</title>
+<meta name="amber" content="noarchive">
+</head>
+<body>
+The meta tag only works in the head
+</body>
+</html>
+EOD
+));
+  }
+
+  public function testMetaNoArchiveTagDetectionNoIndex() {
+    $this->assertTrue(AmberNetworkUtils::find_meta_no_archive(<<<EOD
+<html>
+<head><title>bad man</title>
+<meta name="robots" content="noindex">
+</head>
+<body>
+The meta tag only works in the head
+</body>
+</html>
+EOD
+));
+    $this->assertTrue(AmberNetworkUtils::find_meta_no_archive(<<<EOD
+<html>
+<head><title>bad man</title>
+<meta name="robots" content="noindex">
+</head>
+<body>
+The meta tag only works in the head
+</body>
+</html>
+EOD
+));
+    $this->assertTrue(AmberNetworkUtils::find_meta_no_archive(<<<EOD
+<html>
+<head><title>bad man</title>
+<meta name="amber" content="noarchive, noindex">
+</head>
+<body>
+The meta tag only works in the head
+</body>
+</html>
+EOD
+));
+    $this->assertTrue(AmberNetworkUtils::find_meta_no_archive(<<<EOD
+<html>
+<head><title>bad man</title>
+<meta name="robots" content="noindex,noarchive">
+</head>
+<body>
+The meta tag only works in the head
+</body>
+</html>
+EOD
+));
+
+  }
+
 }
 
 
