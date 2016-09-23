@@ -19,10 +19,6 @@ define("AMBER_VAR_LAST_CHECK_RUN","amber_last_check_run");
 
 class Amber {
 
-	private static $amber_status;
-	private static $amber_checker;
-	private static $amber_fetcher;
-
 	public static function get_option($key, $default = "")
 	{
 		$options = get_option('amber_options');
@@ -46,14 +42,8 @@ class Amber {
 	 * @return IAmberChecker
 	 */
 	public static function get_checker() {
-		if (!Amber::$amber_checker) {
-			Amber::$amber_checker = new AmberChecker();
-		}
-	 	return Amber::$amber_checker;
-	}
-
-	public static function set_checker($checker) {
-		Amber::$amber_checker = $checker;
+	    $checker = new AmberChecker();
+	 	return $checker;
 	}
 
 	/**
@@ -63,14 +53,8 @@ class Amber {
 	public static function get_status() {
 		global $wpdb;
 
-		if (!Amber::$amber_status) {
-	    	Amber::$amber_status = new AmberStatus(new AmberWPDB($wpdb), $wpdb->prefix);		
-		}
-		return Amber::$amber_status;
-	}
-
-	public static function set_status($status) {
-		Amber::$amber_status = $status;
+	    $status = new AmberStatus(new AmberWPDB($wpdb), $wpdb->prefix);
+		return $status;
 	}
 
 	/**
@@ -79,27 +63,19 @@ class Amber {
 	 */
 	public static function get_fetcher() {
 
-		if (!Amber::$amber_fetcher) {
-			Amber::$amber_fetcher =
-	    		new AmberFetcher(Amber::get_storage(), array(
+    	$fetcher = new AmberFetcher(Amber::get_storage(), array(
 		      		'amber_max_file' => Amber::get_option('amber_max_file',1000),
 	    	  		'header_text' => "You are viewing an archive of <a style='font-weight:bold !important; color:white !important' href='{{url}}'>{{url}}</a> created on {{date}}",
 	      			'amber_excluded_formats' => Amber::get_option("amber_excluded_formats",false) ? explode(",", Amber::get_option("amber_excluded_formats","")) : array(),
-    			));
-    	}
-	  	return Amber::$amber_fetcher;
-	}
-
-	public static function set_fetcher($fetcher) {
-		Amber::$amber_fetcher = $fetcher;
+    	));
+	  	return $fetcher;
 	}
 
 
-
-	public static function get_behavior($status, $country = false)
+	private static function get_behavior($status, $country = false)
 	{
-
 	  $result = $status ? "up" : "down";
+	  $options = get_option('amber_options');
 	  $c = $country ? "country_" : "";
 	  if ($status) {
 	    $action = Amber::get_option("amber_${c}available_action", AMBER_ACTION_NONE);
@@ -264,12 +240,14 @@ class Amber {
 		/* Check whether the site is up */
 		$last_check = $status->get_check($item);
 		if (($update = $checker->check(empty($last_check) ? array('url' => $item) : $last_check, $force)) !== false) {
+
 			/* There's an updated check result to save */
 			$status->save_check($update);
 
 			/* Now cache the item if we should */
 			$existing_cache = $status->get_cache($item);
 	  		$strategy = Amber::get_option('amber_update_strategy', 0);
+
 			if ($update['status'] && (!$strategy || !$existing_cache)) {
 				$cache_metadata = array();
 				try {
@@ -345,6 +323,39 @@ class Amber {
 	/**
 	 * Filter links that are candidates for caching to exclude local links, or links to URLs on the blacklist
 	 * @param $links array of links to check
+	 * @param $blacklist array of hostnames to exclude
+	 */
+	private static function filter_excluded_links($links)
+	{
+		$blacklist = preg_split("/[,\s]+/",Amber::get_option("amber_excluded_sites",""));
+		if (!$blacklist) {
+		  return $links;
+		}
+		$result = array('cache' => array(), 'excluded' => array());
+		foreach ($links as $link) {
+		  	$host = parse_url($link,PHP_URL_HOST);
+		  	if ($host) {
+		    	$exclude = FALSE;
+		    	foreach ($blacklist as $blacklistitem) {
+		      		$blacklistitem = trim($blacklistitem);
+		      		$blacklistitem = preg_replace("/https?:\\/\\//i", "", $blacklistitem);
+		      		if (strcasecmp($host,$blacklistitem) === 0) {
+		        		$exclude = TRUE;
+		      		}
+		    	}
+		    	if ($exclude) {
+		    		$result['excluded'][] = $link;
+		    	} else {
+		      		$result['cache'][] = $link;
+		    	}
+		  	}
+		}
+		return $result;
+	}
+
+	/**
+	 * Filter links that are candidates for caching to exclude local links, or links to URLs on the blacklist
+	 * @param $links array of links to check
 	 * @param $blacklist array of regular expressions to exclude
 	 */
 	private static function filter_regexp_excluded_links($links)
@@ -399,6 +410,7 @@ class Amber {
 	 	$re = '/href=["\'](http[^\v()<>{}\[\]"\']+)[\'"]/i';
   		$count = preg_match_all($re, $text, $matches);
 		$links = Amber::filter_regexp_excluded_links($matches[1]);
+
   		if ($count) {
   			 $result = Amber::cache_links($links['cache'],$cache_immediately);
   		} 
