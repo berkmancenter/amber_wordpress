@@ -745,7 +745,7 @@ class AmberNetworkUtils {
     foreach ($urls as $url => $data) {
       if (($data['info']['http_code'] == 301) || ($data['info']['http_code'] == 302)) {
         $result[$url] = $data;
-      } else if ($meta = AmberNetworkUtils::find_meta_redirect($data['body'])) {
+      } else if (AmberNetworkUtils::find_meta_redirect($data['body'])) {
         $result[$url] = $data;
       }
     }  
