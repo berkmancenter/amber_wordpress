@@ -156,16 +156,16 @@
   -webkit-transform: rotate(45deg);                                                       
 }        
 
-.amber-hover.memento-found .amber-arrow {
-  display: none;
-}
-
 .amber-hover .amber-text {
   border-radius: 4px 4px 0 0;
   width: 100%;
   line-height: 20px;
   padding: 8px 0 4px;
   background-color: #34495e;
+}
+
+.amber-hover.memento-found .amber-text {
+  padding-bottom: 0;
 }
 
 .amber-hover .amber-status-text {
@@ -223,14 +223,12 @@
 .amber-hover.memento-found a.amber-memento-link {
   color: white !important;
   display: block;
-  height: 15px;
-  width: 100%;
-  border-bottom-right-radius: 4px;
-  border-bottom-left-radius: 4px;
-  text-align: center;
+  height: 20px;
+  padding-left: 40px;
+  padding-bottom: 4px;
   font-size: 10px;
-  line-height: 15px;
-  background-color: #86b0dc;  
+  line-height: 20px;
+  background-color: #34495e;
   z-index: 9999999;
 }
 
