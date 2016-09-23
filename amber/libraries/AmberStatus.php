@@ -5,6 +5,8 @@ require_once 'AmberDB.php';
 interface iAmberStatus {
   public function get_check($url, $source = 'amber');
   public function get_cache($url, $source = 'amber');
+  public function get_check_by_id($id, $source = 'amber');
+  public function get_cache_by_id($id, $source = 'amber');
   public function get_summary($url);
   public function get_cache_size();
   public function save_check(array $data);
@@ -40,6 +42,20 @@ class AmberStatus implements iAmberStatus {
   private function get_item($url, $table) {
     $prefix = $this->table_prefix;
     $result = $this->db->select("SELECT * FROM ${prefix}${table} WHERE url = %s", array($url));
+    return $result;
+  }
+
+  public function get_check_by_id($id, $source = 'amber') {
+    return $this->get_item_by_id($id, 'amber_check');
+  }
+
+  public function get_cache_by_id($id, $source = 'amber') {
+    return $this->get_item_by_id($id, 'amber_cache');
+  }
+
+  private function get_item_by_id($id, $table) {
+    $prefix = $this->table_prefix;
+    $result = $this->db->select("SELECT * FROM ${prefix}${table} WHERE id = %s", array($id));
     return $result;
   }
 
@@ -104,7 +120,7 @@ class AmberStatus implements iAmberStatus {
   public function save_cache(array $data) {
     $prefix = $this->table_prefix;
 
-    foreach (array('id', 'url', 'location', 'date', 'type', 'size') as $key) {
+    foreach (array('id', 'url', 'location', 'date', 'type', 'size', 'provider', 'provider_id') as $key) {
       if (!array_key_exists($key,$data)) {
         error_log(join(":", array(__FILE__, __METHOD__, "Missing required key when updating cache", $key)));
         return false;
@@ -112,7 +128,7 @@ class AmberStatus implements iAmberStatus {
     }
     $result = $this->db->select("SELECT COUNT(id) as count FROM ${prefix}amber_cache WHERE id = %s", array($data['id']));
     $params = array($data['url'], $data['location'], $data['date'], $data['type'], 
-                    $data['size'], $data['id']);
+                    $data['size'], $data['provider'], $data['provider_id'], $data['id']);
     if ($result['count']) {
       $updateQuery = "UPDATE ${prefix}amber_cache " .
                                         'SET ' .
@@ -120,16 +136,17 @@ class AmberStatus implements iAmberStatus {
                                         'location = %s, ' .
                                         'date = %d, ' .
                                         'type = %s, ' .
-                                        'size = %d ' .
+                                        'size = %d, ' .
+                                        'provider = %d, ' .
+                                        'provider_id = %s ' .
                                         'WHERE id = %s';
       $this->db->update($updateQuery, $params);
     } else {
       $updateQuery = "INSERT into ${prefix}amber_cache " .
-                                        '(url, location, date, type, size, id) ' .
-                                        'VALUES(%s, %s, %d, %s, %d, %s)';
+                                        '(url, location, date, type, size,provider, provider_id, id) ' .
+                                        'VALUES(%s, %s, %d, %s, %d, %d, %s, %s)';
       $this->db->insert($updateQuery, $params);
     }
-
     return true;
   }
 
@@ -151,6 +168,29 @@ class AmberStatus implements iAmberStatus {
       }
     }
     return $result;
+  }
+
+  /**
+   * Save the fact that a user viewed an externally hosted cache, based on the 
+   * URL of the cache (e.g. http://perma.cc/xxx)
+   * If the storage provider is the native, locally hosted one, do NOT record
+   * the view, since in that case we get more accurate data by tracking actual
+   * requests for the cache page itself
+   * @param  string $location URL of the eternally hosted cache
+   * @return boolean           true if the cache was found, false otherwise
+   */
+  public function save_view_for_external_cache_location($location) {
+    $prefix = $this->table_prefix;
+
+    $result = $this->db->select("SELECT id, provider FROM ${prefix}amber_cache WHERE location = %s", array($location));
+    if ($result['id']) {
+      if ($result['provider'] != 0) {
+        $this->save_view($result['id']);
+      }
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public function save_view($id) {

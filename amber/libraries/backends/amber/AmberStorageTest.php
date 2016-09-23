@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jlicht
- * Date: 3/10/14
- * Time: 2:18 PM
- */
 
 require_once("AmberStorage.php");
 
@@ -16,7 +10,7 @@ class AmberStorageTest extends PHPUnit_Framework_TestCase {
 
   protected function tearDown() {
     $storage = new AmberStorage($this->get_storage_path());
-    $storage->clear_cache();
+    $storage->delete_all();
   }
 
   public function provider() {
@@ -88,7 +82,7 @@ class AmberStorageTest extends PHPUnit_Framework_TestCase {
    */
   public function testClearCache(iAmberStorage $storage, $file) {
     $storage->save("www.example.com",$file);
-    $storage->clear_cache();
+    $storage->delete_all();
     $metadata = $storage->get_metadata("www.example.com");
     $this->assertTrue(empty($metadata));
   }

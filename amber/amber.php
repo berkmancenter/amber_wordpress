@@ -3,7 +3,7 @@
  * Plugin Name: Amber
  * Plugin URI: https://github.com/berkmancenter/amber_wordpress
  * Description: Enables the preservation of content to which your website links.
- * Version: 1.2
+ * Version: 1.3
  * Author: Berkman Center for Internet & Society
  * Author URI: https://cyber.law.harvard.edu
  * License: GPL3
@@ -16,6 +16,11 @@ define("AMBER_ACTION_CACHE",3);
 define("AMBER_STATUS_UP","up");
 define("AMBER_STATUS_DOWN","down");
 define("AMBER_VAR_LAST_CHECK_RUN","amber_last_check_run");
+define("AMBER_BACKEND_LOCAL",0);
+define("AMBER_BACKEND_PERMA",1);
+define("AMBER_BACKEND_INTERNET_ARCHIVE",2);
+define("AMBER_BACKEND_AMAZON_S3",3);
+
 
 class Amber {
 
@@ -732,8 +737,12 @@ include_once dirname( __FILE__ ) . '/amber-install.php';
 include_once dirname( __FILE__ ) . '/amber-settings.php';
 include_once dirname( __FILE__ ) . '/amber-dashboard.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberStatus.php';
-include_once dirname( __FILE__ ) . '/libraries/AmberStorage.php';
-include_once dirname( __FILE__ ) . '/libraries/AmberFetcher.php';
+include_once dirname( __FILE__ ) . '/libraries/backends/amber/AmberStorage.php';
+include_once dirname( __FILE__ ) . '/libraries/backends/amber/AmberFetcher.php';
+include_once dirname( __FILE__ ) . '/libraries/backends/internetarchive/InternetArchiveStorage.php';
+include_once dirname( __FILE__ ) . '/libraries/backends/internetarchive/InternetArchiveFetcher.php';
+include_once dirname( __FILE__ ) . '/libraries/backends/perma/PermaStorage.php';
+include_once dirname( __FILE__ ) . '/libraries/backends/perma/PermaFetcher.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberChecker.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberDB.php';
 
@@ -744,6 +753,9 @@ add_filter ( 'the_content', array('Amber', 'filter'));
 register_activation_hook( __FILE__, array('AmberInstall','activate'));
 register_deactivation_hook( __FILE__, array('AmberInstall','deactivate'));
 register_uninstall_hook( __FILE__, array('AmberInstall','uninstall'));
+
+/* Check to see if the plugin has been updated */
+add_action( 'plugins_loaded', array('AmberInstall', 'upgrade') );
 
 /* Warn if permalinks are not enabled */
 add_action( 'admin_notices', array('Amber', 'admin_notices') );
