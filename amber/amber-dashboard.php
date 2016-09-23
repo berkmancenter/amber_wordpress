@@ -229,11 +229,11 @@ class AmberDashboardPage
     }
     
     private function delete_all() {
-        // check_admin_referer('amber_dashboard');
+        check_admin_referer('amber_dashboard');
         $storage = Amber::get_storage();
         $storage->clear_cache();
         $status = Amber::get_status();
-        $status->delete_all();
+        $status->delete_all();  
         $prefix = $this->db->prefix;
         $this->db->query("DELETE from ${prefix}amber_queue");
     }   
@@ -319,6 +319,8 @@ class AmberDashboardPage
                     <?php submit_button("Export list of cached pages", "small", "export"); ?>
                     
                 </div>            
+            </form>
+            <form  id="amber_dashboard-2">
                 <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
                 <?php $this->list_table->display() ?>
 
