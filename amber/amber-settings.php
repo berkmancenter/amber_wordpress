@@ -81,6 +81,14 @@ class AmberSettingsPage
             'amber_cache_section'
         );      
 
+        add_settings_field(
+            'amber_storage_location', 
+            'Storage location', 
+            array( $this, 'amber_storage_location_callback' ), 
+            'amber-settings-admin', 
+            'amber_cache_section'
+        );      
+
         add_settings_section(
             'amber_delivery_section',
             'Amber Delivery', 
@@ -148,8 +156,8 @@ class AmberSettingsPage
                 $new_input[$opt] = absint( $input[$opt] );
         }
 
-        if( isset( $input['title'] ) )
-            $new_input['title'] = sanitize_text_field( $input['title'] );
+        if( isset( $input['amber_storage_location'] ) )
+            $new_input['amber_storage_location'] = sanitize_text_field( $input['amber_storage_location'] );
 
         return $new_input;
     }
@@ -237,11 +245,12 @@ class AmberSettingsPage
     /** 
      * Get the settings option array and print one of its values
      */
-    public function title_callback()
+    public function amber_storage_location_callback()
     {
         printf(
-            '<input type="text" id="title" name="my_option_name[title]" value="%s" />',
-            isset( $this->options['title'] ) ? esc_attr( $this->options['title']) : ''
+            '<input type="text" id="amber_storage_location" name="amber_options[amber_storage_location]" value="%s" />' . 
+            '<p class="description">Path to the location where captures are stored on disk, relative to the uploads directory.</p>',
+            isset( $this->options['amber_storage_location'] ) ? esc_attr( $this->options['amber_storage_location']) : ''
         );
     }
 }
