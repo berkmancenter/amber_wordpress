@@ -523,6 +523,7 @@ class Amber {
 		add_rewrite_rule('^.*amber/cache/([a-f0-9]+)/?$', '/index.php?amber_cache=$1', "top");
 		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/?$', '/index.php?amber_cacheframe=$1', "top");
 		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/assets/(.*)/?$', '/index.php?amber_cacheframe=$1&amber_asset=$2', "top");
+		add_rewrite_rule('^.*amber/logcacheview?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_logcacheview&$1', "top");
 	}
 
 	/**
@@ -798,8 +799,27 @@ jQuery(document).ready(function($) {
 	Enable Permalinks <a href="'. get_site_url() . '/wp-admin/options-permalink.php">here</a></p>
 </div>';
 		}	
-}
+	}
  
+ 	public static function ajax_log_cache_view() {
+		if ( isset( $_GET['cache'] ) ) {
+			header("Cache-Control: no-cache, must-revalidate");
+			header("Pragma: no-cache");
+			header("Expires: 0");
+
+    		$status = Amber::get_status();
+    		if ( $status->save_view_for_external_cache_location ($_GET['cache'] ) ) {
+    			status_header( 200 );
+    		} else {
+    			status_header( 404 );
+    		}
+    	} else {
+    		status_header( 400 );
+    	}
+		die();
+	}
+
+
 
 }
 
@@ -859,5 +879,6 @@ add_action( 'wp_ajax_amber_cache', array('Amber', 'ajax_cache') );
 add_action( 'wp_ajax_amber_cache_now', array('Amber', 'ajax_cache_now') );
 add_action( 'wp_ajax_amber_scan_start', array('Amber', 'ajax_scan_start') );
 add_action( 'wp_ajax_amber_scan', array('Amber', 'ajax_scan') );
+add_action( 'wp_ajax_nopriv_amber_logcacheview', array('Amber', 'ajax_log_cache_view') );
 
 ?>
