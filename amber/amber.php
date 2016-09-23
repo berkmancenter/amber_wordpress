@@ -325,7 +325,7 @@ class Amber {
 	 */
 	private static function filter_excluded_links($links)
 	{
-		$blacklist = explode(",",Amber::get_option("amber_excluded_sites",""));
+		$blacklist = preg_split("/[,\s]+/",Amber::get_option("amber_excluded_sites",""));
 		if (!$blacklist) {
 		  return $links;
 		}
