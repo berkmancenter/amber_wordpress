@@ -72,7 +72,7 @@ class Amber {
 	}
 
 
-	private function get_behavior($status, $country = false)
+	private static function get_behavior($status, $country = false)
 	{
 	  $result = $status ? "up" : "down";
 	  $options = get_option('amber_options');
@@ -117,7 +117,7 @@ class Amber {
 	 * @param array $summaries array dictionary from the Amber Status module
 	 * @return array attributes to be added to the link
 	 */
-	private function build_link_attributes($summaries) {
+	private static function build_link_attributes($summaries) {
 	  $result = array();
 	  // Assume that we only have one cache of the data. This would need to change if we start tracking multiple caches
 	  if (isset($summaries['default']['location'],$summaries['default']['date'],$summaries['default']['size']) &&
@@ -290,7 +290,7 @@ class Amber {
 	 * @param $id string identifying the item to return
 	 * @return null|string
 	 */
-	private function retrieve_cache_asset($cache_id, $asset_id) {
+	private static function retrieve_cache_asset($cache_id, $asset_id) {
 	  $storage =  Amber::get_storage();
 	  // $d = $storage->get_asset($id, join('/',$args) . ($_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : ''));
 	  $d = $storage->get_asset($cache_id, $asset_id );
