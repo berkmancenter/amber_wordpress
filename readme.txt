@@ -20,7 +20,11 @@ Amber automatically preserves a snapshot of every page linked to on a website, g
 
 Lots of copies keeps stuff safe. By default, Amber stores snapshots directly on the host website. But users can choose to store snapshots using a combination of the following third party storage and archiving systems: the Internet Archive, Perma.cc, and Amazon Simple Storage Service (Amazon S3).
 
+<<<<<<< HEAD
 Amber is an open source project led by the [Berkman Klein Center for Internet & Society](https://cyber.law.harvard.edu). It builds on a proposal from Tim Berners-Lee and Jonathan Zittrain for a "mutual aid treaty for the Internet" that would enable operators of websites to enter easily into mutually beneficial agreements and bolster the robustness of the entire web. The project also aims to mitigate risks associated with increasing centralization of online content.
+=======
+Amber is an open source project led by the [Berkman Center for Internet & Society](https://cyber.law.harvard.edu). It builds on a proposal from Tim Berners-Lee and Jonathan Zittrain for a "mutual aid treaty for the Internet" that would enable operators of websites to enter easily into mutually beneficial agreements and bolster the robustness of the entire web. The project also aims to mitigate risks associated with increasing centralization of online content.
+>>>>>>> master
 
 Learn more at [Amberlink.org](http://amberlink.org).
 
