@@ -444,9 +444,12 @@ var amber = {
 
   /* Get memento URL for a given URL and date, and execute a function on the result */
   get_memento : function(href, date, callback) {
+    if (!amber.memento_enabled) {
+      return;
+    }
     var request = new XMLHttpRequest();
     request.onload = function() {
-      if (request.readyState === 4) {
+      if ((request.readyState === 4) && (request.status === 200)) {
         callback(JSON.parse(request.responseText));
       }
     };
@@ -517,12 +520,14 @@ amber.util_ready(function($) {
     if ((typeof Drupal != 'undefined') && (typeof Drupal.settings.amber != 'undefined')) {
       amber.name = Drupal.settings.amber.name;
       amber.lookup_availability = Drupal.settings.amber.lookup_availability;
+      amber.memento_enabled = true;
     }
 
     /* Wordpress-specific configuration */
     if (typeof amber_config != 'undefined') {
       amber.name = amber_config.site_name;
       amber.lookup_availability = amber_config.lookup_availability;
+      amber.memento_enabled = true;
     }
 
     /* Set the locale, based on global variable */
