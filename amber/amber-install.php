@@ -9,7 +9,6 @@ class AmberInstall {
 		  status int,
 		  last_checked datetime,
 		  next_check datetime,
-		  name tinytext NOT NULL,
 		  message VARCHAR(2000),
 		  PRIMARY KEY id (id)
 		)";
