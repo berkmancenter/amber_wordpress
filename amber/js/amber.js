@@ -356,8 +356,8 @@ var amber = {
       params += "url[]=" + encodeURIComponent(e.href);
     });
 
-    if (params && (amber.get_country() != undefined)) {
-      params += "&country=" + amber.get_country();
+    if (params && (amber.country != undefined)) {
+      params += "&country=" + amber.country;
 
       request = new XMLHttpRequest();
       request.open('POST', "/amber/status");
