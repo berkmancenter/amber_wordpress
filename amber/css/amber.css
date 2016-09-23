@@ -140,9 +140,10 @@
  font-size: 13px;
  color: white;             
  border-radius: 4px;
- background-color: #5b88b3;
- min-width: 355px;
+ background-color: #34495e;
+ min-width: 380px;
  z-index: 999999;
+ padding-right: 15px;
 }
 
 .amber-arrow {
@@ -160,7 +161,7 @@
   border-radius: 4px 4px 0 0;
   width: 100%;
   line-height: 20px;
-  padding: 8px 0 4px;
+  padding: 8px 15px 4px 0;
   background-color: #34495e;
 }
 
@@ -190,13 +191,14 @@
 
 .amber-hover a.amber-info {
   margin-top: 8px;
-  margin-right: 10px;
+  margin-right: -5px;
 }
 
 .amber-hover .amber-links {
   border-radius: 0 0 4px 4px;
-  padding: 8px 0;
+  padding: 8px 15px 8px 0;
   width: 100%;
+  background-color: #5b88b3;
 }
 
 .amber-hover .amber-links a {
@@ -231,7 +233,6 @@
   background-color: #34495e;
   z-index: 9999999;
 }
-
 
 .amber-hover a.amber-focus {
   font-weight: bold;
