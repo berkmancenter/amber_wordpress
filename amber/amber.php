@@ -28,7 +28,7 @@ class Amber {
 	 * Get an initialized AmberStorage module
 	 * @return AmberStorage
 	 */
-	private static function get_storage() {
+	public static function get_storage() {
     	$base_dir = wp_upload_dir();
     	$subdir = Amber::get_option('amber_storage_location', 'amber');
     	$file_path = join(DIRECTORY_SEPARATOR, array($base_dir['basedir'], $subdir));
@@ -40,7 +40,7 @@ class Amber {
 	 * Return an initialized AmberChecker module
 	 * @return IAmberChecker
 	 */
-	private static function get_checker() {
+	public static function get_checker() {
 	    $checker = new AmberChecker();
 	 	return $checker;
 	}
@@ -49,7 +49,7 @@ class Amber {
 	 * Return an initialized AmberStatus module
 	 * @return IAmberStatus
 	 */
-	private static function get_status() {
+	public static function get_status() {
 		global $wpdb;
 
 	    $status = new AmberStatus(new AmberWPDB($wpdb), $wpdb->prefix);
@@ -60,7 +60,7 @@ class Amber {
 	 * Return an initialized AmberFetcher module
 	 * @return IAmberFetcher
 	 */
-	private static function get_fetcher() {
+	public static function get_fetcher() {
     	$fetcher = new AmberFetcher(Amber::get_storage(), array(
 		      		'amber_max_file' => Amber::get_option('amber_max_file',1000),
 	    	  		'header_text' => "This is a cached page",
@@ -439,7 +439,6 @@ add_filter( 'wp_headers', array('Amber', 'filter_cached_content_headers') );
 /* Add "Cache Now" link to links */
 add_filter( 'post_row_actions', array('Amber', 'add_post_row_actions'), 10, 2 );
 add_filter( 'page_row_actions', array('Amber', 'add_page_row_actions'), 10, 2 );
-
 
 
 ?>
