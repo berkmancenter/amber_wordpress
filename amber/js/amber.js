@@ -338,7 +338,6 @@ var amber = {
   /* Update data-* attributes based on updated availability information */
   update_availability : function(availability) {
     var data = availability.data;
-    console.log(data);
     if (data) {
       for (var i = 0; i < data.length; i++) {
         amber.util_forEachElement("a[href='" + data[i].url + "']", function(e, index) {
@@ -356,7 +355,6 @@ var amber = {
       params && (params += "&");
       params += "url[]=" + encodeURIComponent(e.href);
     });
-
     if (params && (amber.get_country() != undefined)) {
       params += "&country=" + amber.get_country();
 
