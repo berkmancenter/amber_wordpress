@@ -17,30 +17,34 @@ interface iAmberDB {
 Class AmberPDO implements iAmberDB {
 
 	public function __construct(PDO $db) {
-  	$this->db = $db;
+  		$this->db = $db;
 	}
 
 	private function convert_to_question_marks($sql) {
 		$sql = str_replace('%s', '?', $sql);
 		$sql = str_replace('%d', '?', $sql);
 		$sql = str_replace('%f', '?', $sql);
-	return $sql;  		
+		return $sql;  		
 	}
 
 	private function execute($sql, $options) {
-    $query = $this->db->prepare($this->convert_to_question_marks($sql));
-    $query->execute($options);
-    return $query;
+	    $query = $this->db->prepare($this->convert_to_question_marks($sql));
+		if (!$query) {
+			error_log("Could not create query: $sql");
+			return false;
+		}
+	    $query->execute($options);
+	    return $query;
 	}
 
-  public function db_type() {
-    return $this->db->getAttribute(PDO::ATTR_DRIVER_NAME);
-  }
+	public function db_type() {
+		return $this->db->getAttribute(PDO::ATTR_DRIVER_NAME);
+	}
 
 	public function select($sql, $options = array()) {
-
 		$query = $this->execute($this->convert_to_question_marks($sql), $options);
 		if (!$query) {
+			error_log("Could not create query: $sql");
 			return false;
 		}
 		$result = $query->fetch(PDO::FETCH_ASSOC);
@@ -49,9 +53,9 @@ Class AmberPDO implements iAmberDB {
 	}
 
 	public function selectAll($sql, $options = array()) {
-
 		$query = $this->execute($this->convert_to_question_marks($sql), $options);
 		if (!$query) {
+			error_log("Could not create query: $sql");
 			return false;
 		}
 		$result = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -60,18 +64,30 @@ Class AmberPDO implements iAmberDB {
 	}
 
 	public function insert($sql, $options = array()) {
-    $query = $this->execute($this->convert_to_question_marks($sql), $options);
-    $query->closeCursor();      
+	    $query = $this->execute($this->convert_to_question_marks($sql), $options);
+		if (!$query) {
+			error_log("Could not create query: $sql");
+			return false;
+		}
+	    $query->closeCursor();      
 	}
 
 	public function update($sql, $options = array()) {
 		$query = $this->execute($this->convert_to_question_marks($sql), $options);
-    $query->closeCursor();      
+		if (!$query) {
+			error_log("Could not create query: $sql");
+			return false;
+		}
+    	$query->closeCursor();      
 	}
 
 	public function delete($sql, $options = array()) {
-    $query = $this->execute($this->convert_to_question_marks($sql), $options);
-    $query->closeCursor();      
+    	$query = $this->execute($this->convert_to_question_marks($sql), $options);
+		if (!$query) {
+			error_log("Could not create query: $sql");
+			return false;
+		}
+	    $query->closeCursor();      
 	}	
 }
 
@@ -101,8 +117,8 @@ Class AmberWPDB implements iAmberDB {
 
 	public function selectAll($sql, $options = array())
 	{
-    $query = $this->prepare($sql, $options);
-    return $this->db->get_results($query, ARRAY_A); 
+	    $query = $this->prepare($sql, $options);
+	    return $this->db->get_results($query, ARRAY_A); 
 	}
 
 	public function insert($sql, $options = array())
