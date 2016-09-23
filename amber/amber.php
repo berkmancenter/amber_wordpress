@@ -754,7 +754,7 @@ EOF;
 
 	public static function add_meta_boxes()
 	{
-		$screens = array( 'post', 'page' );
+		$screens = explode(',',Amber::get_option('amber_post_types','post,page'));
 		foreach ( $screens as $screen ) {
 			add_meta_box(
 				'amber_sectionid',
