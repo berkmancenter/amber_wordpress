@@ -545,7 +545,7 @@ jQuery(document).ready(function($) {
                 echo '<option value="'. $post_type->name .'">' . $post_type->label . '</option>' . PHP_EOL;
             }
         }
-        printf('</select>' . PHP_EOL);
+        printf('</select><p class="description">Preserve snapshots from particular <a href="https://codex.wordpress.org/Post_Types" target="_blank">post types</a>, including custom post types.</p>');
 
     }
 
