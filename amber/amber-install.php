@@ -37,7 +37,12 @@ class AmberInstall {
 		return $tables;
 	}
 
-	public static function activate() {
+	public static function activate($networkwide) {
+		AmberInstall::iterate_over_sites("activate_site");
+	}
+
+	public static function activate_site() {
+		global $wpdb;
 
 		$charset_collate = '';
 		if ( ! empty( $wpdb->charset ) ) {
@@ -81,14 +86,42 @@ class AmberInstall {
 		error_log("wp_schedule_event in amber-install.php");
 		wp_schedule_event( time(), 'fiveminutes', 'amber_cron_event_hook' );
 		
+		add_rewrite_rule('^.*amber/cache/([a-f0-9]+)/?$', '/index.php?amber_cache=$1', "top");
+		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/?$', '/index.php?amber_cacheframe=$1', "top");
+		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/assets/(.*)/?$', '/index.php?amber_cacheframe=$1&amber_asset=$2', "top");
 		flush_rewrite_rules();
 	}
 
 	public static function deactivate() {
+		AmberInstall::iterate_over_sites("deactivate_site");
+	}
+
+	public static function deactivate_site() {
 		wp_clear_scheduled_hook( 'amber_cron_event_hook' );
 	}
 
+	public static function iterate_over_sites($function_name) {
+		global $wpdb;
+	    if (function_exists('is_multisite') && is_multisite() && $networkwide) {
+	        // check if it is a network activation - if so, run the activation function for each blog id
+            $old_blog = $wpdb->blogid;
+            // Get all blog ids
+            $blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+            foreach ($blogids as $blog_id) {
+                switch_to_blog($blog_id);
+                call_user_func("AmberInstall::" . $function_name);
+            }
+            switch_to_blog($old_blog);
+	    } else {
+			call_user_func("AmberInstall::" . $function_name);
+	    }		
+	}
+
 	public static function uninstall() {
+		AmberInstall::iterate_over_sites("uninstall_site");
+	}
+
+	public static function uninstall_site() {
 		global $wpdb;
 		$tables = AmberInstall::get_tables();
 		foreach ($tables as $name => $table) {
