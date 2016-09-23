@@ -15,8 +15,8 @@ class AmazonS3StorageTest extends AmberStorageTest {
     protected static $secret_key;
 
     static public function setUpBeforeClass() {
-      date_default_timezone_set('UTC');
-      self::$bucket = uniqid("ambertest");
+        date_default_timezone_set('UTC');
+        self::$bucket = uniqid("ambertest");
     }
 
     private function is_environment_setup() {
