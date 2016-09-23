@@ -424,6 +424,7 @@ jQuery(document).ready(function($) {
     $("#amber_backend").change(function(e) { 
         $(".local").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_LOCAL . ');
         $(".perma").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_PERMA . ');
+        $(".perma-hidden").parent().parent().toggle($(this).val() == "Hidden Perma fields");
         $(".ia").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_INTERNET_ARCHIVE . ');
         $(".aws").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_AMAZON_S3 . ');
     });
@@ -444,14 +445,14 @@ jQuery(document).ready(function($) {
         $option = isset($this->options['amber_backend']) ? $this->options['amber_backend'] : 0;
         ?>
             <select id="amber_backend" name="amber_options[amber_backend]">
-                <option value="<?php echo AMBER_BACKEND_LOCAL; ?>" <?php if ( $option == AMBER_BACKEND_LOCAL ) { echo 'selected="selected"'; } ?>>Store captures directly in this website's storage space</option>
-                <option value="<?php echo AMBER_BACKEND_PERMA; ?>" <?php if ( $option == AMBER_BACKEND_PERMA ) { echo 'selected="selected"'; } ?>>Store captures in Perma.cc, rather than in your own storage space</option>
-                <option value="<?php echo AMBER_BACKEND_INTERNET_ARCHIVE; ?>" <?php if ( $option == AMBER_BACKEND_INTERNET_ARCHIVE ) { echo 'selected="selected"'; } ?>>Store captures in the Internet Archive, rather than in your own storage space</option>
+                <option value="<?php echo AMBER_BACKEND_LOCAL; ?>" <?php if ( $option == AMBER_BACKEND_LOCAL ) { echo 'selected="selected"'; } ?>>Local</option>
+                <option value="<?php echo AMBER_BACKEND_PERMA; ?>" <?php if ( $option == AMBER_BACKEND_PERMA ) { echo 'selected="selected"'; } ?>>Perma.cc</option>
+                <option value="<?php echo AMBER_BACKEND_INTERNET_ARCHIVE; ?>" <?php if ( $option == AMBER_BACKEND_INTERNET_ARCHIVE ) { echo 'selected="selected"'; } ?>>Internet Archive</option>
                 <?php if (version_compare(PHP_VERSION, "5.5") >= 0) { ?>
-                    <option value="<?php echo AMBER_BACKEND_AMAZON_S3; ?>" <?php if ( $option == AMBER_BACKEND_AMAZON_S3 ) { echo 'selected="selected"'; } ?>>Store captures in the cloud through an Amazon Web Services S3 account</option>
+                    <option value="<?php echo AMBER_BACKEND_AMAZON_S3; ?>" <?php if ( $option == AMBER_BACKEND_AMAZON_S3 ) { echo 'selected="selected"'; } ?>>Amazon Web Services S3</option>
                 <?php } ?>
             </select> 
-            <p class="description">Text TBD</p>
+            <p class="description">Amber can store captures locally, in your website's storage space. If you prefer, you can store captures in an alternative backend. At this time, Amber is compatible with the following services: <a href="http://perma.cc/" target="_blank">Perma.cc</a>, the Internet Archive, and Amazon Web Services S3.</p>
         <?php
 	}
 
@@ -476,7 +477,7 @@ jQuery(document).ready(function($) {
     public function amber_max_disk_callback()
     {
         printf(
-            '<input type="text" id="amber_max_disk" name="amber_options[amber_max_disk]" value="%s" />' .
+            '<input type="text" id="amber_max_disk" name="amber_options[amber_max_disk]" class="local" value="%s" />' .
             '<p class="description">The maximum amount of disk space to be used for all preserved content. If this disk space usage is exceeded, old captures will be removed.</p>',
             isset( $this->options['amber_max_disk'] ) ? esc_attr( $this->options['amber_max_disk']) : ''
         );
@@ -533,7 +534,7 @@ jQuery(document).ready(function($) {
     public function amber_perma_server_url_callback()
     {
         printf(
-            '<input type="text" id="amber_perma_server_url" name="amber_options[amber_perma_server_url]" class="perma" value="%s" />' . 
+            '<input type="text" id="amber_perma_server_url" name="amber_options[amber_perma_server_url]" class="perma-hidden" value="%s" />' . 
             '<p class="description">This should not need to be changed</p>',
             isset( $this->options['amber_perma_server_url'] ) ? esc_attr( $this->options['amber_perma_server_url']) : ''
         );
@@ -542,7 +543,7 @@ jQuery(document).ready(function($) {
     public function amber_perma_api_server_url_callback()
     {
         printf(
-            '<input type="text" id="amber_perma_api_server_url" name="amber_options[amber_perma_api_server_url]" class="perma" value="%s" />' . 
+            '<input type="text" id="amber_perma_api_server_url" name="amber_options[amber_perma_api_server_url]" class="perma-hidden" value="%s" />' . 
             '<p class="description">This should not need to be changed</p>',
             isset( $this->options['amber_perma_api_server_url'] ) ? esc_attr( $this->options['amber_perma_api_server_url']) : ''
         );
@@ -552,7 +553,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_aws_access_key" name="amber_options[amber_aws_access_key]" class="aws" value="%s" />' . 
-            '<p class="description">Text TBD.</p>',
+            '<p class="description">Visit <a href="http://docs.aws.amazon.com/general/latest/gr/managing-aws-access-keys.html" target="_blank">Managing Access Keys for your AWS Account</a> for instructions to generate an access key.</p>',
             isset( $this->options['amber_aws_access_key'] ) ? esc_attr( $this->options['amber_aws_access_key']) : ''
         );
     }
@@ -561,7 +562,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_aws_secret_key" name="amber_options[amber_aws_secret_key]" class="aws" value="%s" />' . 
-            '<p class="description">Text TBD.</p>',
+            '<p class="description">Visit <a href="http://docs.aws.amazon.com/general/latest/gr/managing-aws-access-keys.html" target="_blank">Managing Access Keys for your AWS Account</a> for instructions to generate a secret access key.</p>',
             isset( $this->options['amber_aws_secret_key'] ) ? esc_attr( $this->options['amber_aws_secret_key']) : ''
         );
     }
@@ -579,7 +580,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<input type="text" id="amber_aws_region" name="amber_options[amber_aws_region]" class="aws" value="%s" />' . 
-            '<p class="description">Text TBD.</p>',
+            '<p class="description">Your captures will be stored in this <a href="http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region" target="_blank">S3 region</a>. Unless you are an advanced user, do not modify this setting.</p>',
             isset( $this->options['amber_aws_region'] ) ? esc_attr( $this->options['amber_aws_region']) : ''
         );
     }
