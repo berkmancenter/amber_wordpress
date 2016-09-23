@@ -13,7 +13,7 @@ Indicate your interest by contacting amber@cyber.law.harvard.edu.
 
 ## Installation ##
 
-For full installation instructions, as well as a guide for configurations and settings, see our Wiki page on Github: https://github.com/berkmancenter/amber_wordpress/wiki
+For full installation instructions, as well as a guide for configurations and settings, see our Wiki on Github: https://github.com/berkmancenter/amber_wordpress/wiki
 
 ## Help! ##
 The Berkman Center's devs are happy to help you get Amber up and running. Contact us directly with questions: amber@cyber.law.harvard.edu.
