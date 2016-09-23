@@ -3,7 +3,7 @@ Contributors: berkmancenter
 Donate link: https://cyber.law.harvard.edu
 Tags: links, archiving
 Requires at least: 4.0.0
-Tested up to: 4.4
+Tested up to: 4.6.1
 Stable tag: 1.4.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
