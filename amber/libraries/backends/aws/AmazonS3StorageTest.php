@@ -5,6 +5,9 @@ if (null != getenv("AWS_LIBRARY_PATH")) {
 }
 require_once("AmazonS3Storage.php");   
 
+/**
+  * @group ExternalInterfaces
+  */
 class AmazonS3StorageTest extends AmberStorageTest {
 
     protected static $bucket = "jeffryelichtherewego";
