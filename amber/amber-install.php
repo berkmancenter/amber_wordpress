@@ -70,6 +70,7 @@ class AmberInstall {
 	            'amber_storage_location' => 'amber',
 	            'amber_update_strategy' => 0,
 	            'amber_country_id' => '',
+	            'amber_excluded_sites' => parse_url(home_url(), PHP_URL_HOST),
 	            );
 
 			update_option('amber_options', $options);			
