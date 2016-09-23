@@ -171,16 +171,6 @@ class Amber {
 	  return $result;
 	}
 
-	/* 
-	 * Add our CSS and Javascript to every page
-	 */
-	public static function register_plugin_assets() {
-		wp_register_style('amber', plugins_url('amber/css/amber.css'));
-		wp_enqueue_style('amber');
-		wp_register_script('amber', plugins_url('amber/js/amber.js'));
-		wp_enqueue_script('amber');
-	}
-
 	/**
 	 * Amber filter process callback.
 	 *
@@ -195,15 +185,25 @@ class Amber {
 	  return $text;
 	}
 
-	public static function add_post_row_actions( $actions, WP_Post $post ) {
-    	$actions['amber-cache'] = "<a href='#'>Cache now</a>";
-    	return $actions;
+	/* 
+	 * Add our CSS and Javascript to every page
+	 */
+	public static function register_plugin_assets() {
+		wp_register_style('amber', plugins_url('amber/css/amber.css'));
+		wp_enqueue_style('amber');
+		wp_register_script('amber', plugins_url('amber/js/amber.js'));
+		wp_enqueue_script('amber');
 	}
 
-	public static function add_page_row_actions( $actions, WP_Post $post ) {
-    	$actions['amber-cache'] = "<a href='#'>Cache now</a>";
-    	return $actions;
-	}
+	// public static function add_post_row_actions( $actions, WP_Post $post ) {
+ //    	$actions['amber-cache'] = "<a href='#'>Cache now</a>";
+ //    	return $actions;
+	// }
+
+	// public static function add_page_row_actions( $actions, WP_Post $post ) {
+ //    	$actions['amber-cache'] = "<a href='#'>Cache now</a>";
+ //    	return $actions;
+	// }
 
 	public static function cron_add_schedule($schedules)
 	{
@@ -292,6 +292,9 @@ class Amber {
 	  			"DELETE from ${prefix}amber_queue where url = %s",
 	  			array($row['url'])
 	  			));
+  			return $row['url'];
+  		} else {
+  			return "";
   		}
 	}
 
@@ -312,23 +315,27 @@ class Amber {
 	}
 
 	private static function cache_links($links, $immediately = false) {
+		$result = array();
 		if ($immediately) {
 		    foreach ($links as $url) {
-				Amber::cache_link($url, $immediately);
+		    	$result[$url] = Amber::cache_link($url, true);
 			}
 		} else {
 			Amber::enqueue_check_links($links);
 		}
+		return $result;
 	}
 
-	public static function extract_links($post_id) {
+	public static function extract_links($post_id, $cache_immediately = false) {
+		$result = array();
         $post = get_post($post_id);
         $text = $post->post_content;
 	 	$re = '/href=["\'](http[^\v()<>{}\[\]"\']+)[\'"]/';
   		$count = preg_match_all($re, $text, $matches);
   		if ($count) {
-  			 Amber::cache_links($matches[1]);
+  			 $result = Amber::cache_links($matches[1],$cache_immediately);
   		}
+  		return $result;
 	}
 
 	/**
@@ -457,6 +464,128 @@ class Amber {
 		return $headers;
 	}
 
+	/* Respond to an ajax call to cache links on a specific page immediately
+	 */
+	public static function ajax_cache_now() {
+		$id = $_POST['id'];
+		if ($id) {
+			$links = Amber::extract_links($id, true);
+		}
+		$cached = array();
+		$failed = array();
+		foreach ($links as $key => $value) {
+			if ($value) {
+				$cached[] = $key;
+			} else {
+				$failed[] = $key;
+			}
+		}
+		print json_encode(array('cached' => $cached, 'failed' => $failed));
+		die();
+	}
+
+	/* Respond to an ajax call from the dashboard as part of the 
+	   "Cache all links" process. Returning an empty string signifies
+	   that all links have been cached.
+	 */
+	public static function ajax_cache() {
+		$url = Amber::dequeue_link();
+		print $url;
+		die();
+	}
+
+	/* Respond to an ajax call from the dashboard to kick off the 
+	   scanning process by identifying all pages and posts that
+	   need to be scanned, and placing them in transient storage
+	   to be worked through by ajax_scan().
+	 */
+	public static function ajax_scan_start() {
+		$post_ids = get_posts(array(
+		    'numberposts'   => -1, // get all posts.
+		    'fields'        => 'ids', // Only get post IDs
+		));
+		$page_ids = get_all_page_ids();
+		set_transient('amber_scan_pages', $page_ids, 24*60*60);
+		set_transient('amber_scan_posts', $post_ids, 24*60*60);
+		print count($post_ids) + count($page_ids);
+		die();
+	}
+
+	/* Scan pages and posts for links to be queued for caching.
+ 	   Return the number of items left to be scanned.
+	 */
+	public static function ajax_scan() {
+		/* Maximum number of pages and posts to process in each 
+		   request. This is used for both pages AND posts, so the
+		   maximum per request is actually twice this, depending
+		   on the mix of content on the site */
+		$batch_size = 2; 
+		$number_remaining = 0;
+		$transients = array('amber_scan_pages', 'amber_scan_posts');
+		foreach ($transients as $t) {
+			$ids = get_transient($t);
+			if ($ids !== FALSE && is_array($ids)) {
+				$i = 2; 
+				while ((count($ids) > 0) && ($i-- > 0)) {
+					$id = array_shift($ids);
+					Amber::extract_links($id);
+				}
+				set_transient($t, $ids, 24*60*60);
+				$number_remaining += count($ids);	
+			}
+		}
+		print $number_remaining;
+		die();
+	}
+
+	public static function add_meta_boxes()
+	{
+		$screens = array( 'post', 'page' );
+		foreach ( $screens as $screen ) {
+			add_meta_box(
+				'amber_sectionid',
+				'Amber',
+				array('Amber', 'display_meta_boxes'),
+				$screen,
+				'side'
+			);
+		}
+	}
+
+	public static function display_meta_boxes($post)
+	{
+		print submit_button("Cache links now", "small", "cache_now");
+		print '
+<div id="cache-status"></div>
+<script type="text/javascript" >';
+		print "var data = { 'action': 'amber_cache_now', 'id': '$post->ID' };";
+		print '
+jQuery(document).ready(function($) { 
+	$("input#cache_now").click(function(){
+		$("div#cache-status").html("Caching links...")
+		$.post(ajaxurl, data, function(response) {
+			if (response) {
+				var cached = response.cached.join("<br/>");
+				var failed = response.failed.join("<br/>");
+				var result = "";
+				if (cached) {
+					result += "<p><strong>These links were cached successfully</strong><br/>" + cached + "</p>";
+				}
+				if (failed) {
+					result += "<p><strong>These links were not cached</strong><br/>" + failed + "</p>";
+				}
+				if (!result) {
+					result = "No links found";					
+				}
+				$("div#cache-status").html(result);
+			} 
+		}, "json");
+		return false;
+	});});
+</script>
+';
+	}
+
 }
 
 include_once dirname( __FILE__ ) . '/amber-install.php';
@@ -489,11 +618,22 @@ add_action( 'parse_query', array('Amber', 'display_cached_content') );
 add_filter( 'wp_headers', array('Amber', 'filter_cached_content_headers') );
 
 /* Add "Cache Now" link to links */
-add_filter( 'post_row_actions', array('Amber', 'add_post_row_actions'), 10, 2 );
-add_filter( 'page_row_actions', array('Amber', 'add_page_row_actions'), 10, 2 );
+// add_filter( 'post_row_actions', array('Amber', 'add_post_row_actions'), 10, 2 );
+// add_filter( 'page_row_actions', array('Amber', 'add_page_row_actions'), 10, 2 );
+
+/* Add "Cache Now" link to edit pages */
+add_action( 'add_meta_boxes', array('Amber', 'add_meta_boxes') );
+
 
 /* Setup cron */
 add_action( 'amber_cron_event_hook', array('Amber', 'cron_event_hook') );
 add_filter( 'cron_schedules', array('Amber', 'cron_add_schedule') );
+
+/* Setup ajax methods for batch caching and scanning */
+add_action( 'wp_ajax_amber_cache', array('Amber', 'ajax_cache') );
+add_action( 'wp_ajax_amber_cache_now', array('Amber', 'ajax_cache_now') );
+add_action( 'wp_ajax_amber_scan_start', array('Amber', 'ajax_scan_start') );
+add_action( 'wp_ajax_amber_scan', array('Amber', 'ajax_scan') );
+
 
 ?>

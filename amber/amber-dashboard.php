@@ -129,25 +129,20 @@ class AmberDashboardPage
     }
 
     private function delete_all() {
-	  $storage = Amber::get_storage();
-	  $storage->clear_cache();
-	  $status = Amber::get_status();
-	  $status->delete_all();
-    }
+    	$prefix = $this->db->prefix;
+
+	  	$storage = Amber::get_storage();
+	  	$storage->clear_cache();
+	  	$status = Amber::get_status();
+	  	$status->delete_all();
+	  	$this->db->query("DELETE from ${prefix}amber_queue");
+    }	
 
     private function delete($id) {
-	  $storage = Amber::get_storage();
-	  $storage->clear_cache_item($id);
-	  $status = Amber::get_status();
-	  $status->delete($id);
-    }
-
-    private function scan() {
-    	
-    }
-
-    private function cache_now() {
-
+	  	$storage = Amber::get_storage();
+	  	$storage->clear_cache_item($id);
+	  	$status = Amber::get_status();
+	  	$status->delete($id);
     }
 
     /**
@@ -167,7 +162,6 @@ class AmberDashboardPage
     		$this->delete($_REQUEST['delete']);
     	}
 
-    	// print wp_next_scheduled('amber_hourly_event_hook');
         ?>
         <div class="wrap">
             <?php screen_icon(); ?>
@@ -193,6 +187,8 @@ class AmberDashboardPage
 			<?php submit_button("Delete all captures", "small", "delete_all"); ?>
 			<?php submit_button("Scan content for links to preserve", "small", "scan"); ?>
 			<?php submit_button("Preserve all new links", "small", "cache_now"); ?>
+			<div id="batch_status"></div>
+
 		</td>
 
 	</tr>
@@ -243,6 +239,71 @@ class AmberDashboardPage
 
 </form>
         </div>
+
+<style>
+	p.submit {
+		float: left;
+		padding-right: 20px;
+	}
+</style>
+
+<script type="text/javascript" >
+jQuery(document).ready(function($) {
+
+	$("input#cache_now").click(function() { cache_all(); return false;});
+	$("input#scan").click(function() {  scan_all(); return false;});
+
+	function cache_one() {
+		var data = { 'action': 'amber_cache' };
+		$.post(ajaxurl, data, function(response) {
+			if (response) {
+				// Cached a page, check to see if there's another
+				$("#batch_status").html("Preserving..." + response);
+				setTimeout(cache_one, 100);		
+			} else {
+				$("#batch_status").html("Done preserving links");
+				document.location.reload(true);
+			}
+		});
+	}
+
+	function cache_all () {
+		$("#batch_status").html("Preserving links...");
+		// TODO: Some fancy chrome to hide the rest of the page while
+		// this is going on
+		cache_one();
+	}
+
+	function scan_one() {
+		var data = { 'action': 'amber_scan' };
+		$.post(ajaxurl, data, function(response) {
+			if (response && response != 0) {
+				$("#batch_status").html("Scanning content. " + response + " items remaining.");
+				setTimeout(scan_one, 100);		
+			} else {
+				$("#batch_status").html("Done scanning content");
+				document.location.reload(true);
+			}
+		});
+	}
+
+	function scan_all () {
+		$("#batch_status").html("Scanning content for links...");
+		// TODO: Some fancy chrome to hide the rest of the page while
+		// this is going on
+		var data = { 'action': 'amber_scan_start' };
+		$.post(ajaxurl, data, function(response) {
+			if (response) {
+				$("#batch_status").html(response + "items left to scan");
+				setTimeout(scan_one, 100);
+			} else {
+				$("#batch_status").html("No items to scan");
+			}
+		});		
+	}
+});
+</script>
+
         <?php
     }
 }
