@@ -641,13 +641,13 @@ EOF;
 		   maximum per request is actually twice this, depending
 		   on the mix of content on the site */
 		check_ajax_referer( 'amber_dashboard' );
-		$batch_size = 2; 
+		$batch_size = 10; 
 		$number_remaining = 0;
 		$transients = array('amber_scan_pages', 'amber_scan_posts');
 		foreach ($transients as $t) {
 			$ids = get_transient($t);
 			if ($ids !== FALSE && is_array($ids)) {
-				$i = 2; 
+				$i = $batch_size; 
 				while ((count($ids) > 0) && ($i-- > 0)) {
 					$id = array_shift($ids);
 					Amber::extract_links($id);
