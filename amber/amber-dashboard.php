@@ -25,13 +25,13 @@ class Amber_List_Table extends WP_List_Table {
         $prefix = $this->db->prefix;
 
         $statement = 
-            "SELECT c.id, c.url, c.status, c.last_checked, c.message, ca.date, ca.size, ca.location, a.views, a.date as activity_date " .
+            "SELECT c.id, c.url, c.status, c.last_checked, c.message, ca.date, ca.size, ca.location, a.views, a.date as activity_date, substring_index(c.url,'://',-1) as url_sort " .
             "FROM ${prefix}amber_check c " .
             "LEFT JOIN ${prefix}amber_cache ca on ca.id = c.id " .
             "LEFT JOIN ${prefix}amber_activity a on ca.id = a.id ";
 
         if (!empty($_REQUEST['orderby'])) {
-            if (in_array($_REQUEST['orderby'], array('c.url', 'c.last_checked', 'ca.date', 'c.status', 'ca.size', 'a.date', 'a.views'), true)) {
+            if (in_array($_REQUEST['orderby'], array('c.url', 'c.last_checked', 'ca.date', 'c.status', 'ca.size', 'a.date', 'a.views', 'url_sort'), true)) {
                 $statement .= " ORDER BY " . $_REQUEST['orderby'];
                 if (!empty($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc','desc'))) {
                     $statement .=  " " . $_REQUEST['order'];
@@ -110,7 +110,7 @@ class Amber_List_Table extends WP_List_Table {
 
     function get_sortable_columns() {
         $sortable_columns = array(
-            'url'           => array('c.url',false),     //true means it's already sorted
+            'url'           => array('url_sort',false),     //true means it's already sorted
             'status'        => array('c.status',false),
             'last_checked'  => array('c.last_checked',false),
             'date'          => array('ca.date',false),
