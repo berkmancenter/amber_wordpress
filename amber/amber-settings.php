@@ -225,6 +225,14 @@ class AmberSettingsPage
         );      
 
         add_settings_field(
+            'amber_external_availability', 
+            'Use a third-party database to check site availability', 
+            array( $this, 'amber_external_availability_callback' ), 
+            'amber-settings-admin', 
+            'amber_delivery_section'
+        );      
+
+        add_settings_field(
             'amber_country_id', 
             'Country', 
             array( $this, 'amber_country_id_callback' ), 
@@ -295,6 +303,7 @@ class AmberSettingsPage
             'amber_country_available_action_hover',
             'amber_country_unavailable_action_hover',
             'amber_update_strategy',
+            'amber_external_availability',
             );
         foreach ($valid_integer_options as $opt) {
             if( isset( $input[$opt] ) )
@@ -620,6 +629,19 @@ jQuery(document).ready(function($) {
             isset( $this->options['amber_unavailable_action_hover'] ) ? esc_attr( $this->options['amber_unavailable_action_hover']) : ''
         );
     }
+
+    public function amber_external_availability_callback()
+    {
+        $option = isset($this->options['amber_external_availability']) ? $this->options['amber_external_availability'] : AMBER_EXTERNAL_AVAILABILITY_NETCLERK;
+        ?>
+            <select class="external_availability_field" id="amber_external_availability" name="amber_options[amber_external_availability]">
+                <option value="<?php echo AMBER_EXTERNAL_AVAILABILITY_NONE; ?>" <?php if ( $option == AMBER_EXTERNAL_AVAILABILITY_NONE ) { echo 'selected="selected"'; } ?>>Do not use an external service</option>
+                <option value="<?php echo AMBER_EXTERNAL_AVAILABILITY_NETCLERK; ?>" <?php if ( $option == AMBER_EXTERNAL_AVAILABILITY_NETCLERK ) { echo 'selected="selected"'; } ?>>Use NetClerk</option>
+            </select> 
+            <p class="description">TBD: Describe what it means to use NetClerk</p>
+        <?php
+    }
+
 
     public function amber_country_id_callback()
     {

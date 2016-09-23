@@ -16,6 +16,8 @@ define("AMBER_ACTION_CACHE",3);
 define("AMBER_STATUS_UP","up");
 define("AMBER_STATUS_DOWN","down");
 define("AMBER_VAR_LAST_CHECK_RUN","amber_last_check_run");
+define("AMBER_EXTERNAL_AVAILABILITY_NONE",0);
+define("AMBER_EXTERNAL_AVAILABILITY_NETCLERK",1);
 define("AMBER_BACKEND_LOCAL",0);
 define("AMBER_BACKEND_PERMA",1);
 define("AMBER_BACKEND_INTERNET_ARCHIVE",2);
@@ -315,7 +317,7 @@ class Amber {
 		wp_register_script('amber', plugins_url('amber/js/amber.js'));
 		wp_enqueue_script('amber');
 		wp_localize_script('amber', 'amber_config', array(
-			'lookup_availability' => true));
+			'lookup_availability' => (AMBER_EXTERNAL_AVAILABILITY_NETCLERK == Amber::get_option('amber_external_availability', AMBER_EXTERNAL_AVAILABILITY_NONE))));
 	}
 
 	public static function cron_add_schedule($schedules)
