@@ -366,9 +366,9 @@ class AmberDashboardPage
                     </table>
 
                     <?php submit_button("Delete all snapshots", "small", "delete_all"); ?>
-                    <?php submit_button("Scan content for links to snapshot", "small", "scan"); ?>
+                    <?php submit_button("Scan content for links to preserve", "small", "scan"); ?>
                     <?php submit_button("Snapshot all new links", "small", "cache_now"); ?>
-                    <?php submit_button("Export list of preserved content", "small", "export"); ?>
+                    <?php submit_button("Export list of snapshots", "small", "export"); ?>
                     
                 </div>            
             </form>
