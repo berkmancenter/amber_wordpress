@@ -87,7 +87,7 @@ class AmberFetcher implements iAmberFetcher {
         'date' => strtotime($storage_metadata['cache']['amber']['date']),
         'location' => $storage_metadata['cache']['amber']['location'],
         'size' => $size,
-        'provider' => 0, // Local storage provider
+        'provider' => $this->storage->provider_id(),
         'provider_id' => $storage_metadata['id'],
       );
     } else {

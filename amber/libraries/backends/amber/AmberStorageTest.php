@@ -165,7 +165,7 @@ class AmberStorageTest extends PHPUnit_Framework_TestCase {
     $this->assertSame($hash . ".png",$url);
   }
 
-  private function get_storage_path() {
+  protected function get_storage_path() {
     return join(DIRECTORY_SEPARATOR,array(realpath(sys_get_temp_dir()),"amber"));
   }
 }

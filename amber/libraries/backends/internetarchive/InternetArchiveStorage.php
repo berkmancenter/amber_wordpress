@@ -4,37 +4,44 @@ require_once dirname( __FILE__ ) . '/../../AmberInterfaces.php';
 
 class InternetArchiveStorage implements iAmberStorage {
 
-  function __construct(array $options) {
+  public function __construct(array $options) {
   }
 
+  public function provider_id() {
+    return 2;
+  }
 
-  function get($id) {
+  public function get($id) {
   	throw new Exception("Not implemented for InternetArchiveStorage");
   }
 
-  function get_asset($id, $path) {
+  public function get_asset($id, $path) {
   	throw new Exception("Not implemented for InternetArchiveStorage");  	
   }
 
-  function get_metadata($key) {
+  public function build_asset_path($asset) {
+    throw new Exception("Not implemented for InternetArchiveStorage");    
+  }
+  
+  public function get_metadata($key) {
   	throw new Exception("Not implemented for InternetArchiveStorage");  	
   }
   
-  function get_id($url) {
+  public function get_id($url) {
   	throw new Exception("Not implemented for InternetArchiveStorage");  	
   }
   
-  function save($url, $root, array $headers = array(), array $assets = array()) {
+  public function save($url, $root, array $headers = array(), array $assets = array()) {
   	throw new Exception("Not implemented for InternetArchiveStorage");  	
   }
   
   /* We cannot delete Internet Archive captures */
-  function delete_all() {
+  public function delete_all() {
     return TRUE;
   }
 
   /* We cannot delete Internet Archive captures */
-  function delete($cache_metadata) {
+  public function delete($cache_metadata) {
     return TRUE;
   }
 
