@@ -128,12 +128,12 @@ class Amber_List_Table extends WP_List_Table {
             'site'           => 'Site',
             'url'            => 'URL',
             'status'         => 'Status',
-            'last_checked'   => 'Last Checked',
+            'last_checked'   => 'Last checked',
             'date'           => 'Date preserved',
             'size'           => 'Size (kB)',
             'activity_date'  => 'Last viewed',
             'views'          => 'Total views',
-            'method'         => 'Archive Method',
+            'method'         => 'Storage method',
             'message'        => 'Notes',
         );
         return $columns;
