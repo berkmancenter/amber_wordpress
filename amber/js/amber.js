@@ -355,6 +355,7 @@ var amber = {
       params && (params += "&");
       params += "url[]=" + encodeURIComponent(e.href);
     });
+
     if (params && (amber.get_country() != undefined)) {
       params += "&country=" + amber.get_country();
 

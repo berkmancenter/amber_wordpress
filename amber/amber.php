@@ -938,5 +938,6 @@ add_action( 'wp_ajax_amber_scan_start', array('Amber', 'ajax_scan_start') );
 add_action( 'wp_ajax_amber_scan', array('Amber', 'ajax_scan') );
 add_action( 'wp_ajax_nopriv_amber_logcacheview', array('Amber', 'ajax_log_cache_view') );
 add_action( 'wp_ajax_nopriv_amber_status', array('Amber', 'ajax_get_url_status') );
+add_action( 'wp_ajax_amber_status', array('Amber', 'ajax_get_url_status') );
 
 ?>
