@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Amber
- * Plugin URI: https://github.com/berkmancenter/robustness_wordpress
+ * Plugin URI: https://github.com/berkmancenter/amber_wordpress
  * Description: Enables the preservation of content to which your website links.
  * Version: 0.1
  * Author: Berkman Center for Internet & Society
