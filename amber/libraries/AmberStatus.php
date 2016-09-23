@@ -59,8 +59,8 @@ class AmberStatus implements iAmberStatus {
     $prefix = $this->table_prefix;
     $provider_string = implode(', ', array_fill(0, count($provider_types), '%s'));
     $result = $this->db->select(
-      "SELECT * FROM ${prefix}amber_cache WHERE id = %s AND provider in (%s)", 
-      array($id, $provider_string));
+      "SELECT * FROM ${prefix}amber_cache WHERE id = %s AND provider in (" . $provider_string . ")", 
+      array_merge(array($id), $provider_types));
     return $result;
   }
 
