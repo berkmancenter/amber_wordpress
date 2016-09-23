@@ -99,7 +99,7 @@ class AmberSettingsPage
 
         add_settings_field(
             'amber_excluded_sites', 
-            'Excluded sites', 
+            'Excluded URL Patterns', 
             array( $this, 'amber_excluded_sites_callback' ), 
             'amber-settings-admin', 
             'amber_cache_section'
@@ -325,7 +325,7 @@ jQuery(document).ready(function($) {
     {
         printf(
             '<textarea rows="5" cols="40" id="amber_excluded_sites" name="amber_options[amber_excluded_sites]">%s</textarea>' .
-            '<p class="description">A list of hostnames or IP addresses, separated by commas. Amber will not preserve any link containing an excluded site.</p>',
+            '<p class="description">A list of URL patterns, separated by commas. Amber will not preserve any link that matches one of these patterns. Regular expressions may be used.</p>',
             isset( $this->options['amber_excluded_sites'] ) ? esc_textarea( $this->options['amber_excluded_sites']) : ''
         );
     }
