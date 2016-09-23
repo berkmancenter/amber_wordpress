@@ -15,6 +15,7 @@ define("AMBER_ACTION_POPUP",2);
 define("AMBER_ACTION_CACHE",3);
 define("AMBER_STATUS_UP","up");
 define("AMBER_STATUS_DOWN","down");
+define("AMBER_VAR_LAST_CHECK_RUN","amber_last_check_run");
 
 class Amber {
 
@@ -209,6 +210,7 @@ class Amber {
 	 */
 	public static function cron_event_hook() {
 		Amber::dequeue_link();
+	    update_option(AMBER_VAR_LAST_CHECK_RUN, time());
 	}
 
 	/**
@@ -361,7 +363,9 @@ class Amber {
 	    switch ($extension) {
 	      case "css" : $data['metadata']['type'] = 'text/css'; break;
 	      case "jpg" : $data['metadata']['type'] = 'image/jpeg'; break;      
+	      case "png" : $data['metadata']['type'] = 'image/png'; break;      
 	      case "svg" : $data['metadata']['type'] = 'image/svg+xml'; break;      
+	      case "js" : $data['metadata']['type'] = 'application/javascript'; break;      
 	    }
 	  }
 	  return (isset($data)) ? $data : NULL;
@@ -418,17 +422,11 @@ class Amber {
 			if (empty($asset_id)) {
 				/* This is the root item */
 				$data = Amber::retrieve_cache_item($cache_id);
-			    if (isset($data['metadata']['type'])) {
-			    	header('Content-Type', $data['metadata']['type']);
-			    }
 		    	print $data['data'];
 		    	die();
 			} else {
 				/* This is an asset */
 				$data = Amber::retrieve_cache_asset($cache_id, $asset_id);
-			    if (isset($data['metadata']['type'])) {
-			    	header('Content-Type', $data['metadata']['type']);
-				}
 		    	print($data['data']);
 		    	die();
 			}
@@ -436,20 +434,30 @@ class Amber {
 	}
 
 	/**
-	 * When displaying cached content, set the Content-Type header for the primary
-     * content item. Not needed for assets, because their content-type can be inferred
-     * from the filename extension (css,jpeg,etc).
+	 * When displaying cached content, set the Content-Type header for the 
+     * content item or asset
 	 */
 	public static function filter_cached_content_headers($headers)
 	{
 		global $wp;
 		$cache_id = !empty($wp->query_vars['amber_cache']) ? $wp->query_vars['amber_cache'] : "";
 		$asset_id = !empty($wp->query_vars['amber_asset']) ? $wp->query_vars['amber_asset'] : "";
-		if (!empty($cache_id) && empty($asset_id)) {
-			$data = Amber::retrieve_cache_item($cache_id, false);
-		    if (isset($data['metadata']['type'])) {
-				$headers['Content-Type'] = $data['metadata']['type'];
-		    }
+		$asset_id = rtrim($asset_id,"/"); /* Get rid of stray characters on the end */
+
+		if (!empty($cache_id)) {
+			if (empty($asset_id)) {
+				/* This is the root item */
+				$data = Amber::retrieve_cache_item($cache_id, false);
+			    if (isset($data['metadata']['type'])) {
+					$headers['Content-Type'] = $data['metadata']['type'];
+			    }
+			} else {
+				/* This is an asset */
+				$data = Amber::retrieve_cache_asset($cache_id, $asset_id);
+			    if (isset($data['metadata']['type'])) {
+					$headers['Content-Type'] = $data['metadata']['type'];
+				}
+			}
 		}
 		return $headers;
 	}
@@ -458,6 +466,7 @@ class Amber {
 	 */
 	public static function ajax_cache_now() {
 		check_ajax_referer( 'amber_cache_now' );
+	    update_option(AMBER_VAR_LAST_CHECK_RUN, time());
 		$id = $_POST['id'];
 		if ($id) {
 			$links = Amber::extract_links($id, true);
@@ -481,6 +490,7 @@ class Amber {
 	 */
 	public static function ajax_cache() {
 		check_ajax_referer( 'amber_dashboard' );
+	    update_option(AMBER_VAR_LAST_CHECK_RUN, time());		
 		$url = Amber::dequeue_link();
 		print $url;
 		die();
