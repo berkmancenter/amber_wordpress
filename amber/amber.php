@@ -484,6 +484,7 @@ class Amber {
 
 		/* Displaying the cache frame page with an iframe referencing the cached item */
 		if (!empty($cache_id)) {
+			status_header( 200 ); /* This must be set BEFORE any content is printed */
 			$data = Amber::retrieve_cache_item($cache_id);
 			 /* If the document is a PDF, serve it directly rather than in an iframe. Browsers
 			    will not render PDFs within sandboxed iframes. */
@@ -517,6 +518,7 @@ EOF;
 			die();
 		}
 		if (!empty($cache_frame_id)) {
+			status_header( 200 ); /* This must be set BEFORE any content is printed */
 			if (empty($asset_id)) {
 				/* This is the root item */
 				$data = Amber::retrieve_cache_item($cache_frame_id);
