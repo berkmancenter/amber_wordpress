@@ -69,6 +69,10 @@ class Amber_List_Table extends WP_List_Table {
         return $item['status'] ? 'Up' : 'Down';
     }
 
+    function column_size($item) {
+        return round($item['size'] / 1024, 2);
+    }
+
     function column_last_checked($item) {
         return isset($item['last_checked']) ? date('r',$item['last_checked']) : "";
     }
@@ -90,7 +94,7 @@ class Amber_List_Table extends WP_List_Table {
             'status'         => 'Status',
             'last_checked'   => 'Last Checked',
             'date'           => 'Date preserved',
-            'size'           => 'Size',
+            'size'           => 'Size (kB)',
             'activity_date'  => 'Last viewed',
             'views'          => 'Total views',
             'message'        => 'Notes',
@@ -216,7 +220,7 @@ class AmberDashboardPage
 
     private function disk_usage() {
         $status = new AmberStatus(new AmberWPDB($this->db), $this->db->prefix);
-        $result = $status->get_cache_size();        
+        $result = round($status->get_cache_size() / (1024 * 1024), 2);        
         return $result ? $result : 0;
     }
 
@@ -254,7 +258,7 @@ class AmberDashboardPage
           'Status',
           'Last Checked',
           'Date preserved',
-          'Size',
+          'Size (kB)',
           'Last viewed',
           'Total views',
           'Notes',
@@ -269,7 +273,7 @@ class AmberDashboardPage
             'status' => $r['status'] ? 'Up' : 'Down',
             'last_checked' => isset($r['last_checked']) ? date('c',$r['last_checked']) : "",
             'date' => isset($r['date']) ? date('c',$r['date']) : "",
-            'size' => $r['size'],
+            'size' => round($r['size'] / 1024,2),
             'a.date' => isset($r['a_date']) ? date('c',$r['a_date']) : "",
             'views' => isset($r['views']) ? $r['views'] : 0,
             'message' => isset($r['message']) ? $r['message'] : ""
@@ -309,7 +313,7 @@ class AmberDashboardPage
                             <tr><td>Captures preserved</td><td><?php print($this->cache_size()); ?></td></tr>
                             <tr><td>Links to capture</td><td><?php print($this->queue_size()); ?></td></tr>
                             <tr><td>Last check</td><td><?php print($this->last_check()); ?></td></tr>
-                            <tr><td>Disk space used</td><td><?php print($this->disk_usage() . " of " . Amber::get_option('amber_max_disk') * 1024 * 1024); ?></td></tr>
+                            <tr><td>Disk space used</td><td><?php print($this->disk_usage() . " of " . Amber::get_option('amber_max_disk')); ?> MB</td></tr>
                         </tbody>
                     </table>
 
