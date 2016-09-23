@@ -64,7 +64,7 @@ class Amber {
 	 * @return iAmberStorage
 	 */
 	public static function get_storage_for_item($id) {
-	  	$item = Amber::get_status()->get_cache_by_id($id, Amber::get_option('amber_backend', 0));
+	  	$item = Amber::get_status()->get_cache_by_id($id, array(AMBER_BACKEND_LOCAL, AMBER_BACKEND_AMAZON_S3));
 	  	return ($item) ? Amber::get_storage_instance($item['provider']) : null;
 	}
 
