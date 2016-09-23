@@ -69,6 +69,19 @@
   margin-bottom: 50px;
 }
 
+.amber-interstitial a.amber-memento-link {
+  display: none;
+}
+
+.amber-interstitial a.amber-memento-link.found {
+  color: white;
+  top: -50px;
+  height: 10px;
+  margin-bottom: -10px;
+  position: relative;
+  display: block;
+}
+
 .amber-iframe-container {
   height: 140px;
   width: 230px;
@@ -194,6 +207,22 @@
 
 .amber-hover .amber-links a:hover {
   color: white !important;
+}
+
+.amber-hover a.amber-memento-link {
+  display: none;
+}
+
+.amber-hover a.amber-memento-link.found {
+  color: white !important;
+  display: block;
+  height: 15px;
+  width: 100%;
+  margin-left: 40px;
+  margin-top: -15px;
+  font-size: 9px;
+  line-height: 12px;
+  z-index: 9999999;
 }
 
 .amber-hover a.amber-focus {
