@@ -18,7 +18,7 @@ define("AMBER_STATUS_DOWN","down");
 
 class Amber {
 
-	private static function get_option($key, $default)
+	public static function get_option($key, $default = "")
 	{
 		$options = get_option('amber_options');
 		return isset($options[$key]) ? $options[$key] : $default;
@@ -281,14 +281,17 @@ class Amber {
 	/**
 	 * Retrieve an item from the cache for display
 	 * @param $id string identifying the item to return
+	 * @param $record_view boolean whether to record this view in the amber_activity table
 	 * @return null|string
 	 */
-	private static function retrieve_cache_item($id) {
+	private static function retrieve_cache_item($id, $record_view = true) {
 	  $storage = Amber::get_storage();
 	  $data = $storage->get($id);
 	  $metadata = $storage->get_metadata($id);
 	  $status = Amber::get_status();
-	  $status->save_view($id);
+	  if ($record_view) {
+		  $status->save_view($id);
+	  }
 	  return ($data && $metadata) ? array('data' => $data, 'metadata' => $metadata) : NULL;
 	}
 
@@ -347,6 +350,9 @@ class Amber {
 	public static function custom_query_vars($vars) {
 		$vars[] = 'amber_cache';
 		$vars[] = 'amber_asset';
+		$vars[] = 'amber_sort';
+		$vars[] = 'amber_dir';
+		$vars[] = 'amber_page';
 		return $vars;
 	}
 
@@ -391,7 +397,7 @@ class Amber {
 		$cache_id = !empty($wp->query_vars['amber_cache']) ? $wp->query_vars['amber_cache'] : "";
 		$asset_id = !empty($wp->query_vars['amber_asset']) ? $wp->query_vars['amber_asset'] : "";
 		if (!empty($cache_id) && empty($asset_id)) {
-			$data = Amber::retrieve_cache_item($cache_id);
+			$data = Amber::retrieve_cache_item($cache_id, false);
 		    if (isset($data['metadata']['type'])) {
 				$headers['Content-Type'] = $data['metadata']['type'];
 		    }
@@ -403,6 +409,7 @@ class Amber {
 
 include_once dirname( __FILE__ ) . '/amber-install.php';
 include_once dirname( __FILE__ ) . '/amber-settings.php';
+include_once dirname( __FILE__ ) . '/amber-dashboard.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberStatus.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberStorage.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberFetcher.php';
@@ -429,10 +436,10 @@ add_filter( 'query_vars', array('Amber', 'custom_query_vars') );
 add_action( 'parse_query', array('Amber', 'display_cached_content') );
 add_filter( 'wp_headers', array('Amber', 'filter_cached_content_headers') );
 
-
 /* Add "Cache Now" link to links */
 add_filter( 'post_row_actions', array('Amber', 'add_post_row_actions'), 10, 2 );
 add_filter( 'page_row_actions', array('Amber', 'add_page_row_actions'), 10, 2 );
+
 
 
 ?>
