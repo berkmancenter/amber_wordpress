@@ -452,6 +452,7 @@ class Amber {
 			$cache_metadata = $fetcher->fetch($item);
 		} catch (RuntimeException $re) {
 			$update['message'] = $re->getMessage();
+			$update['url'] = $item;
 			$status->save_check($update);
 			return false;
 		}
