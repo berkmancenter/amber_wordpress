@@ -3,10 +3,14 @@
 if (null != getenv("AWS_LIBRARY_PATH")) {
     require_once(getenv("AWS_LIBRARY_PATH"));
 }
-require_once("AmazonS3Storage.php");   
+
+if (version_compare(PHP_VERSION, "5.3.3") >= 0) {
+    require_once("AmazonS3Storage.php");
+}
 
 /**
   * @group ExternalInterfaces
+  * @requires PHP 5.3.3*
   */
 class AmazonS3StorageTest extends AmberStorageTest {
 
