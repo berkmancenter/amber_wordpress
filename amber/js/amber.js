@@ -21,7 +21,7 @@ var amber = {
 {{MEMENTO_MESSAGE}}</a><div class="amber-iframe-container"><a href="{{LINK}}"></a>\
 <iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div>\
 <a class="amber-info" href="http://amberlink.org" target="_blank">i</a></div>',
-      hover_html_up   : 
+      hover_html_up   :
 '<div class="amber-hover amber-up"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a>\
 <div class="amber-text"><div class="amber-status-text">This page should be available</div>\
 <div class="amber-cache-text">{{NAME}} has a snapshot from {{DATE}}</div></div>\
@@ -29,7 +29,7 @@ var amber = {
 <div class="amber-links"><a class="amber-cache-link" href="{{CACHE}}">View the snapshot</a>\
 <a href="{{LINK}}" class="amber-focus">Continue to the page</a></div><div class="amber-arrow"></div>\
 </div>',
-      hover_html_down : 
+      hover_html_down :
 '<div class="amber-hover amber-down"><a class="amber-info" href="http://amberlink.org" target="_blank">i</a>\
 <div class="amber-text"><div class="amber-status-text">This page may not be available</div>\
 <div class="amber-cache-text">{{NAME}} has a snapshot from {{DATE}}</div></div>\
@@ -229,7 +229,7 @@ var amber = {
             cachelink.setAttribute('href', response['url']);
             if (response['date']) {
               linktext = amber.replace_args(
-                amber.get_text("timegate_with_date"), 
+                amber.get_text("timegate_with_date"),
                 {'{{MEMENTO_DATE}}' : amber.format_date_from_string(response['date'])});
             } else {
               linktext = amber.get_text("timegate_without_date");
@@ -283,7 +283,7 @@ var amber = {
   },
 
   start_link_hover : function (e) {
-    amber.hovering_on_link = true;    
+    amber.hovering_on_link = true;
     var behavior = amber.parse_behavior(this.getAttribute("data-amber-behavior"));
     if (amber.execute_action(behavior,"hover") && !amber.hover_up()) {
       var cache = amber.parse_cache(this.getAttribute("data-versionurl"), this.getAttribute("data-versiondate"));
@@ -308,7 +308,7 @@ var amber = {
         hover.style.top = pos.top + "px";
         amber.util_addEventListener(hover, 'mouseover', amber.start_popup_hover);
         amber.util_addEventListener(hover, 'mouseout', amber.end_popup_hover_function(hover));
-  
+
         amber.attach_cache_view_event();
 
         amber.get_memento(t.getAttribute('href'), t.getAttribute('data-versiondate'),
@@ -323,7 +323,7 @@ var amber = {
               cachelink.setAttribute('href', response['url']);
               if (response['date']) {
                 linktext = amber.replace_args(
-                  amber.get_text("timegate_with_date"), 
+                  amber.get_text("timegate_with_date"),
                   {'{{MEMENTO_DATE}}' : amber.format_date_from_string(response['date'])});
               } else {
                 linktext = amber.get_text("timegate_without_date");
@@ -376,7 +376,7 @@ var amber = {
         request.open('GET', '/amber/logcacheview?cache=' + href + '&t=' + new Date().getTime(), false);
         request.send();
       });
-    });    
+    });
   },
 
   hover_up : function(e) {
@@ -448,7 +448,7 @@ var amber = {
         }
       };
       request.send(params);
-    } 
+    }
   },
 
   /* Get memento URL for a given URL and date, and execute a function on the result */
