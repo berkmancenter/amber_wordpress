@@ -4,7 +4,7 @@ Donate link: https://cyber.law.harvard.edu
 Tags: links, archiving
 Requires at least: 4.0.0
 Tested up to: 4.4
-Stable tag: 1.4.2
+Stable tag: 1.4.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -62,6 +62,15 @@ Amber respects the Robots Exclusion Standard and does not preserve any web page 
 4. Ensure the content to which you link never vanishes down the memory hole.
 
 == Changelog ==
+
+= Version 1.4.2 =
+*Release date: March 14, 2016*
+
+* Do not call third-party service to identify user's location if location-specific features are not enabled
+* If a URL cannot be preserved, display the reason why on the Amber Dashboard
+* Increase default limit on snapshot sizes from 1MB to 5MB
+* Properly annotate links that have additional attributes
+* Display warning if cURL is not installed (credit: [webster](https://github.com/webster))
 
 = Version 1.4.1 =
 Fixed an issue with displaying saved pages to viewers. All users should upgrade Amber to v1.4.1
