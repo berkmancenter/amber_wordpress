@@ -1,4 +1,4 @@
-<?php
+x<?php
 class AmberSettingsPage
 {
     /**
@@ -22,10 +22,10 @@ class AmberSettingsPage
     {
         // This page will be under "Settings"
         add_options_page(
-            'Amber Settings', 
-            'Amber Settings', 
-            'manage_options', 
-            'amber-setting-admin', 
+            'Amber Settings',
+            'Amber Settings',
+            'manage_options',
+            'amber-setting-admin',
             array( $this, 'create_admin_page' )
         );
     }
@@ -40,13 +40,13 @@ class AmberSettingsPage
         ?>
         <div class="wrap">
             <?php screen_icon(); ?>
-            <h2>Amber Settings</h2>           
+            <h2>Amber Settings</h2>
             <form method="post" action="options.php">
             <?php
                 // This prints out all hidden setting fields
-                settings_fields( 'amber_option_group' );   
+                settings_fields( 'amber_option_group' );
                 do_settings_sections( 'amber-settings-admin' );
-                submit_button(); 
+                submit_button();
             ?>
             </form>
         </div>
@@ -57,21 +57,21 @@ class AmberSettingsPage
      * Register and add settings
      */
     public function page_init()
-    {        
+    {
         add_settings_section(
-            'amber_cache_section', 
-            'Storage Settings', 
-            array( $this, 'print_cache_section_info' ), 
+            'amber_cache_section',
+            'Storage Settings',
+            array( $this, 'print_cache_section_info' ),
             'amber-settings-admin' // Page
-        );  
+        );
 
         add_settings_field(
-            'amber_backend', 
-            'Backend to use for storing snapshots', 
-            array( $this, 'amber_backend_callback' ), 
-            'amber-settings-admin', 
-            'amber_cache_section'          
-        );      
+            'amber_backend',
+            'Backend to use for storing snapshots',
+            array( $this, 'amber_backend_callback' ),
+            'amber-settings-admin',
+            'amber_cache_section'
+        );
 
         add_settings_field(
 	    'amber_post_types', 
@@ -90,227 +90,227 @@ class AmberSettingsPage
         );      
 
         add_settings_field(
-            'amber_max_file', 
-            'Maximum file size (kB)', 
-            array( $this, 'amber_max_file_callback' ), 
-            'amber-settings-admin', 
-            'amber_cache_section'          
-        );      
+            'amber_max_file',
+            'Maximum file size (kB)',
+            array( $this, 'amber_max_file_callback' ),
+            'amber-settings-admin',
+            'amber_cache_section'
+        );
 
         add_settings_field(
-            'amber_max_disk', 
-            'Maximum disk usage (MB)', 
-            array( $this, 'amber_max_disk_callback' ), 
-            'amber-settings-admin', 
+            'amber_max_disk',
+            'Maximum disk usage (MB)',
+            array( $this, 'amber_max_disk_callback' ),
+            'amber-settings-admin',
             'amber_cache_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_storage_location', 
-            'Storage location', 
-            array( $this, 'amber_storage_location_callback' ), 
-            'amber-settings-admin', 
+            'amber_storage_location',
+            'Storage location',
+            array( $this, 'amber_storage_location_callback' ),
+            'amber-settings-admin',
             'amber_cache_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_perma_api_key', 
-            'Perma API key', 
-            array( $this, 'amber_perma_api_key_callback' ), 
-            'amber-settings-admin', 
+            'amber_perma_api_key',
+            'Perma API key',
+            array( $this, 'amber_perma_api_key_callback' ),
+            'amber-settings-admin',
             'amber_cache_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_perma_server_url', 
-            'Perma URL', 
-            array( $this, 'amber_perma_server_url_callback' ), 
-            'amber-settings-admin', 
+            'amber_perma_server_url',
+            'Perma URL',
+            array( $this, 'amber_perma_server_url_callback' ),
+            'amber-settings-admin',
             'amber_cache_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_perma_api_server_url', 
-            'Perma API URL', 
-            array( $this, 'amber_perma_api_server_url_callback' ), 
-            'amber-settings-admin', 
+            'amber_perma_api_server_url',
+            'Perma API URL',
+            array( $this, 'amber_perma_api_server_url_callback' ),
+            'amber-settings-admin',
             'amber_cache_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_aws_access_key', 
-            'AWS Access Key', 
-            array( $this, 'amber_aws_access_key_callback' ), 
-            'amber-settings-admin', 
+            'amber_aws_access_key',
+            'AWS Access Key',
+            array( $this, 'amber_aws_access_key_callback' ),
+            'amber-settings-admin',
             'amber_cache_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_aws_secret_key', 
-            'AWS Secret Access Key', 
-            array( $this, 'amber_aws_secret_key_callback' ), 
-            'amber-settings-admin', 
+            'amber_aws_secret_key',
+            'AWS Secret Access Key',
+            array( $this, 'amber_aws_secret_key_callback' ),
+            'amber-settings-admin',
             'amber_cache_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_aws_bucket', 
-            'S3 Bucket', 
-            array( $this, 'amber_aws_bucket_callback' ), 
-            'amber-settings-admin', 
+            'amber_aws_bucket',
+            'S3 Bucket',
+            array( $this, 'amber_aws_bucket_callback' ),
+            'amber-settings-admin',
             'amber_cache_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_aws_region', 
-            'S3 Region', 
-            array( $this, 'amber_aws_region_callback' ), 
-            'amber-settings-admin', 
+            'amber_aws_region',
+            'S3 Region',
+            array( $this, 'amber_aws_region_callback' ),
+            'amber-settings-admin',
             'amber_cache_section'
-        );      
+        );
         add_settings_field(
-            'amber_post_types', 
-            'Included post types', 
-            array( $this, 'amber_post_types_callback' ), 
-            'amber-settings-admin', 
-            'amber_cache_section'          
-        );      
+            'amber_post_types',
+            'Included post types',
+            array( $this, 'amber_post_types_callback' ),
+            'amber-settings-admin',
+            'amber_cache_section'
+        );
 
         add_settings_field(
-            'amber_update_strategy', 
-            'Update strategy for snapshots', 
-            array( $this, 'amber_update_strategy_callback' ), 
-            'amber-settings-admin', 
+            'amber_update_strategy',
+            'Update strategy for snapshots',
+            array( $this, 'amber_update_strategy_callback' ),
+            'amber-settings-admin',
             'amber_cache_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_excluded_sites', 
-            'Excluded URL Patterns', 
-            array( $this, 'amber_excluded_sites_callback' ), 
-            'amber-settings-admin', 
+            'amber_excluded_sites',
+            'Excluded URL Patterns',
+            array( $this, 'amber_excluded_sites_callback' ),
+            'amber-settings-admin',
             'amber_cache_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_excluded_formats', 
-            'Excluded file formats', 
-            array( $this, 'amber_excluded_formats_callback' ), 
-            'amber-settings-admin', 
+            'amber_excluded_formats',
+            'Excluded file formats',
+            array( $this, 'amber_excluded_formats_callback' ),
+            'amber-settings-admin',
             'amber_cache_section'
-        );      
+        );
 
         add_settings_section(
             'amber_delivery_section',
-            'Amber Delivery', 
-            array( $this, 'print_delivery_section_info' ), 
-            'amber-settings-admin' 
-        );  
+            'Amber Delivery',
+            array( $this, 'print_delivery_section_info' ),
+            'amber-settings-admin'
+        );
 
         add_settings_field(
-            'amber_available_action', 
-            'Available links', 
-            array( $this, 'amber_available_action_callback' ), 
-            'amber-settings-admin', 
+            'amber_available_action',
+            'Available links',
+            array( $this, 'amber_available_action_callback' ),
+            'amber-settings-admin',
             'amber_delivery_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_available_action_hover', 
-            'Hover delay (seconds)', 
-            array( $this, 'amber_available_action_hover_callback' ), 
-            'amber-settings-admin', 
+            'amber_available_action_hover',
+            'Hover delay (seconds)',
+            array( $this, 'amber_available_action_hover_callback' ),
+            'amber-settings-admin',
             'amber_delivery_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_unavailable_action', 
-            'Unavailable links', 
-            array( $this, 'amber_unavailable_action_callback' ), 
-            'amber-settings-admin', 
+            'amber_unavailable_action',
+            'Unavailable links',
+            array( $this, 'amber_unavailable_action_callback' ),
+            'amber-settings-admin',
             'amber_delivery_section'
-        );    
+        );
 
         add_settings_field(
-            'amber_unavailable_action_hover', 
-            'Hover delay (seconds)', 
-            array( $this, 'amber_unavailable_action_hover_callback' ), 
-            'amber-settings-admin', 
+            'amber_unavailable_action_hover',
+            'Hover delay (seconds)',
+            array( $this, 'amber_unavailable_action_hover_callback' ),
+            'amber-settings-admin',
             'amber_delivery_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_country_id', 
-            'Country', 
-            array( $this, 'amber_country_id_callback' ), 
-            'amber-settings-admin', 
+            'amber_country_id',
+            'Country',
+            array( $this, 'amber_country_id_callback' ),
+            'amber-settings-admin',
             'amber_delivery_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_country_available_action', 
-            'Available links', 
-            array( $this, 'amber_country_available_action_callback' ), 
-            'amber-settings-admin', 
+            'amber_country_available_action',
+            'Available links',
+            array( $this, 'amber_country_available_action_callback' ),
+            'amber-settings-admin',
             'amber_delivery_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_country_available_action_hover', 
-            'Hover delay (seconds)', 
-            array( $this, 'amber_country_available_action_hover_callback' ), 
-            'amber-settings-admin', 
+            'amber_country_available_action_hover',
+            'Hover delay (seconds)',
+            array( $this, 'amber_country_available_action_hover_callback' ),
+            'amber-settings-admin',
             'amber_delivery_section'
-        );      
+        );
 
         add_settings_field(
-            'amber_country_unavailable_action', 
-            'Unavailable links', 
-            array( $this, 'amber_country_unavailable_action_callback' ), 
-            'amber-settings-admin', 
+            'amber_country_unavailable_action',
+            'Unavailable links',
+            array( $this, 'amber_country_unavailable_action_callback' ),
+            'amber-settings-admin',
             'amber_delivery_section'
-        );    
+        );
 
         add_settings_field(
-            'amber_country_unavailable_action_hover', 
-            'Hover delay (seconds)', 
-            array( $this, 'amber_country_unavailable_action_hover_callback' ), 
-            'amber-settings-admin', 
+            'amber_country_unavailable_action_hover',
+            'Hover delay (seconds)',
+            array( $this, 'amber_country_unavailable_action_hover_callback' ),
+            'amber-settings-admin',
             'amber_delivery_section'
-        );      
+        );
 
         add_settings_section(
-            'amber_services_section', 
-            'Optional Functionality', 
-            array( $this, 'print_services_section_info' ), 
+            'amber_services_section',
+            'Optional Functionality',
+            array( $this, 'print_services_section_info' ),
             'amber-settings-admin' // Page
-        );  
+        );
 
         if (isset($this->options['amber_enable_netclerk']) && $this->options['amber_enable_netclerk']) {
             add_settings_field(
-                'amber_external_availability', 
-                'Use a third-party database to check site availability', 
-                array( $this, 'amber_external_availability_callback' ), 
-                'amber-settings-admin', 
+                'amber_external_availability',
+                'Use a third-party database to check site availability',
+                array( $this, 'amber_external_availability_callback' ),
+                'amber-settings-admin',
                 'amber_services_section'
-            );      
+            );
 
             add_settings_field(
-                'amber_report_availability', 
-                'Inform a third-party database of site availability', 
-                array( $this, 'amber_report_availability_callback' ), 
-                'amber-settings-admin', 
+                'amber_report_availability',
+                'Inform a third-party database of site availability',
+                array( $this, 'amber_report_availability_callback' ),
+                'amber-settings-admin',
                 'amber_services_section'
-            );      
+            );
         }
-        
+
         add_settings_field(
-            'amber_timegate', 
-            'Check a TimeGate server for additional snapshots', 
-            array( $this, 'amber_timegate_callback' ), 
-            'amber-settings-admin', 
+            'amber_timegate',
+            'Check a TimeGate server for additional snapshots',
+            array( $this, 'amber_timegate_callback' ),
+            'amber-settings-admin',
             'amber_services_section'
-        );      
+        );
 
 
         register_setting(
@@ -387,16 +387,16 @@ class AmberSettingsPage
         foreach ($excluded_sites as $site) {
             $blacklistitem = preg_replace("/https?:\\/\\//i", "", trim($site));
             if ($blacklistitem) {
-                $blacklistitem = str_replace("@", "\@", $blacklistitem); 
-                $blacklistitem = '@' . $blacklistitem . '@';              
+                $blacklistitem = str_replace("@", "\@", $blacklistitem);
+                $blacklistitem = '@' . $blacklistitem . '@';
                 /* Hide warning messages from preg_match() that can be generated by
                    invalid user-entered regular expressions. */
                 $default_error_logging_level = error_reporting();
                 error_reporting(0);
-                $match_result = preg_match($blacklistitem, "foobar");            
-                error_reporting($default_error_logging_level);                  
+                $match_result = preg_match($blacklistitem, "foobar");
+                error_reporting($default_error_logging_level);
                 if ($match_result === FALSE) {
-                    add_settings_error('amber_excluded_sites', 'amber_excluded_sites', 
+                    add_settings_error('amber_excluded_sites', 'amber_excluded_sites',
                         "'${site}' is not a valid regular expression for Excluded URL Patterns");
                 } else {
                     $sanitized_excluded_sites[] = $site;
@@ -404,9 +404,9 @@ class AmberSettingsPage
             }
         }
         $new_input['amber_excluded_sites'] = sanitize_text_field( implode( ",", $sanitized_excluded_sites ) );
-        
+
         /* Validate backend settings */
-        if (($input['amber_backend'] == AMBER_BACKEND_PERMA) || 
+        if (($input['amber_backend'] == AMBER_BACKEND_PERMA) ||
                 (isset($input['amber_alternate_backends']) && in_array(AMBER_BACKEND_PERMA, $input['amber_alternate_backends']))) {
             foreach (array('amber_perma_api_key', 'amber_perma_server_url', 'amber_perma_api_server_url') as $key)
             if (empty($input[$key]) ) {
@@ -414,7 +414,7 @@ class AmberSettingsPage
                 break;
             }
         }
-        if (($input['amber_backend'] == AMBER_BACKEND_AMAZON_S3) || 
+        if (($input['amber_backend'] == AMBER_BACKEND_AMAZON_S3) ||
                 (isset($input['amber_alternate_backends']) && in_array(AMBER_BACKEND_AMAZON_S3, $input['amber_alternate_backends']))) {
             foreach (array('amber_aws_access_key', 'amber_aws_secret_key', 'amber_aws_bucket', 'amber_aws_region') as $key)
             if (empty($input[$key]) ) {
@@ -442,7 +442,7 @@ class AmberSettingsPage
         return $new_input;
     }
 
-    /** 
+    /**
      * Print the Section text
      */
     public function print_cache_section_info()
@@ -465,14 +465,14 @@ jQuery(document).ready(function($) {
     $("#amber_unavailable_action").change(function(e) { $("#amber_unavailable_action_hover").parent().parent().toggle($(this).val() == hover_state); });
     $("#amber_country_available_action").change(function(e) { $("#amber_country_available_action_hover").parent().parent().toggle($(this).val() == hover_state); });
     $("#amber_country_unavailable_action").change(function(e) { $("#amber_country_unavailable_action_hover").parent().parent().toggle($(this).val() == hover_state); });
-    $("#amber_country_id").change(function(e) { 
-        $(".country_field").parent().parent().toggle($(this).val() != ""); 
+    $("#amber_country_id").change(function(e) {
+        $(".country_field").parent().parent().toggle($(this).val() != "");
         if ($(this).val() != "") {
-            $("#amber_country_available_action").change();   
-            $("#amber_country_unavailable_action").change();           
+            $("#amber_country_available_action").change();
+            $("#amber_country_unavailable_action").change();
         }
     });
-    $("#amber_backend").change(function(e) { 
+    $("#amber_backend").change(function(e) {
         var v = $("#amber_alternate_backends").val();
         if (v == null) { v = []; }
         $(".local").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_LOCAL . ');
@@ -481,7 +481,7 @@ jQuery(document).ready(function($) {
         $(".ia").parent().parent().toggle(($("#amber_backend").val() == ' . AMBER_BACKEND_INTERNET_ARCHIVE . ') || (v.indexOf("' . AMBER_BACKEND_INTERNET_ARCHIVE . '") != -1));
         $(".aws").parent().parent().toggle($(this).val() == ' . AMBER_BACKEND_AMAZON_S3 . ');
     });
-    $("#amber_alternate_backends").change(function(e) { 
+    $("#amber_alternate_backends").change(function(e) {
         var v = $("#amber_alternate_backends").val();
         if (v == null) { v = []; }
         $(".perma").parent().parent().toggle(($("#amber_backend").val() == ' . AMBER_BACKEND_PERMA . ') || (v.indexOf("' . AMBER_BACKEND_PERMA . '") != -1));
@@ -492,7 +492,7 @@ jQuery(document).ready(function($) {
     $("#amber_unavailable_action").change();
     $("#amber_backend").change();
 
-});</script>';            
+});</script>';
 
     }
 
@@ -501,7 +501,7 @@ jQuery(document).ready(function($) {
         print 'Connect to academic efforts to retrieve more accurate data and additional snapshots';
     }
 
-    /** 
+    /**
      * Get the settings option array and print one of its values
      */
     public function amber_backend_callback()
@@ -515,10 +515,22 @@ jQuery(document).ready(function($) {
                 <?php if (version_compare(PHP_VERSION, "5.5") >= 0) { ?>
                     <option value="<?php echo AMBER_BACKEND_AMAZON_S3; ?>" <?php if ( $option == AMBER_BACKEND_AMAZON_S3 ) { echo 'selected="selected"'; } ?>>Amazon Web Services S3</option>
                 <?php } ?>
-            </select> 
+            </select>
             <p class="description">Amber can store snapshots locally, in your website's storage space. If you prefer, you can store snapshots in an alternative backend. At this time, Amber is compatible with the following services: <a href="https://perma.cc/" target="_blank">Perma.cc</a>, the <a href="https://archive.org" target="_blank">Internet Archive</a>, and <a href="https://aws.amazon.com/s3/">Amazon S3</a>.</p>
         <?php
-	}
+    }
+
+    public function amber_alternate_backends_callback()
+    {
+        $options = isset($this->options['amber_alternate_backends']) ? $this->options['amber_alternate_backends'] : 0;
+        ?>
+            <select id="amber_alternate_backends" name="amber_options[amber_alternate_backends][]" multiple>
+                <option value="<?php echo AMBER_BACKEND_PERMA; ?>" <?php if ( is_array($options) && in_array(AMBER_BACKEND_PERMA, $options) ) { echo 'selected="selected"'; } ?>>Perma.cc</option>
+                <option value="<?php echo AMBER_BACKEND_INTERNET_ARCHIVE; ?>" <?php if ( is_array($options) && in_array(AMBER_BACKEND_INTERNET_ARCHIVE, $options) ) { echo 'selected="selected"'; } ?>>Internet Archive</option>
+            </select>
+            <p class="description">Preserve snapshots in multiple storage locations by selecting one or more alternates above. Amber will show your visitors only the storage location selected in the dropdown menu.</p>
+        <?php
+    }
 
     public function amber_post_types_callback()
     {
@@ -549,18 +561,6 @@ jQuery(document).ready(function($) {
 
     }
 
-    public function amber_alternate_backends_callback()
-    {
-        $options = isset($this->options['amber_alternate_backends']) ? $this->options['amber_alternate_backends'] : 0;
-        ?>
-            <select id="amber_alternate_backends" name="amber_options[amber_alternate_backends][]" multiple>
-                <option value="<?php echo AMBER_BACKEND_PERMA; ?>" <?php if ( is_array($options) && in_array(AMBER_BACKEND_PERMA, $options) ) { echo 'selected="selected"'; } ?>>Perma.cc</option>
-                <option value="<?php echo AMBER_BACKEND_INTERNET_ARCHIVE; ?>" <?php if ( is_array($options) && in_array(AMBER_BACKEND_INTERNET_ARCHIVE, $options) ) { echo 'selected="selected"'; } ?>>Internet Archive</option>
-            </select> 
-            <p class="description">Preserve snapshots in multiple storage locations by selecting one or more alternates above. Amber will show your visitors only the storage location selected in the dropdown menu.</p>
-        <?php
-    }
-
     public function amber_max_file_callback()
     {
         printf(
@@ -582,7 +582,7 @@ jQuery(document).ready(function($) {
     public function amber_storage_location_callback()
     {
         printf(
-            '<input type="text" id="amber_storage_location" name="amber_options[amber_storage_location]" class="local" value="%s" />' . 
+            '<input type="text" id="amber_storage_location" name="amber_options[amber_storage_location]" class="local" value="%s" />' .
             '<p class="description">Path to the location where snapshots are stored on disk, relative to the uploads directory.</p>',
             isset( $this->options['amber_storage_location'] ) ? esc_attr( $this->options['amber_storage_location']) : ''
         );
@@ -595,7 +595,7 @@ jQuery(document).ready(function($) {
             <select id="amber_update_strategy" name="amber_options[amber_update_strategy]" class="local">
                 <option value="0" <?php if ( $option == 0 ) { echo 'selected="selected"'; } ?>>Update snapshots periodically</option>
                 <option value="1" <?php if ( $option == 1 ) { echo 'selected="selected"'; } ?>>Do not update snapshots</option>
-            </select> 
+            </select>
             <p class="description">Select "Do not update" if you want to preserve links at the time the content is published. Otherwise, link storage will be periodically updated.</p>
         <?php
     }
@@ -621,7 +621,7 @@ jQuery(document).ready(function($) {
     public function amber_perma_api_key_callback()
     {
         printf(
-            '<input type="text" id="amber_perma_api_key" name="amber_options[amber_perma_api_key]" class="perma" value="%s" />' . 
+            '<input type="text" id="amber_perma_api_key" name="amber_options[amber_perma_api_key]" class="perma" value="%s" />' .
             '<p class="description">Generate an API key in your Perma.cc Dashboard under Settings &gt; Tools</p>',
             isset( $this->options['amber_perma_api_key'] ) ? esc_attr( $this->options['amber_perma_api_key']) : ''
         );
@@ -630,7 +630,7 @@ jQuery(document).ready(function($) {
     public function amber_perma_server_url_callback()
     {
         printf(
-            '<input type="text" id="amber_perma_server_url" name="amber_options[amber_perma_server_url]" class="perma-hidden" value="%s" />' . 
+            '<input type="text" id="amber_perma_server_url" name="amber_options[amber_perma_server_url]" class="perma-hidden" value="%s" />' .
             '<p class="description">This should not need to be changed</p>',
             isset( $this->options['amber_perma_server_url'] ) ? esc_attr( $this->options['amber_perma_server_url']) : ''
         );
@@ -639,7 +639,7 @@ jQuery(document).ready(function($) {
     public function amber_perma_api_server_url_callback()
     {
         printf(
-            '<input type="text" id="amber_perma_api_server_url" name="amber_options[amber_perma_api_server_url]" class="perma-hidden" value="%s" />' . 
+            '<input type="text" id="amber_perma_api_server_url" name="amber_options[amber_perma_api_server_url]" class="perma-hidden" value="%s" />' .
             '<p class="description">This should not need to be changed</p>',
             isset( $this->options['amber_perma_api_server_url'] ) ? esc_attr( $this->options['amber_perma_api_server_url']) : ''
         );
@@ -648,7 +648,7 @@ jQuery(document).ready(function($) {
     public function amber_aws_access_key_callback()
     {
         printf(
-            '<input type="text" id="amber_aws_access_key" name="amber_options[amber_aws_access_key]" class="aws" value="%s" />' . 
+            '<input type="text" id="amber_aws_access_key" name="amber_options[amber_aws_access_key]" class="aws" value="%s" />' .
             '<p class="description">Visit <a href="http://docs.aws.amazon.com/general/latest/gr/managing-aws-access-keys.html" target="_blank">Managing Access Keys for your AWS Account</a> for instructions to generate an access key.</p>',
             isset( $this->options['amber_aws_access_key'] ) ? esc_attr( $this->options['amber_aws_access_key']) : ''
         );
@@ -657,7 +657,7 @@ jQuery(document).ready(function($) {
     public function amber_aws_secret_key_callback()
     {
         printf(
-            '<input type="text" id="amber_aws_secret_key" name="amber_options[amber_aws_secret_key]" class="aws" value="%s" />' . 
+            '<input type="text" id="amber_aws_secret_key" name="amber_options[amber_aws_secret_key]" class="aws" value="%s" />' .
             '<p class="description">Visit <a href="http://docs.aws.amazon.com/general/latest/gr/managing-aws-access-keys.html" target="_blank">Managing Access Keys for your AWS Account</a> for instructions to generate a secret access key.</p>',
             isset( $this->options['amber_aws_secret_key'] ) ? esc_attr( $this->options['amber_aws_secret_key']) : ''
         );
@@ -666,7 +666,7 @@ jQuery(document).ready(function($) {
     public function amber_aws_bucket_callback()
     {
         printf(
-            '<input type="text" id="amber_aws_bucket" name="amber_options[amber_aws_bucket]" class="aws" value="%s" />' . 
+            '<input type="text" id="amber_aws_bucket" name="amber_options[amber_aws_bucket]" class="aws" value="%s" />' .
             '<p class="description">Name of the Bucket where snapshots will be stored</p>',
             isset( $this->options['amber_aws_bucket'] ) ? esc_attr( $this->options['amber_aws_bucket']) : ''
         );
@@ -675,7 +675,7 @@ jQuery(document).ready(function($) {
     public function amber_aws_region_callback()
     {
         printf(
-            '<input type="text" id="amber_aws_region" name="amber_options[amber_aws_region]" class="aws" value="%s" />' . 
+            '<input type="text" id="amber_aws_region" name="amber_options[amber_aws_region]" class="aws" value="%s" />' .
             '<p class="description">Your snapshots will be stored in this <a href="http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region" target="_blank">S3 region</a>. Unless you are an advanced user, do not modify this setting.</p>',
             isset( $this->options['amber_aws_region'] ) ? esc_attr( $this->options['amber_aws_region']) : ''
         );
@@ -690,7 +690,7 @@ jQuery(document).ready(function($) {
                 <option value="<?php echo AMBER_ACTION_NONE; ?>" <?php if ( $option == AMBER_ACTION_NONE ) { echo 'selected="selected"'; } ?>>None</option>
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
                 <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Pop-up</option>
-            </select> 
+            </select>
             <p class="description">How a visitor to your site will experience links to pages that are currently available.</p>
         <?php
     }
@@ -704,7 +704,7 @@ jQuery(document).ready(function($) {
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
                 <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Pop-up</option>
                 <option value="<?php echo AMBER_ACTION_CACHE; ?>" <?php if ( $option == AMBER_ACTION_CACHE ) { echo 'selected="selected"'; } ?>>Link directly to Snapshot</option>
-            </select> 
+            </select>
             <p class="description">How a visitor to your site will experience links to pages that are currently unavailable.</p>
         <?php
     }
@@ -734,7 +734,7 @@ jQuery(document).ready(function($) {
             <select class="external_availability_field" id="amber_external_availability" name="amber_options[amber_external_availability]">
                 <option value="<?php echo AMBER_EXTERNAL_AVAILABILITY_NONE; ?>" <?php if ( $option == AMBER_EXTERNAL_AVAILABILITY_NONE ) { echo 'selected="selected"'; } ?>>Do not use an external service</option>
                 <option value="<?php echo AMBER_EXTERNAL_AVAILABILITY_NETCLERK; ?>" <?php if ( $option == AMBER_EXTERNAL_AVAILABILITY_NETCLERK ) { echo 'selected="selected"'; } ?>>Use NetClerk</option>
-            </select> 
+            </select>
             <p class="description">Optional: Use site accessibility data from the Berkman Center for Internet & Society at Harvard University</p>
         <?php
     }
@@ -746,7 +746,7 @@ jQuery(document).ready(function($) {
             <select class="report_field" id="amber_report_availability" name="amber_options[amber_report_availability]">
                 <option value="<?php echo AMBER_REPORT_AVAILABILITY_NONE; ?>" <?php if ( $option == AMBER_REPORT_AVAILABILITY_NONE ) { echo 'selected="selected"'; } ?>>Do not report site availability to an external service</option>
                 <option value="<?php echo AMBER_REPORT_AVAILABILITY_NETCLERK; ?>" <?php if ( $option == AMBER_REPORT_AVAILABILITY_NETCLERK ) { echo 'selected="selected"'; } ?>>Use NetClerk</option>
-            </select> 
+            </select>
             <p class="description">Optional: Contribute site accessibility data for research as part of the Berkman Center for Internet & Society at Harvard University</p>
         <?php
     }
@@ -765,14 +765,14 @@ jQuery(document).ready(function($) {
         $option = isset($this->options['amber_country_id']) ? $this->options['amber_country_id'] : "";
         ?>
             <select id="amber_country_id" name="amber_options[amber_country_id]">
-            <?php 
+            <?php
                 $countries = $this->get_countries();
-                print '<option value="" ' . ((!$option) ? 'selected="selected"' : '') . '></option>'; 
+                print '<option value="" ' . ((!$option) ? 'selected="selected"' : '') . '></option>';
                 foreach ($countries as $key => $value) {
-                    print '<option value="' . $key . '" ' . (($option == $key) ? 'selected="selected"' : '') . '>' . $value . '</option>'; 
+                    print '<option value="' . $key . '" ' . (($option == $key) ? 'selected="selected"' : '') . '>' . $value . '</option>';
                 }
             ?>
-            </select> 
+            </select>
             <p class="description">Visitors to your website with browser IP addresses originating in this country will experience specified behavior.</p>
         <?php
     }
@@ -785,7 +785,7 @@ jQuery(document).ready(function($) {
                 <option value="<?php echo AMBER_ACTION_NONE; ?>" <?php if ( $option == AMBER_ACTION_NONE ) { echo 'selected="selected"'; } ?>>None</option>
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
                 <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Pop-up</option>
-            </select> 
+            </select>
             <p class="description">How a visitor to your site will experience links to pages that are currently available.</p>
         <?php
     }
@@ -799,7 +799,7 @@ jQuery(document).ready(function($) {
                 <option value="<?php echo AMBER_ACTION_HOVER; ?>" <?php if ( $option == AMBER_ACTION_HOVER ) { echo 'selected="selected"'; } ?>>Hover</option>
                 <option value="<?php echo AMBER_ACTION_POPUP; ?>" <?php if ( $option == AMBER_ACTION_POPUP ) { echo 'selected="selected"'; } ?>>Link to Pop-up</option>
                 <option value="<?php echo AMBER_ACTION_CACHE; ?>" <?php if ( $option == AMBER_ACTION_CACHE ) { echo 'selected="selected"'; } ?>>Link directly to Snapshot</option>
-            </select> 
+            </select>
             <p class="description">How a visitor to your site will experience links to pages that are currently unavailable.</p>
         <?php
     }
