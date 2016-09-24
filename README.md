@@ -16,4 +16,4 @@ Whether links fail because of DDoS attacks, censorship, or just plain old link r
 For full installation instructions, as well as a guide for configurations and settings, see our Wiki on Github: https://github.com/berkmancenter/amber_wordpress/wiki
 
 ## Help! ##
-The Berkman Center's devs are happy to help you get Amber up and running. Contact us directly with questions: amber@cyber.law.harvard.edu.
+The Berkman Klein Center's devs are happy to help you get Amber up and running. Contact us directly with questions: amber@cyber.law.harvard.edu.
