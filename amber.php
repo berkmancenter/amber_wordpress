@@ -999,7 +999,9 @@ include_once dirname( __FILE__ ) . '/libraries/backends/internetarchive/Internet
 include_once dirname( __FILE__ ) . '/libraries/backends/internetarchive/InternetArchiveFetcher.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/perma/PermaStorage.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/perma/PermaFetcher.php';
-include_once dirname( __FILE__ ) . '/libraries/backends/aws/AmazonS3Storage.php';
+if (version_compare(PHP_VERSION, "5.3.3") >= 0) {
+	include_once dirname( __FILE__ ) . '/libraries/backends/aws/AmazonS3Storage.php';
+}
 include_once dirname( __FILE__ ) . '/libraries/AmberChecker.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberAvailability.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberDB.php';
