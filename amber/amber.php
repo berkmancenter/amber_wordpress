@@ -911,6 +911,14 @@ jQuery(document).ready(function($) {
 	Enable Permalinks <a href="'. get_site_url() . '/wp-admin/options-permalink.php">here</a></p>
 </div>';
 		}	
+		
+		if (!function_exists('curl_init')) {
+			print '
+<div class="error">
+	<p>The PHP cURL extension must be installed for Amber to work properly. Ask your web host to install it, or follow the instructions <a href="https://secure.php.net/manual/en/curl.installation.php" target="_blank">here</a>.</p>
+</div>';
+		}
+		
 	}
  
  	public static function ajax_log_cache_view() {
