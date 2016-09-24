@@ -3,7 +3,7 @@
  * Plugin Name: Amber
  * Plugin URI: http://amberlink.org
  * Description: Amber keeps links working on blogs and websites.
- * Version: 1.4.2
+ * Version: 1.4.3
  * Author: Berkman Center for Internet & Society
  * Author URI: https://cyber.law.harvard.edu
  * License: GPL3
