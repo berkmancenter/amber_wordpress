@@ -523,7 +523,6 @@ amber.util_ready(function($) {
 
     amber.update_link_event_listeners();
     amber.util_addEventListener(window, 'unload', amber.clear_hover);
-    amber.get_country();
 
     /* Drupal-specific configuration */
     if ((typeof Drupal != 'undefined') && (typeof Drupal.settings.amber != 'undefined')) {
@@ -547,6 +546,12 @@ amber.util_ready(function($) {
     /* Get availability information from NetClerk */
     if (amber.lookup_availability != 'undefined' && amber.lookup_availability) {
       amber.get_availability();
+    }
+
+    /* Get country information, if using NetClerk, or if using country-specific behavior */
+    if ((amber.lookup_availability != 'undefined' && amber.lookup_availability) ||
+         amber.country_specific_behavior_exists()) {
+      amber.get_country();
     }
 
 });
