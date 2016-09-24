@@ -3,7 +3,7 @@
  * Plugin Name: Amber
  * Plugin URI: http://amberlink.org
  * Description: Amber keeps links working on blogs and websites.
- * Version: 1.4.4
+ * Version: 1.4.2
  * Author: Berkman Center for Internet & Society
  * Author URI: https://cyber.law.harvard.edu
  * License: GPL3
@@ -81,7 +81,6 @@ class Amber {
 		    	$base_dir = wp_upload_dir();
 		    	$subdir = Amber::get_option('amber_storage_location', 'amber');
 		    	$file_path = join(DIRECTORY_SEPARATOR, array($base_dir['basedir'], $subdir));
-		    	Amber::secure_local_storage($file_path);
 				$storage = new AmberStorage($file_path);
 				break;
 	    	case AMBER_BACKEND_PERMA:
@@ -349,8 +348,7 @@ class Amber {
 	 * Note: This treats all absolute URLs as external links.
 	 */
 	public static function filter($text) {
-	  /* Only annotate links if there are some actions defined */
-	  if (Amber::action_type_enabled(array(AMBER_ACTION_HOVER, AMBER_ACTION_POPUP, AMBER_ACTION_CACHE))) {
+	  if (true) /* It's enabled! */ {
 	    $re = '/href=["\'](http[^\v()<>{}\[\]]+?)[\'"]/i';
 	    $text = preg_replace_callback($re, 'Amber::filter_callback', $text);
 	  }
@@ -361,30 +359,14 @@ class Amber {
 	 * Add our CSS and Javascript to every page
 	 */
 	public static function register_plugin_assets() {
-		if (Amber::action_type_enabled(array(AMBER_ACTION_HOVER, AMBER_ACTION_POPUP))) {
-			wp_register_style('amber', plugins_url('css/amber.css', __FILE__));
-			wp_enqueue_style('amber');
-		}
-		if (Amber::action_type_enabled(array(AMBER_ACTION_HOVER, AMBER_ACTION_POPUP, AMBER_ACTION_CACHE))) {
-			wp_register_script('amber', plugins_url('js/amber.js', __FILE__));
-			wp_enqueue_script('amber');
-			wp_localize_script('amber', 'amber_config', array(
-				'lookup_availability' => (AMBER_EXTERNAL_AVAILABILITY_NETCLERK == Amber::get_option('amber_external_availability', AMBER_EXTERNAL_AVAILABILITY_NONE)),
-				'site_name' => get_bloginfo( 'name' )
-				));
-		}
-	}
-
-	/* Are any of a list of actions enabled in the settings? */
-	private static function action_type_enabled($actions) {
-		$result = false;
-		$options = array('amber_available_action', 'amber_unavailable_action', 'amber_country_available_action', 'amber_country_unavailable_action');
-		foreach ($options as $option) {
-			if (in_array(Amber::get_option($option, AMBER_ACTION_NONE), $actions)) {
-				$result = true;
-			}
-		}
-		return $result;
+		wp_register_style('amber', plugins_url('css/amber.css', __FILE__));
+		wp_enqueue_style('amber');
+		wp_register_script('amber', plugins_url('js/amber.js', __FILE__));
+		wp_enqueue_script('amber');
+		wp_localize_script('amber', 'amber_config', array(
+			'lookup_availability' => (AMBER_EXTERNAL_AVAILABILITY_NETCLERK == Amber::get_option('amber_external_availability', AMBER_EXTERNAL_AVAILABILITY_NONE)),
+			'site_name' => get_bloginfo( 'name' )
+			));
 	}
 
 	public static function cron_add_schedule($schedules)
@@ -682,7 +664,6 @@ class Amber {
 		return $result;
 	}
 
-
 	/**
 	 * Request handling function to display cached content and assets
 	 */
@@ -729,29 +710,19 @@ EOF;
 			die();
 		}
 		if (!empty($cache_frame_id)) {
-			/* Check to make sure the cached item is being displayed in an iframe that
-			   protects the user from XSS attacks from malicious javascript that might
-			   exist in a snapshot */
-			if (!Amber::validate_cache_referrer()) {
-				status_header(403);
-				print "To protect against XSS attacks, Amber requires that all snapshots be displayed within an iframe. " .
-					  "It appears as if you are trying to display a snapshot or associated asset outside of an iframe.";
-				die();
+			status_header( 200 ); /* This must be set BEFORE any content is printed */
+			if (empty($asset_id)) {
+				/* This is the root item */
+				$data = Amber::retrieve_cache_item($cache_frame_id);
+				$status = Amber::get_status();
+				$status->save_view($cache_frame_id);
+		    	print $data['data'];
+		    	die();
 			} else {
-				status_header( 200 ); /* This must be set BEFORE any content is printed */
-				if (empty($asset_id)) {
-					/* This is the root item */
-					$data = Amber::retrieve_cache_item($cache_frame_id);
-					$status = Amber::get_status();
-					$status->save_view($cache_frame_id);
-			    	print $data['data'];
-			    	die();
-				} else {
-					/* This is an asset */
-					$data = Amber::retrieve_cache_asset($cache_frame_id, $asset_id);
-			    	print($data['data']);
-			    	die();
-				}
+				/* This is an asset */
+				$data = Amber::retrieve_cache_asset($cache_frame_id, $asset_id);
+		    	print($data['data']);
+		    	die();
 			}
 		}
 	}
@@ -799,54 +770,6 @@ EOF;
 			}
 		}
 		return $headers;
-	}
-
-	/**
-	 * Called when displaying cached content that's expected to be in an iframe or
-	 * referenced from a page that is itself enclosed within an iframe.
-	 * Validates that (a) the iframe that's enclosing the cached content is being served
-	 * from the expected URL on the same server; or (b) the cached asset is being served
-	 * by a page at the expected URL on the same server. We know that requests from this
-	 * URL provide the proper sandbox attributes for the iframe to prevent XSS
-	 * attacks.
-	 * @return true if access is allowed
-	 */
-	public static function validate_cache_referrer() {
-		$result = FALSE;
-		if (!function_exists('getallheaders')) {
-			function getallheaders() {
-				$headers = [];
-				foreach ($_SERVER as $name => $value) {
-					if (substr($name, 0, 5) == 'HTTP_') {
-						$headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
-					}
-				}
-				return $headers;
-			}
-		}
-		$headers = getallheaders();
-		if (isset($headers['Referer'])) {
-			/* Option 1: The Referer URL should be the same as the current URL, except with
-			'cache' instead of 'cacheframe' in the URL */
-			$referer_uri = $headers['Referer'];
-			$requested_uri = $_SERVER['REQUEST_URI'];
-
-			/* The value that should be in the HTTP Referer header */
-			$expected_referer = str_replace("/cacheframe/", "/cache/", $requested_uri);
-			if (substr($referer_uri, -strlen($expected_referer)) == $expected_referer) {
-				$result = TRUE;
-			}
-			else {
-				/* Option 2: This is an asset and the requested URL should be the same as the
-				   referring URL + "/assets/SNAPSHOT_ID.FILENAME_EXTENSION" */
-				$cutoff = strrpos($requested_uri, "/assets/");
-				$expected_asset_referrer = substr($requested_uri, 0, $cutoff + 1);
-				if (substr($referer_uri, -strlen($expected_asset_referrer)) == $expected_asset_referrer) {
-					$result = TRUE;
-				}
-			}
-		}
-		return $result;
 	}
 
 	/* Respond to an ajax call to cache links on a specific page immediately
@@ -988,14 +911,15 @@ jQuery(document).ready(function($) {
 	<p>Permalinks must be enabled (set to something other than "Default") for Amber to work properly.
 	Enable Permalinks <a href="'. get_site_url() . '/wp-admin/options-permalink.php">here</a></p>
 </div>';
-		}
-
-		if (!in_array("curl", get_loaded_extensions())) {
+		}	
+		
+		if (!function_exists('curl_init')) {
 			print '
 <div class="error">
 	<p>The PHP cURL extension must be installed for Amber to work properly. Ask your web host to install it, or follow the instructions <a href="https://secure.php.net/manual/en/curl.installation.php" target="_blank">here</a>.</p>
 </div>';
 		}
+		
 	}
 
  	public static function ajax_log_cache_view() {
@@ -1060,22 +984,6 @@ jQuery(document).ready(function($) {
 		die();
 	}
 
-	/* Ensure that the directory on the local file system that contains cached content
-	   has an htaccess file to prevent the content from being loaded directly (to
-	   protect against XSS attacks from malicious saved javascript) */
-	public static function secure_local_storage($dir) {
-		$filename = join(DIRECTORY_SEPARATOR,array($dir,'.htaccess'));
-		if (!file_exists($filename)) {
-			$htaccess = <<<EOF
-<Files "*">
-  Order Deny,Allow
-  Deny from all
-</Files>
-EOF;
-			file_put_contents($filename, $htaccess);
-		}
-	}
-
 }
 
 include_once dirname( __FILE__ ) . '/amber-install.php';
@@ -1091,9 +999,7 @@ include_once dirname( __FILE__ ) . '/libraries/backends/internetarchive/Internet
 include_once dirname( __FILE__ ) . '/libraries/backends/internetarchive/InternetArchiveFetcher.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/perma/PermaStorage.php';
 include_once dirname( __FILE__ ) . '/libraries/backends/perma/PermaFetcher.php';
-if (version_compare(PHP_VERSION, "5.3.3") >= 0) {
-	include_once dirname( __FILE__ ) . '/libraries/backends/aws/AmazonS3Storage.php';
-}
+include_once dirname( __FILE__ ) . '/libraries/backends/aws/AmazonS3Storage.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberChecker.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberAvailability.php';
 include_once dirname( __FILE__ ) . '/libraries/AmberDB.php';

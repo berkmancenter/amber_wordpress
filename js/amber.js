@@ -9,7 +9,7 @@ var amber = {
     en : {
       interstitial_html_up :
 '<div class="amber-interstitial amber-up"><a href="#" class="amber-close"></a><div class="amber-body">\
-<div class="amber-status-text">This page should be available</div><div class="amber-cache-text">{{NAME}} has a snapshot from {{DATE}}</div>\
+<div class="amber-status-text">\This page should be available</div><div class="amber-cache-text">{{NAME}} has a snapshot from {{DATE}}</div>\
 <a class="amber-focus amber-cache-link" href="{{CACHE}}">View the snapshot</a><a class="amber-memento-link" href="#">\
 {{MEMENTO_MESSAGE}}</a><div class="amber-iframe-container"><a href="{{LINK}}"></a>\
 <iframe sandbox="" src="{{LINK}}"/></div><a class="amber-original-link" href="{{LINK}}">Continue to the page</a></div>\

@@ -126,14 +126,6 @@ class Amber_List_Table extends WP_List_Table {
         }
     }
 
-    function column_message($item) {
-        if (empty($item['location'])) {
-            return "Could not capture snapshot";
-        } else {
-            return $item['message'];
-        }
-    }
-
     /** Define the columns and sortable columns for the table **/
     function get_columns(){
         $columns = array(
