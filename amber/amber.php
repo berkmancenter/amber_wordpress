@@ -349,7 +349,7 @@ class Amber {
 	 */
 	public static function filter($text) {
 	  if (true) /* It's enabled! */ {
-	    $re = '/href=["\'](http[^\v()<>{}\[\]]+)[\'"]/i';
+	    $re = '/href=["\'](http[^\v()<>{}\[\]]+?)[\'"]/i';
 	    $text = preg_replace_callback($re, 'Amber::filter_callback', $text);
 	  }
 	  return $text;
