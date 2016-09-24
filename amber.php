@@ -813,6 +813,17 @@ EOF;
 	 */
 	public static function validate_cache_referrer() {
 		$result = FALSE;
+		if (!function_exists('getallheaders')) {
+			function getallheaders() {
+				$headers = [];
+				foreach ($_SERVER as $name => $value) {
+					if (substr($name, 0, 5) == 'HTTP_') {
+						$headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+					}
+				}
+				return $headers;
+			}
+		}
 		$headers = getallheaders();
 		if (isset($headers['Referer'])) {
 			/* Option 1: The Referer URL should be the same as the current URL, except with
