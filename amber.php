@@ -81,6 +81,7 @@ class Amber {
 		    	$base_dir = wp_upload_dir();
 		    	$subdir = Amber::get_option('amber_storage_location', 'amber');
 		    	$file_path = join(DIRECTORY_SEPARATOR, array($base_dir['basedir'], $subdir));
+		    	Amber::secure_local_storage($file_path);
 				$storage = new AmberStorage($file_path);
 				break;
 	    	case AMBER_BACKEND_PERMA:
@@ -664,6 +665,7 @@ class Amber {
 		return $result;
 	}
 
+
 	/**
 	 * Request handling function to display cached content and assets
 	 */
@@ -710,19 +712,27 @@ EOF;
 			die();
 		}
 		if (!empty($cache_frame_id)) {
-			status_header( 200 ); /* This must be set BEFORE any content is printed */
-			if (empty($asset_id)) {
-				/* This is the root item */
-				$data = Amber::retrieve_cache_item($cache_frame_id);
-				$status = Amber::get_status();
-				$status->save_view($cache_frame_id);
-		    	print $data['data'];
-		    	die();
+			/* Check to make sure the cached item is being displayed in an iframe that
+			   protects the user from XSS attacks from malicious javascript that might
+			   exist in a snapshot */
+			if (!Amber::validate_cache_iframe_referrer()) {
+				status_header(403);
+				die();
 			} else {
-				/* This is an asset */
-				$data = Amber::retrieve_cache_asset($cache_frame_id, $asset_id);
-		    	print($data['data']);
-		    	die();
+				status_header( 200 ); /* This must be set BEFORE any content is printed */
+				if (empty($asset_id)) {
+					/* This is the root item */
+					$data = Amber::retrieve_cache_item($cache_frame_id);
+					$status = Amber::get_status();
+					$status->save_view($cache_frame_id);
+			    	print $data['data'];
+			    	die();
+				} else {
+					/* This is an asset */
+					$data = Amber::retrieve_cache_asset($cache_frame_id, $asset_id);
+			    	print($data['data']);
+			    	die();
+				}
 			}
 		}
 	}
@@ -770,6 +780,38 @@ EOF;
 			}
 		}
 		return $headers;
+	}
+
+	/**
+	 * Called when displaying cached content that's expected to be in an iframe
+	 * Validates that the iframe that's enclosing the cached content is being served
+	 * from the expected URL on the same server. We know that requests from this
+	 * URL provide the proper sandbox attributes for the iframe to prevent XSS
+	 * attacks.
+	 * @return true if access is allowed
+	 */
+	public static function validate_cache_iframe_referrer() {
+		$headers = getallheaders();
+		if (isset($headers['Referer'])) {
+			/* The Referer URL should be the same as the current URL, except with
+			'cache' instead of 'cacheframe' in the URL. */
+			$referer_uri = $headers['Referer'];
+			$requested_uri =  "http"
+								. (isset($_SERVER['HTTPS']) ? 's' : '')
+								. "://{$_SERVER['HTTP_HOST']}"
+								. $_SERVER['REQUEST_URI'];
+
+			/* The value that should be in the HTTP Referer header */
+			$expected_referer = str_replace("/cacheframe/", "/cache/", $requested_uri);
+			if (strcmp($expected_referer, $referer_uri) === 0) {
+				return TRUE;
+			}
+			else {
+				return FALSE;
+			}
+		}
+		/* No Referer header, so not allowed */
+		return FALSE;
 	}
 
 	/* Respond to an ajax call to cache links on a specific page immediately
@@ -982,6 +1024,22 @@ jQuery(document).ready(function($) {
     		status_header( 400 );
     	}
 		die();
+	}
+
+	/* Ensure that the directory on the local file system that contains cached content
+	   has an htaccess file to prevent the content from being loaded directly (to
+	   protect against XSS attacks from malicious saved javascript) */
+	public static function secure_local_storage($dir) {
+		$filename = join(DIRECTORY_SEPARATOR,array($dir,'.htaccess'));
+		if (!file_exists($filename)) {
+			$htaccess = <<<EOF
+<Files "*">
+  Order Deny,Allow
+  Deny from all
+</Files>
+EOF;
+			file_put_contents($filename, $htaccess);
+		}
 	}
 
 }
