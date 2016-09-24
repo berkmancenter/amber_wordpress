@@ -877,7 +877,7 @@ jQuery(document).ready(function($) {
 		print "var data = { 'action': 'amber_cache_now', 'id': '$post->ID', '_wpnonce': $('#_wpnonce_amber').val() };";
 		print '
 	$("input#cache_now").click(function(){
-		$("div#cache-status").html("Caching links...")
+		$("div#cache-status").html("Preserving links...")
 		$.post(ajaxurl, data, function(response) {
 			if (response) {
 				var cached = response.cached.join("<br/>");
