@@ -734,6 +734,8 @@ EOF;
 			   exist in a snapshot */
 			if (!Amber::validate_cache_referrer()) {
 				status_header(403);
+				print "To protect against XSS attacks, Amber requires that all snapshots be displayed within an iframe. " .
+					  "It appears as if you are trying to display a snapshot or associated asset outside of an iframe.";
 				die();
 			} else {
 				status_header( 200 ); /* This must be set BEFORE any content is printed */
@@ -816,14 +818,11 @@ EOF;
 			/* Option 1: The Referer URL should be the same as the current URL, except with
 			'cache' instead of 'cacheframe' in the URL */
 			$referer_uri = $headers['Referer'];
-			$requested_uri =  "http"
-								. (isset($_SERVER['HTTPS']) ? 's' : '')
-								. "://{$_SERVER['HTTP_HOST']}"
-								. $_SERVER['REQUEST_URI'];
+			$requested_uri = $_SERVER['REQUEST_URI'];
 
 			/* The value that should be in the HTTP Referer header */
 			$expected_referer = str_replace("/cacheframe/", "/cache/", $requested_uri);
-			if ($expected_referer === $referer_uri) {
+			if (substr($referer_uri, -strlen($expected_referer)) == $expected_referer) {
 				$result = TRUE;
 			}
 			else {
@@ -831,7 +830,7 @@ EOF;
 				   referring URL + "/assets/SNAPSHOT_ID.FILENAME_EXTENSION" */
 				$cutoff = strrpos($requested_uri, "/assets/");
 				$expected_asset_referrer = substr($requested_uri, 0, $cutoff + 1);
-				if ($expected_asset_referrer == $referer_uri) {
+				if (substr($referer_uri, -strlen($expected_asset_referrer)) == $expected_asset_referrer) {
 					$result = TRUE;
 				}
 			}
