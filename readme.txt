@@ -67,6 +67,14 @@ Amber respects the Robots Exclusion Standard and does not preserve any web page 
 
 == Changelog ==
 
+= Version 1.4.5 =
+*Release date: XXXX*
+
+New in Amber v1.4.5 for WordPress:
+
+* **WordPress 4.6 compatability** Amber has been tested through WordPress 4.6.1
+
+
 = Version 1.4.4 =
 *Release date: April 13, 2016*
 
