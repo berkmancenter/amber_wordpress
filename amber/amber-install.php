@@ -67,7 +67,7 @@ class AmberInstall {
 			$table_name = $wpdb->prefix . $name;
 			$sql = "CREATE TABLE $table_name $table $charset_collate";
 			dbDelta( $sql );
-		}		
+		}
 	}
 
 	public static function activate($networkwide) {
@@ -82,7 +82,7 @@ class AmberInstall {
 		add_option( 'amber_db_version', $amber_db_version );
 
 		$options = get_option('amber_options');
-		if (empty($options)) {	
+		if (empty($options)) {
 			/* Set default options */
 			$options =  array(
 				'amber_post_types' => 'post,page',
@@ -103,14 +103,14 @@ class AmberInstall {
 				'amber_aws_region' => 'us-east-1',
 	            );
 
-			update_option('amber_options', $options);			
+			update_option('amber_options', $options);
 		}
 
 		/* The hook name needs to be a string, it can't be a reference to a class function */
 		if ( ! wp_next_scheduled( 'amber_cron_event_hook' ) ) {
-			wp_schedule_event( time(), 'fiveminutes', 'amber_cron_event_hook' );			
+			wp_schedule_event( time(), 'fiveminutes', 'amber_cron_event_hook' );
 		}
-		
+
 		add_rewrite_rule('^.*amber/cache/([a-f0-9]+)/?$', '/index.php?amber_cache=$1', "top");
 		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/?$', '/index.php?amber_cacheframe=$1', "top");
 		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/assets/(.*)/?$', '/index.php?amber_cacheframe=$1&amber_asset=$2', "top");
@@ -183,7 +183,7 @@ class AmberInstall {
             switch_to_blog($old_blog);
 	    } else {
 			call_user_func("AmberInstall::" . $function_name);
-	    }		
+	    }
 	}
 
 	public static function uninstall() {
