@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/berkmancenter/amber_wordpress.png?branch=master)](https://travis-ci.org/berkmancenter/amber_wordpress)
+[![Build Status](https://travis-ci.org/berkmancenter/amber_wordpress.png?branch=wordpress)](https://travis-ci.org/berkmancenter/amber_wordpress)
 
 Amber WordPress plugin
 =================
