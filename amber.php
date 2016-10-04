@@ -815,7 +815,7 @@ EOF;
 		$result = FALSE;
 		if (!function_exists('getallheaders')) {
 			function getallheaders() {
-				$headers = [];
+				$headers = array();
 				foreach ($_SERVER as $name => $value) {
 					if (substr($name, 0, 5) == 'HTTP_') {
 						$headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
@@ -988,15 +988,15 @@ jQuery(document).ready(function($) {
 	<p>Permalinks must be enabled (set to something other than "Default") for Amber to work properly.
 	Enable Permalinks <a href="'. get_site_url() . '/wp-admin/options-permalink.php">here</a></p>
 </div>';
-		}	
-		
+		}
+
 		if (!function_exists('curl_init')) {
 			print '
 <div class="error">
 	<p>The PHP cURL extension must be installed for Amber to work properly. Ask your web host to install it, or follow the instructions <a href="https://secure.php.net/manual/en/curl.installation.php" target="_blank">here</a>.</p>
 </div>';
 		}
-		
+
 	}
 
  	public static function ajax_log_cache_view() {
