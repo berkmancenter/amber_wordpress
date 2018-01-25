@@ -373,7 +373,7 @@ var amber = {
         };
         // Send synchronous notification, to ensure it's sent completely before the page unloads
         // This would be a good place to use navigator.sendBeacon(), once it has more support
-        request.open('GET', '/amber/logcacheview?cache=' + href + '&t=' + new Date().getTime(), false);
+        request.open('GET', ajaxurl + '?action=amber_logcacheview&cache=' + href + '&t=' + new Date().getTime(), false);
         request.send();
       });
     });
@@ -440,7 +440,7 @@ var amber = {
       params += "&country=" + amber.country;
 
       request = new XMLHttpRequest();
-      request.open('POST', "/amber/status");
+      request.open('POST', ajaxurl + '?action=amber_status');
       request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
       request.onload = function() {
         if (request.readyState === 4) {
@@ -462,7 +462,7 @@ var amber = {
         callback(JSON.parse(request.responseText));
       }
     };
-    request.open('GET', '/amber/memento?date=' + date + '&url=' + href);
+    request.open('GET', ajaxurl + '?action=amber_memento&date=' + date + '&url=' + href);
     request.send();
   },
 
