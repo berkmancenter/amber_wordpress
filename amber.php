@@ -324,8 +324,15 @@ class Amber {
 	 * Lookup a URL using the AmberStorage class, while caching for the duration of the page load
 	 */
 	private static function lookup_url($url) {
+	  $attributes = array();
 	  $status = Amber::get_status();
-	  return Amber::build_link_attributes($status->get_summary($url, array(Amber::get_option('amber_backend', 0))));
+	  $url = apply_filters('amber_lookup_url', $url);
+
+	  if (!empty($url)) {
+	    $attributes = Amber::build_link_attributes($status->get_summary($url, array(Amber::get_option('amber_backend', 0))));
+	  }
+
+	  return $attributes;
 	}
 
 	/**
@@ -420,6 +427,11 @@ class Amber {
 	}
 
 	private static function cache_link($item, $force = false) {
+		$item = apply_filters('amber_cache_link', item);
+
+		if (empty($link)) {
+			return false;
+		}
 
 		$checker = Amber::get_checker();
 		$status =  Amber::get_status();
