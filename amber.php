@@ -649,6 +649,9 @@ class Amber {
 		add_rewrite_rule('^.*amber/cache/([a-f0-9]+)/?$', '/index.php?amber_cache=$1', "top");
 		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/?$', '/index.php?amber_cacheframe=$1', "top");
 		add_rewrite_rule('^.*amber/cacheframe/([a-f0-9]+)/assets/(.*)/?$', '/index.php?amber_cacheframe=$1&amber_asset=$2', "top");
+		add_rewrite_rule('^.*amber/logcacheview?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_logcacheview&$1', "top");
+		add_rewrite_rule('^.*amber/status?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_status&$1', "top");
+		add_rewrite_rule('^.*amber/memento?(.*)/?$', '/wp-admin/admin-ajax.php?action=amber_memento&$1', "top");
 	}
 
 	/**
@@ -1138,7 +1141,6 @@ add_action( 'wp_ajax_amber_cache_now', array('Amber', 'ajax_cache_now') );
 add_action( 'wp_ajax_amber_scan_start', array('Amber', 'ajax_scan_start') );
 add_action( 'wp_ajax_amber_scan', array('Amber', 'ajax_scan') );
 add_action( 'wp_ajax_nopriv_amber_logcacheview', array('Amber', 'ajax_log_cache_view') );
-add_action( 'wp_ajax_amber_logcacheview', array('Amber', 'ajax_log_cache_view') );
 add_action( 'wp_ajax_nopriv_amber_status', array('Amber', 'ajax_get_url_status') );
 add_action( 'wp_ajax_amber_status', array('Amber', 'ajax_get_url_status') );
 add_action( 'wp_ajax_nopriv_amber_memento', array('Amber', 'ajax_get_memento') );
