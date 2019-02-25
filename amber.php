@@ -350,7 +350,7 @@ class Amber {
 	 */
 	public static function filter($text) {
 	  /* Only annotate links if there are some actions defined */
-	  if (Amber::action_type_enabled(array(AMBER_ACTION_HOVER, AMBER_ACTION_POPUP, AMBER_ACTION_CACHE))) {
+	  if (!is_feed() && Amber::action_type_enabled(array(AMBER_ACTION_HOVER, AMBER_ACTION_POPUP, AMBER_ACTION_CACHE))) {
 	    $re = '/href=["\'](http[^\v()<>{}\[\]]+?)[\'"]/i';
 	    $text = preg_replace_callback($re, 'Amber::filter_callback', $text);
 	  }
