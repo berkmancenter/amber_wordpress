@@ -75,10 +75,10 @@ class AmberNetClerkAvailability implements iAmberAvailability {
 		);
 		$result = AmberNetworkUtils::open_single_url($this->serverUrl . "/statuses", $options);
 
-		if (($result !== FALSE) && isset($result['body'])) {
+		if (($result !== false) && isset($result['body'])) {
 			return $result['body'];
 		} else {
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -92,7 +92,7 @@ class AmberNetClerkAvailability implements iAmberAvailability {
 	public function parseResponse($response) {
 		$result = array('data' => array());
 		if (is_string($response)) {
-			if (($data = json_decode($response)) != NULL) {
+			if (($data = json_decode($response)) != null) {
 				$statuses = $data->data;
 				foreach ($statuses as $key => $value) {
 					if ($value->type == 'statuses') {

@@ -37,12 +37,12 @@ class PermaStorage implements iAmberStorage {
   
   /* We do not attempt to delete Perma captures */
   public function delete_all() {
-    return TRUE;
+    return true;
   }
 
   /* We do not attempt to delete Perma captures */
   public function delete($cache_metadata) {
-    return TRUE;
+    return true;
   }
 
 }

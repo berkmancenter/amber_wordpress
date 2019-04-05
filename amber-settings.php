@@ -386,7 +386,7 @@ class AmberSettingsPage
                 error_reporting(0);
                 $match_result = preg_match($blacklistitem, "foobar");
                 error_reporting($default_error_logging_level);
-                if ($match_result === FALSE) {
+                if ($match_result === false) {
                     add_settings_error('amber_excluded_sites', 'amber_excluded_sites',
                         "'${site}' is not a valid regular expression for Excluded URL Patterns");
                 } else {

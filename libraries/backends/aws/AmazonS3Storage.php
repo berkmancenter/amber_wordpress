@@ -7,7 +7,7 @@ class AmazonS3Storage extends AmberStorage implements iAmberStorage  {
 
 	public function __construct($options) {
 		if (!class_exists("Aws\S3\S3Client")) {
-			return NULL;
+			return null;
 		}
 		$bucket = $options['bucket'];
 	  	parent::__construct('s3://' . $bucket);

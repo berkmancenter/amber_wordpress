@@ -245,7 +245,7 @@ class Amber {
 	    $action = Amber::get_option("amber_${c}available_action", AMBER_ACTION_NONE);
 	    switch ($action) {
 	      case AMBER_ACTION_NONE:
-	        $result = NULL;
+	        $result = null;
 	        break;
 	      case AMBER_ACTION_HOVER:
 	        $result .= " hover:";
@@ -259,7 +259,7 @@ class Amber {
 	    $action = Amber::get_option("amber_${c}unavailable_action", AMBER_ACTION_NONE);
 	    switch ($action) {
 	      case AMBER_ACTION_NONE:
-	        $result = NULL;
+	        $result = null;
 	        break;
 	      case AMBER_ACTION_HOVER:
 	        $result .= " hover:";
@@ -549,7 +549,7 @@ class Amber {
 		$default_error_logging_level = error_reporting();
 		$result = array('cache' => array(), 'excluded' => array());
 		foreach ($links as $link) {
-			$exclude = FALSE;
+			$exclude = false;
 			foreach ($blacklist as $blacklistitem) {
 				$blacklistitem = trim($blacklistitem);
 				if ($blacklistitem) {
@@ -564,13 +564,13 @@ class Amber {
 					$match_result = preg_match($blacklistitem, $cleanedlink);
 					error_reporting($default_error_logging_level);
 
-					if ($match_result === FALSE) {
+					if ($match_result === false) {
 						// Log compilation error explicitly, since we'd disabled warnings
 						error_log("filter_regexp_excluded_links: Error processing excluded list regular expression for " . $blacklistitem);
 					    $error = error_get_last();
 					    error_log($error["message"]);
 					} else if ($match_result) {
-						$exclude = TRUE;
+						$exclude = true;
 					} else {
 						// If match_result === 0, meaning there was no match, so do nothing
 					}
@@ -609,11 +609,11 @@ class Amber {
 	private static function retrieve_cache_item($id) {
 	  $storage = Amber::get_storage_for_item($id);
 	  if (is_null($storage)) {
-	  	return NULL;
+	  	return null;
 	  }
 	  $data = $storage->get($id);
 	  $metadata = $storage->get_metadata($id);
-	  return ($data && $metadata) ? array('data' => $data, 'metadata' => $metadata) : NULL;
+	  return ($data && $metadata) ? array('data' => $data, 'metadata' => $metadata) : null;
 	}
 
 	/**
@@ -624,7 +624,7 @@ class Amber {
 	private static function retrieve_cache_asset($cache_id, $asset_id) {
 	  $storage = Amber::get_storage_for_item($cache_id);
 	  if (is_null($storage)) {
-	  	return NULL;
+	  	return null;
 	  }
 	  $d = $storage->get_asset($cache_id, $asset_id );
 	  if ($d) {
@@ -640,7 +640,7 @@ class Amber {
 	      case "js" : $data['metadata']['type'] = 'application/javascript'; break;
 	    }
 	  }
-	  return (isset($data)) ? $data : NULL;
+	  return (isset($data)) ? $data : null;
 	}
 
 
@@ -809,7 +809,7 @@ EOF;
 	 * @return true if access is allowed
 	 */
 	public static function validate_cache_referrer() {
-		$result = FALSE;
+		$result = false;
 		if (!function_exists('getallheaders')) {
 			function getallheaders() {
 				$headers = array();
@@ -831,7 +831,7 @@ EOF;
 			/* The value that should be in the HTTP Referer header */
 			$expected_referer = str_replace("/cacheframe/", "/cache/", $requested_uri);
 			if (substr($referer_uri, -strlen($expected_referer)) == $expected_referer) {
-				$result = TRUE;
+				$result = true;
 			}
 			else {
 				/* Option 2: This is an asset and the requested URL should be the same as the
@@ -839,7 +839,7 @@ EOF;
 				$cutoff = strrpos($requested_uri, "/assets/");
 				$expected_asset_referrer = substr($requested_uri, 0, $cutoff + 1);
 				if (substr($referer_uri, -strlen($expected_asset_referrer)) == $expected_asset_referrer) {
-					$result = TRUE;
+					$result = true;
 				}
 			}
 		}
@@ -912,7 +912,7 @@ EOF;
 		$transients = array('amber_scan_posts');
 		foreach ($transients as $t) {
 			$ids = get_transient($t);
-			if ($ids !== FALSE && is_array($ids)) {
+			if ($ids !== false && is_array($ids)) {
 				$i = $batch_size;
 				while ((count($ids) > 0) && ($i-- > 0)) {
 					$id = array_shift($ids);
@@ -1024,7 +1024,7 @@ jQuery(document).ready(function($) {
 
     		$lookup = Amber::get_availability();
 		    $lookup_result = $lookup->get_status( $_REQUEST['url'], $_REQUEST['country'] );
-		    if ($lookup_result === FALSE || !isset($lookup_result['data'])) {
+		    if ($lookup_result === false || !isset($lookup_result['data'])) {
 		    	status_header( 500 );
 		    	die();
 		    }

@@ -18,7 +18,7 @@ class AmberCheckerTest extends PHPUnit_Framework_TestCase {
    */
   public function testNextCheckFirst(IAmberChecker$checker) {
     $now = new DateTime();
-    $result = $checker->next_check_date(NULL, NULL, 100, TRUE);
+    $result = $checker->next_check_date(null, null, 100, true);
     $this->assertTrue($result > $now->getTimeStamp(), "Get a next check date");
   }
 
@@ -27,7 +27,7 @@ class AmberCheckerTest extends PHPUnit_Framework_TestCase {
    */
   public function testNextCheckDifferent(IAmberChecker$checker) {
     $now = new DateTime();
-    $result = $checker->next_check_date(FALSE, 100, 200, TRUE);
+    $result = $checker->next_check_date(false, 100, 200, true);
     $this->assertSame($now->getTimeStamp() + 24 * 60 * 60, $result);
   }
 
@@ -36,10 +36,10 @@ class AmberCheckerTest extends PHPUnit_Framework_TestCase {
    */
   public function testNextCheckSame(IAmberChecker$checker) {
     $now = new DateTime();
-    $result = $checker->next_check_date(FALSE, 1000, 2000, FALSE);
+    $result = $checker->next_check_date(false, 1000, 2000, false);
     $this->assertSame($now->getTimeStamp() + 24 * 60 * 60 + 1000, $result);
     $now = new DateTime();
-    $result = $checker->next_check_date(TRUE, 1000, 2000, TRUE);
+    $result = $checker->next_check_date(true, 1000, 2000, true);
     $this->assertSame($now->getTimeStamp() + 24 * 60 * 60 + 1000, $result);
   }
 
@@ -48,10 +48,10 @@ class AmberCheckerTest extends PHPUnit_Framework_TestCase {
    */
   public function testNextCheckMoreThan30(IAmberChecker$checker) {
     $now = new DateTime();
-    $result = $checker->next_check_date(FALSE, 1000, 100 + 45 * 24 * 60 * 60, FALSE);
+    $result = $checker->next_check_date(false, 1000, 100 + 45 * 24 * 60 * 60, false);
     $this->assertSame($now->getTimeStamp() + 24 * 60 * 60 * 30, $result);
     $now = new DateTime();
-    $result = $checker->next_check_date(TRUE, 1000, 100 + 45 * 24 * 60 * 60, TRUE);
+    $result = $checker->next_check_date(true, 1000, 100 + 45 * 24 * 60 * 60, true);
     $this->assertSame($now->getTimeStamp() + 24 * 60 * 60 * 30, $result);
   }
 }

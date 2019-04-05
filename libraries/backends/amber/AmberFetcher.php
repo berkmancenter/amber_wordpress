@@ -115,7 +115,7 @@ class AmberFetcher implements iAmberFetcher {
       $size += $value['info']['size_download'];
       /* For CSS assets, parse the CSS file to find and download any referenced images, and rewrite the CSS file to use them */
 
-      if (isset($value['headers']['Content-Type']) && (strpos($value['headers']['Content-Type'],'text/css') !== FALSE)) {
+      if (isset($value['headers']['Content-Type']) && (strpos($value['headers']['Content-Type'],'text/css') !== false)) {
         $css_body = $value['body'];
         $css_asset_paths = $this->assetHelper->extract_css_assets($css_body);
         $css_assets = $this->assetHelper->expand_asset_references($value['url'], $css_asset_paths);
@@ -141,22 +141,22 @@ class AmberFetcher implements iAmberFetcher {
     $reason = "";
     if ($data['info']['size_download'] > ($this->maxFileSize * 1024)) {
       $reason = "File size too large";
-      return FALSE;
+      return false;
     }
     if (isset($data['headers']['Content-Type']) && !empty($this->excludedContentTypes)) {
       $content_type = $data['headers']['Content-Type'];
       foreach ($this->excludedContentTypes as $exclude) {
-        if (trim($exclude) && (strpos(strtolower($content_type), trim($exclude)) !== FALSE)) {
+        if (trim($exclude) && (strpos(strtolower($content_type), trim($exclude)) !== false)) {
           $reason = "Content type not allowed";
-          return FALSE;
+          return false;
         }
       }
     }
     if (AmberNetworkUtils::find_meta_no_archive($data['body'])) {
       $reason = "noarchive/noindex meta tag found";
-      return FALSE;
+      return false;
     }
-    return TRUE;
+    return true;
   }
 
   /**
@@ -303,7 +303,7 @@ class AmberAssetHelper {
           $asset_copy = "${p['scheme']}:${asset_copy}";
         }
         /* Skip data assets that don't reference external resources */
-        if (strpos($asset,";base64") !== FALSE) {
+        if (strpos($asset,";base64") !== false) {
           continue;
         }
         $parsed_asset_copy = parse_url($asset_copy);
@@ -396,7 +396,7 @@ EOD;
     /* We want to replace only the LAST instance of </body>. It's possible to have multiple
        </body> tags (for example, in an inline iframe) */
     $pos = strripos($body, $close_body_tag);
-    if ($pos !== FALSE) {
+    if ($pos !== false) {
       $result = substr_replace($body, "${banner}${close_body_tag}", $pos, strlen($close_body_tag));
     } else {
       $result = $body . $banner;
@@ -471,7 +471,7 @@ class AmberRobots {
    */
   public static function url_permitted($robots, $url) {
     /* Sanity check to ensure that this actually a robots.txt file */
-    if ((stripos($robots, "user-agent") === FALSE) || (stripos($robots, "disallow") === FALSE))
+    if ((stripos($robots, "user-agent") === false) || (stripos($robots, "disallow") === false))
       return true;
     require_once("robotstxtparser.php");
     $parser = new robotstxtparser($robots);
@@ -487,7 +487,7 @@ class AmberRobots {
     $p = parse_url($url);
     $p['path'] = "robots.txt";
     $robots_url = $p['scheme'] . "://" . $p['host'] . (isset($p['port']) ? ":" . $p['port'] : '') . '/robots.txt';
-    $data = AmberNetworkUtils::open_url($robots_url, array(CURLOPT_FAILONERROR => FALSE));
+    $data = AmberNetworkUtils::open_url($robots_url, array(CURLOPT_FAILONERROR => false));
     if (isset($data['info']['http_code']) && ($data['info']['http_code'] == 200)) {
       $body = $data['body'];
       return (!$body || AmberRobots::url_permitted($body, $url));

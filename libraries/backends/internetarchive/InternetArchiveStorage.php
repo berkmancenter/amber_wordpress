@@ -37,12 +37,12 @@ class InternetArchiveStorage implements iAmberStorage {
   
   /* We cannot delete Internet Archive captures */
   public function delete_all() {
-    return TRUE;
+    return true;
   }
 
   /* We cannot delete Internet Archive captures */
   public function delete($cache_metadata) {
-    return TRUE;
+    return true;
   }
 
 }

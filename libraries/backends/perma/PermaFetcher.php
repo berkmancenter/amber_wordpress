@@ -27,16 +27,16 @@ class PermaFetcher implements iAmberFetcher {
     $api_endpoint = $this->apiUrl . '/v1/archives/?api_key=' . $this->apiKey;
 
     $curl_options = array(
-      CURLOPT_POST => TRUE,
+      CURLOPT_POST => true,
       CURLOPT_POSTFIELDS => json_encode(array('url' => $url)),
       CURLOPT_HTTPHEADER => array("Content-type: application/json"),
-      CURLOPT_FOLLOWLOCATION => TRUE,
+      CURLOPT_FOLLOWLOCATION => true,
     );
 
     $perma_result = AmberNetworkUtils::open_single_url($api_endpoint, $curl_options);
 
     /* Make sure that we got a valid response from Perma */
-    if (($perma_result === FALSE) || ($perma_result['body'] === FALSE)) {
+    if (($perma_result === false) || ($perma_result['body'] === false)) {
       $message = "";
       if (isset($perma_result['info']['http_code'])) {
         $message = "HTTP response code=" . $perma_result['info']['http_code'];
