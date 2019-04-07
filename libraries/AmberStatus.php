@@ -189,7 +189,7 @@ class AmberStatus implements iAmberStatus {
     $result = array();
     $rows = $this->db->selectAll("SELECT url FROM ${prefix}amber_check WHERE next_check < %d ORDER BY next_check ASC",
                                     array(time()));
-    if ($result === FALSE) {
+    if ($result === false) {
       error_log(join(":", array(__FILE__, __METHOD__, "Error retrieving URLs to check from database")));
       return array();
     } else {

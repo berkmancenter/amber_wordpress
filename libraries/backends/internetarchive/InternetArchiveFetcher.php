@@ -24,10 +24,10 @@ class InternetArchiveFetcher implements iAmberFetcher {
       "/save/",
       $url));
 
-    $ia_result = AmberNetworkUtils::open_single_url($api_endpoint, array(), FALSE);
+    $ia_result = AmberNetworkUtils::open_single_url($api_endpoint, array(), false);
     /* Make sure that we got a valid response from the Archive */
 
-    if ($ia_result === FALSE) {      
+    if ($ia_result === false) {      
       throw new RuntimeException(join(":",array("Error submitting to Internet Archive")));
     }
     if (isset($ia_result['info']['http_code']) && ($ia_result['info']['http_code'] == 403)) {

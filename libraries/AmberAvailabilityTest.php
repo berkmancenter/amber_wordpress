@@ -16,7 +16,7 @@ class AmberNetClerkAvailabilityTest extends PHPUnit_Framework_TestCase {
    * @dataProvider provider
    */
   public function testParseBadResult(iAmberAvailability $lookup) {
-    $result = $lookup->parseResponse(FALSE);
+    $result = $lookup->parseResponse(false);
     $this->assertEquals(array('data' => array()), $result);
   }
 

@@ -51,7 +51,7 @@ class AmberStorage implements iAmberStorage {
   }
 
   public function get($id) {
-    $result = NULL;
+    $result = null;
     if ($path = $this->get_cache_item_path($id)) {
       if (file_exists($path)) {
         $result = file_get_contents($path);
@@ -61,7 +61,7 @@ class AmberStorage implements iAmberStorage {
   }
 
   public function get_asset($id, $path) {
-    $result = NULL;
+    $result = null;
     if ($path = $this->get_cache_item_path($id, $path)) {
       if (file_exists($path)) {
         $result = file_get_contents($path);
@@ -79,14 +79,14 @@ class AmberStorage implements iAmberStorage {
     $ext = "";
     /* Add .css extension if Content-Type is text/css */
     $ct = isset($asset['headers']['Content-Type']) ? $asset['headers']['Content-Type'] : "";
-    if ((strpos($ct,'text/css') !== FALSE)) {
+    if ((strpos($ct,'text/css') !== false)) {
       $ext = ".css";
     } else {
       $extension_candidate = substr($asset['url'], strrpos($asset['url'], '.'));
       /* Additional heuristic to see if this is really an extension that the browser needs to parse the html 
          Could also create a mapping of content-types to filename extensions */
 
-      if (strrpos($extension_candidate, '?') !== FALSE) {
+      if (strrpos($extension_candidate, '?') !== false) {
         $extension_candidate = substr($extension_candidate, 0, strrpos($extension_candidate, '?'));
       }
       if ((strlen($extension_candidate) < 5) && (substr($extension_candidate,-1,1) != "/"))
@@ -151,7 +151,7 @@ class AmberStorage implements iAmberStorage {
 
     // Save root file
     $filename = join(DIRECTORY_SEPARATOR,array($dir,$id));
-    if (file_put_contents($filename, $root) === FALSE) {
+    if (file_put_contents($filename, $root) === false) {
       error_log(join(":", array(__FILE__, __METHOD__, "Could not save cache file", $dir)));
       return false;
     }
@@ -171,7 +171,7 @@ class AmberStorage implements iAmberStorage {
     if ($this->file_root) {
       $this->rrmdir($this->file_root);
     }
-    return TRUE;
+    return true;
   }
 
   public function delete($cache_metadata) {
@@ -183,7 +183,7 @@ class AmberStorage implements iAmberStorage {
         $this->rrmdir($dir);
       }
     }
-    return TRUE;
+    return true;
   }
 
   /**
@@ -206,14 +206,14 @@ class AmberStorage implements iAmberStorage {
   private function is_within_cache_directory($path) {
     if (!realpath($path)) {
       // File does not exist.
-      return TRUE;
+      return true;
     }
     if (strpos(realpath($path),realpath($this->file_root)) !== 0) {
       /* File is outside root directory for cache files */
       error_log(join(":", array(__FILE__, __METHOD__, "Attempt to access file outside file root", realpath($path), realpath($this->file_root))));
-      return FALSE;
+      return false;
     } else {
-      return TRUE;
+      return true;
     }
   }
 
@@ -224,7 +224,7 @@ class AmberStorage implements iAmberStorage {
    */
   protected function get_cache_item_metadata_path($id) {
     $path = join(DIRECTORY_SEPARATOR, array($this->file_root, $id, "${id}.json"));
-    return ($this->is_within_cache_directory($path)) ? $path : NULL;
+    return ($this->is_within_cache_directory($path)) ? $path : null;
   }
 
   /**
@@ -233,13 +233,13 @@ class AmberStorage implements iAmberStorage {
    * @param $asset_path string with the path to the asset
    * @return string path to the file that contains the root cached item
    */
-  protected function get_cache_item_path($id, $asset_path = NULL) {
+  protected function get_cache_item_path($id, $asset_path = null) {
     if ($asset_path) {
       $path = join(DIRECTORY_SEPARATOR, array_merge(array($this->file_root, $id, "assets"), explode('/',$asset_path)));
     } else {
       $path = join(DIRECTORY_SEPARATOR, array($this->file_root, $id, $id));
     }
-    return ($this->is_within_cache_directory($path)) ? $path : NULL;
+    return ($this->is_within_cache_directory($path)) ? $path : null;
   }
 
   /**
@@ -285,7 +285,7 @@ class AmberStorage implements iAmberStorage {
       return false;
     }
     // JSON_UNESCAPED_SLASHES is only defined if PHP >= 5.4
-    if (fwrite($file,json_encode($metadata, defined('JSON_UNESCAPED_SLASHES') ? JSON_UNESCAPED_SLASHES : 0)) === FALSE) {
+    if (fwrite($file,json_encode($metadata, defined('JSON_UNESCAPED_SLASHES') ? JSON_UNESCAPED_SLASHES : 0)) === false) {
       error_log(join(":", array(__FILE__, __METHOD__, "Could not write metadata file", $path)));
       return false;
     }
@@ -328,7 +328,7 @@ class AmberStorage implements iAmberStorage {
         error_log(join(":", array(__FILE__, __METHOD__, "Could not save asset with empty content", $id, $asset_path, $asset['url'])));
         continue;
       }
-      if (file_put_contents($asset_path, $asset['body']) === FALSE) {
+      if (file_put_contents($asset_path, $asset['body']) === false) {
         error_log(join(":", array(__FILE__, __METHOD__, "Could not save asset", $id, $asset_path, $asset['url'])));
         continue;
       }
@@ -345,7 +345,7 @@ class AmberStorage implements iAmberStorage {
    * @param $delete_dir boolean whether to delete the top-level directory, as opposed to just all files and directories
    *        within it
    */
-  private function rrmdir($dir, $delete_dir = TRUE) {
+  private function rrmdir($dir, $delete_dir = true) {
      if (is_dir($dir)) {
        $objects = scandir($dir);
        foreach ($objects as $object) {

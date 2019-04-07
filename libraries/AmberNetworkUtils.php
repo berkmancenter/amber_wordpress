@@ -87,8 +87,8 @@ class AmberNetworkUtils {
    */
   public static function is_html_mime_type($mime) {
     return (
-      (strpos(strtolower($mime),"text/html") !== FALSE) ||
-      (strpos(strtolower($mime),"application/xhtml+xml") !== FALSE)
+      (strpos(strtolower($mime),"text/html") !== false) ||
+      (strpos(strtolower($mime),"application/xhtml+xml") !== false)
       );
   }
 
@@ -103,14 +103,14 @@ class AmberNetworkUtils {
       $result = array();
       try {
         $options = array(
-          CURLOPT_FAILONERROR => TRUE,      /* Don't ignore HTTP errors */
+          CURLOPT_FAILONERROR => true,      /* Don't ignore HTTP errors */
                                             /* Follow redirects? */
           CURLOPT_FOLLOWLOCATION => AmberNetworkUtils::curl_redirects_allowed(),
           CURLOPT_MAXREDIRS => 10,          /* No more than 10 redirects */
           CURLOPT_CONNECTTIMEOUT => 5,      /* Connection timeout */
           CURLOPT_TIMEOUT => 10,            /* Timeout for any CURL function */
           CURLOPT_RETURNTRANSFER => 1,      /* Return the output as a string */
-          CURLOPT_HEADER => TRUE,           /* Return header information as part of the file */
+          CURLOPT_HEADER => true,           /* Return header information as part of the file */
           CURLOPT_USERAGENT => AmberNetworkUtils::get_user_agent_string(),
           CURLOPT_ENCODING => '',           /* Handle compressed data */
           CURLINFO_HEADER_OUT => 1,           /* Preserve outgoing header information */
@@ -123,11 +123,11 @@ class AmberNetworkUtils {
         $channels = array();
 
         foreach ($urls as $url) {
-          if (($ch = curl_init($url)) === FALSE) {
+          if (($ch = curl_init($url)) === false) {
             error_log(join(":", array(__FILE__, __METHOD__, $url, "CURL init error")));
-            return FALSE;
+            return false;
           }
-          if (curl_setopt_array($ch, $additional_options + $options) === FALSE) {
+          if (curl_setopt_array($ch, $additional_options + $options) === false) {
             throw new RuntimeException(join(":", array(__FILE__, __METHOD__, "Error setting CURL options", $url, curl_error($ch))));
           }
           curl_multi_add_handle($multi, $ch);
@@ -182,13 +182,13 @@ class AmberNetworkUtils {
       } catch (RuntimeException $e) {
         error_log($e->getMessage());
         curl_multi_close($multi);
-        return FALSE;
+        return false;
       }
 
     } else {
       // TODO: If curl is not installed, see if remote file opening is enabled, and fall back to that method
       error_log(join(":", array(__FILE__, __METHOD__, "CURL not installed")));
-      return FALSE;
+      return false;
     }
   }
 
@@ -202,7 +202,7 @@ class AmberNetworkUtils {
     if (count($result) == 1) {
       return array_pop($result);
     } else {
-      return FALSE;
+      return false;
     }
   }
 
@@ -213,14 +213,14 @@ class AmberNetworkUtils {
    * @param $url string of resource to download
    * @return array dictionary of header information and a stream to the contents of the URL
    */
-  public static function open_single_url($url, $additional_options = array(), $follow_redirects = TRUE) {
+  public static function open_single_url($url, $additional_options = array(), $follow_redirects = true) {
     $options = array(
-      CURLOPT_FAILONERROR => TRUE,      /* Don't ignore HTTP errors */
-      CURLOPT_FOLLOWLOCATION => FALSE,  /* Don't follow redirects */
+      CURLOPT_FAILONERROR => true,      /* Don't ignore HTTP errors */
+      CURLOPT_FOLLOWLOCATION => false,  /* Don't follow redirects */
       CURLOPT_CONNECTTIMEOUT => 5,      /* Connection timeout */
       CURLOPT_TIMEOUT => 10,            /* Timeout for any CURL function */
       CURLOPT_RETURNTRANSFER => 1,      /* Return the output as a string */
-      CURLOPT_HEADER => TRUE,           /* Return header information as part of the file */
+      CURLOPT_HEADER => true,           /* Return header information as part of the file */
       CURLOPT_USERAGENT => AmberNetworkUtils::get_user_agent_string(),
       CURLOPT_ENCODING => '',           /* Handle compressed data */
     );
@@ -229,7 +229,7 @@ class AmberNetworkUtils {
     try {
 
       $ch = curl_init($url);
-      if (curl_setopt_array($ch, $additional_options + $options) === FALSE) {
+      if (curl_setopt_array($ch, $additional_options + $options) === false) {
         throw new RuntimeException(join(":", array(__FILE__, __METHOD__, "Error setting CURL options", $url, curl_error($ch))));
       }
       $original_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
@@ -251,7 +251,7 @@ class AmberNetworkUtils {
           $last_slash = strrpos($original_url,"/",9); // Starting at position 9 starts search past http://
           if ($last_slash == (strlen($original_url) - 1)) {
             $newurl = $original_url . $newurl;
-          } else if ($last_slash === FALSE) {
+          } else if ($last_slash === false) {
             $newurl = join("/",array($original_url, $newurl));
           } else {
             $newurl = join("/",array(substr($original_url, 0, $last_slash), $newurl));
@@ -263,11 +263,11 @@ class AmberNetworkUtils {
     } catch (RuntimeException $e) {
       error_log($e->getMessage());
       curl_close($ch);
-      return FALSE;
+      return false;
     }
 
     if (!$max_redirects) {
-      return FALSE; // We ran out of redirects without getting a result
+      return false; // We ran out of redirects without getting a result
     } else {
       /* Split into header and body */
       $header_size = $response_info['header_size'];
@@ -303,7 +303,7 @@ class AmberNetworkUtils {
    */
   private static function get_head($body) {
     $head_size = stripos($body, "</head>");
-    if ($head_size === FALSE) {
+    if ($head_size === false) {
       $head = $body;
     } else {
       $head = substr($body,0,$head_size);
@@ -325,7 +325,7 @@ class AmberNetworkUtils {
     if (preg_match("/http-equiv\s*=\s*['\"]refresh['\"].*url\s*=\s*(.*)['\"]/i", $head, $matches)) {
       return $matches[1];
     } else {
-      return FALSE;
+      return false;
     }
   }
 
@@ -342,9 +342,9 @@ class AmberNetworkUtils {
   public static function find_meta_no_archive($body) {
     $head = AmberNetworkUtils::get_head($body);
     if (preg_match("/<meta\s+name\s*=\s*['\"](robots|amber)['\"].*content\s*=\s*['\"].*(noarchive|noindex).*['\"]/i", $head, $matches)) {
-      return TRUE;
+      return true;
     } else {
-      return FALSE;
+      return false;
     }
   }
 

@@ -41,9 +41,9 @@ class AmberMementoService implements iAmberMementoService {
 		/* Be forgiving of trailing slashes (or lack thereof) in server URL */
 		$query_url = implode("/",array(trim($this->serverUrl,"/"), $url));
 
-		$result = AmberNetworkUtils::open_single_url($query_url, $options, FALSE);
+		$result = AmberNetworkUtils::open_single_url($query_url, $options, false);
 
-		if (($result !== FALSE) && isset($result['headers']['Location'])) {
+		if (($result !== false) && isset($result['headers']['Location'])) {
 			$url = $result['headers']['Location'];			
 			return array(
 				'url' => $url,

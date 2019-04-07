@@ -29,7 +29,7 @@ class AmberTestLinkFiltering extends WP_UnitTestCase {
 		            'last_checked' => 1395590225,
 		            'next_check' => 1395590225 + 100000,
 		            'status' => 1,
-		            'message' => NULL,
+		            'message' => null,
           		)
 			);
 

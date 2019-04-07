@@ -13,7 +13,7 @@ class AmberChecker implements iAmberChecker {
    */
   public function up($url) {
 
-    $item = AmberNetworkUtils::open_url($url,  array(CURLOPT_FAILONERROR => FALSE));
+    $item = AmberNetworkUtils::open_url($url,  array(CURLOPT_FAILONERROR => false));
     if (isset($item['info']['http_code'])) {
       return ($item['info']['http_code'] == 200);
     } else {
@@ -53,15 +53,15 @@ class AmberChecker implements iAmberChecker {
     if (!AmberRobots::robots_allowed($url)) {
       /* If blocked by robots.txt, schedule next check for 6 months out */
       $next = $date->add(new DateInterval("P6M"))->getTimestamp();
-      $status = isset($last_check['status']) ? $last_check['status'] : NULL;
+      $status = isset($last_check['status']) ? $last_check['status'] : null;
       error_log(join(":", array(__FILE__, __METHOD__, "Blocked by robots.txt", $url)));
       $message = "Blocked by robots.txt";
     } else {
-      $fetch_result = AmberNetworkUtils::open_url($url,  array(CURLOPT_FAILONERROR => FALSE));
+      $fetch_result = AmberNetworkUtils::open_url($url,  array(CURLOPT_FAILONERROR => false));
       $status = $this->is_up($fetch_result);
-      $next = $this->next_check_date(isset($last_check['status']) ? $last_check['status'] : NULL,
-                                     isset($last_check['last_checked']) ? $last_check['last_checked'] : NULL,
-                                     isset($last_check['next_check']) ? $last_check['next_check'] : NULL,
+      $next = $this->next_check_date(isset($last_check['status']) ? $last_check['status'] : null,
+                                     isset($last_check['last_checked']) ? $last_check['last_checked'] : null,
+                                     isset($last_check['next_check']) ? $last_check['next_check'] : null,
                                      $status);
     }
 
@@ -71,9 +71,9 @@ class AmberChecker implements iAmberChecker {
             'url' => $url,
             'last_checked' => $now->getTimestamp(),
             'next_check' => $next,
-            'status' => isset($status) ? ($status ? 1 : 0) : NULL,
-            'message' => isset($message) ? $message : NULL,
-            'details' => isset($fetch_result) ? $fetch_result : NULL,
+            'status' => isset($status) ? ($status ? 1 : 0) : null,
+            'message' => isset($message) ? $message : null,
+            'details' => isset($fetch_result) ? $fetch_result : null,
           );
 
     return $result;
