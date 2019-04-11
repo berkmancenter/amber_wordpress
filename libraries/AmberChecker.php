@@ -54,7 +54,10 @@ class AmberChecker implements iAmberChecker {
       /* If blocked by robots.txt, schedule next check for 6 months out */
       $next = $date->add(new DateInterval("P6M"))->getTimestamp();
       $status = isset($last_check['status']) ? $last_check['status'] : NULL;
-      error_log(join(":", array(__FILE__, __METHOD__, "Blocked by robots.txt", $url)));
+      /*  Define `AMBER_LOG_ROBOTSTXT_ERRORS` as false to disable error logging */
+      if (!defined('AMBER_LOG_ROBOTSTXT_ERRORS') OR AMBER_LOG_ROBOTSTXT_ERRORS) {
+		    error_log(join(":", array(__FILE__, __METHOD__, "Blocked by robots.txt", $url)));
+	    }
       $message = "Blocked by robots.txt";
     } else {
       $fetch_result = AmberNetworkUtils::open_url($url,  array(CURLOPT_FAILONERROR => FALSE));
